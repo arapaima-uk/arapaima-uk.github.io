@@ -52,7 +52,7 @@
         <a class="sidebar-nav-item  active " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
       
     
-
+    <a class="sidebar-nav-item " href="/index.xml">RSS</a>
     
 
   </nav>
@@ -228,7 +228,7 @@ script<span style="color: #888888">:</span>
   <span style="color: #888888">-</span> hugo -v
 </pre></div>
 
-<p>This will download and install pygments and hugo, then call the <code>hugo</code> executable to build our site. Unfortunately the version of hugo fetched by <code>go get</code> turned out to be ahead of its time, and was unable to build this site. The solution turned out to be to download a specific version directly from Github and install it with dpkg</p>
+<p>This will download and install pygments and hugo, then call the <code>hugo</code> executable to build our site.</p>
 
 <p>Now, when you commit and push the repo with the <code>.travis.yml</code> file included, Travis will fetch our code and build our site. If this step isn&rsquo;t working, there&rsquo;s not much point continuing, so take a moment to ensure that everything is green. You will observe that Travis isn&rsquo;t all that fast; I got a car for free once and it wasn&rsquo;t all that fast either.</p>
 
@@ -243,13 +243,16 @@ script<span style="color: #888888">:</span>
 <pre><code>travis encrypt -r username/reponame GH_TOKEN=[the token you created before] --add
 </code></pre>
 
-<p>Finally we need a deploy script to copy the files from Travis back to the Github pages repo. The following script, in the root of the repo, does the following:
-  - Saves the hash at the head of the source repo to use in the commit message for the target
-  - Deletes the <code>.gitignore</code> file so that our content pages don&rsquo;t get ignored when we push to the new site (ask me how I figure this out&hellip;)
-  - Creates a <em>new</em> git repo to hook up to our target.
-  - Writes the CNAME file needed by GitHub pages to redirect our <code>.github.io</code> name to our &ldquo;real&rdquo; domain name. If this is currently pointing somewhere else at your DNS provider, your site will be hosed after you do this as your <code>github.io</code> name will redirect your &ldquo;real&rdquo; name, which is still pointing somewhere else! If you encounter problems here it&rsquo;s probably best to delete this line until everything is working again.
-  - Touches every file in the repo so they look &ldquo;new&rdquo;.
-  - Pushes the pages to our GH Pages Repo</p>
+<p>Finally we need a deploy script to copy the files from Travis back to the Github pages repo. The following script, in the root of the repo, does the following:</p>
+
+<ul>
+<li>Saves the hash at the head of the source repo to use in the commit message for the target</li>
+<li>Deletes the <code>.gitignore</code> file so that our content pages don&rsquo;t get ignored when we push to the new site (ask me how I figure this out&hellip;)</li>
+<li>Creates a <em>new</em> git repo to hook up to our target.</li>
+<li>Writes the CNAME file needed by GitHub pages to redirect our <code>.github.io</code> name to our &ldquo;real&rdquo; domain name. If this is currently pointing somewhere else at your DNS provider, your site will be hosed after you do this as your <code>github.io</code> name will redirect your &ldquo;real&rdquo; name, which is still pointing somewhere else! If you encounter problems here it&rsquo;s probably best to delete this line until everything is working again.</li>
+<li>Touches every file in the repo so they look &ldquo;new&rdquo;.</li>
+<li>Pushes the pages to our GH Pages Repo</li>
+</ul>
 <div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #287088; font-style: italic">#!/usr/bin/env bash</span>
 
 <span style="color: #b04040">rev</span><span style="color: #666666">=</span><span style="color: #2838b0">$(</span>git rev-parse --short HEAD<span style="color: #2838b0">)</span>
