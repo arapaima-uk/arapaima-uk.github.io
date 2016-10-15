@@ -87,9 +87,44 @@
   <h1 class="page-title">Building this Site</h1>
   
 
+<!-- TOC -->
+
+<ul>
+<li><a href="#overview">Overview</a>
+
+<ul>
+<li><a href="#github-setup">Github setup</a></li>
+<li><a href="#hugo">Hugo</a>
+
+<ul>
+<li><a href="#getting-hugo">Getting Hugo</a></li>
+<li><a href="#scaffolding-the-site">Scaffolding the site</a></li>
+<li><a href="#themes">Themes</a>
+
+<ul>
+<li><a href="#customising-the-theme">Customising the Theme</a></li>
+</ul></li>
+<li><a href="#static-pages">Static Pages</a></li>
+<li><a href="#a-first-post">A First Post</a></li>
+<li><a href="#syntax-highlighting">Syntax highlighting</a></li>
+</ul></li>
+<li><a href="#github">Github</a></li>
+<li><a href="#travis-ci">Travis CI</a>
+
+<ul>
+<li><a href="#build">Build</a></li>
+<li><a href="#deploy">Deploy</a></li>
+<li><a href="#dns-stuff">DNS stuff</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#profit">Profit!</a></li>
+</ul>
+
+<!-- /TOC -->
+
 <h1 id="overview">Overview</h1>
 
-<p>This blog is created using the <a href="http://gohugo.io/">Hugo</a> static site generator and hosted on <a href="https://pages.github.com/">GitHub Pages</a>. It is built and deployed with <a href="https://travis-ci.org/">Travis CI</a>, meaning that changes and additions are pushed to the public website as soon as they are committed. For now this is an <a href="http://dilbert.com/strip/2016-06-21">MVP</a>, I&rsquo;ll add more moving parts and update this page accordingly as time goes on. There are a couple of features right &ldquo;out of the box&rdquo; such as drafts and scheduled posts.</p>
+<p>This site is created using the <a href="http://gohugo.io/">Hugo</a> static site generator and hosted on <a href="https://pages.github.com/">GitHub Pages</a>. It is built and deployed with <a href="https://travis-ci.org/">Travis CI</a>, meaning that changes and additions are pushed to the public website as soon as they are committed. For now this is an <a href="http://dilbert.com/strip/2016-06-21">MVP</a>, I&rsquo;ll add more moving parts and update this page accordingly as time goes on. There are a couple of features right &ldquo;out of the box&rdquo; such as drafts and scheduled posts.</p>
 
 <h2 id="github-setup">Github setup</h2>
 
@@ -228,9 +263,9 @@ script<span style="color: #888888">:</span>
   <span style="color: #888888">-</span> hugo -v
 </pre></div>
 
-<p>This will download and install pygments and hugo, then call the <code>hugo</code> executable to build our site.</p>
+<p>This will download and install pygments and hugo, then call the <code>hugo</code> executable to build our site. One detail here is that I&rsquo;m fetching a specific version of hugo; I initially tried fetching the latest with <code>go get</code>, but this seemed to result in compatibility nightmares.</p>
 
-<p>Now, when you commit and push the repo with the <code>.travis.yml</code> file included, Travis will fetch our code and build our site. If this step isn&rsquo;t working, there&rsquo;s not much point continuing, so take a moment to ensure that everything is green. You will observe that Travis isn&rsquo;t all that fast; I got a car for free once and it wasn&rsquo;t all that fast either.</p>
+<p>Now, when we commit and push the repo with the <code>.travis.yml</code> file included, Travis will fetch our code and build our site. If this step isn&rsquo;t working, there&rsquo;s not much point continuing, so take a moment to ensure that everything is green. You will observe that Travis isn&rsquo;t all that fast; I got a car for free once and it wasn&rsquo;t all that fast either.</p>
 
 <h3 id="deploy">Deploy</h3>
 
@@ -281,7 +316,7 @@ git push -q upstream HEAD:master
 
 <p>If you&rsquo;re using a custom domain, now is a good time to log into your DNS provider and follow the steps <a href="https://help.github.com/articles/using-a-custom-domain-with-github-pages/">here</a>. It took a while for my ISP to get the change, clearly their DNS servers don&rsquo;t get up as early on a Saturday as I do.</p>
 
-<h2 id="profit">Profit!</h2>
+<h1 id="profit">Profit!</h1>
 
 <p>Having got to here, we definitely want to have one of those build status buttons in the sidebar of our site.</p>
 
