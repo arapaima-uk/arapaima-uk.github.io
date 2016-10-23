@@ -2,11 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Arapaima (UK) </title>
-    <link>http://arapaima.uk/index.xml</link>
+    <link>http://arapaima.uk/tags/refactoring-ssdt/index.xml</link>
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2016</rights>
-    <updated>2016-10-21 00:00:00 &#43;0000 UTC</updated>
+    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
 
     
       
@@ -37,22 +37,6 @@
 &lt;p&gt;This series does presuppose some experience with SSDT; an overview can be obtained from MSDN &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/hh272686(v=vs.103).aspx&#34;&gt;here&lt;/a&gt;, particularly the material relating to &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/hh272702(v=vs.103).aspx&#34;&gt;Project-Oriented Offline Database Development&lt;/a&gt;. In the event that I ever get around to writing any introductory material of my own I&amp;rsquo;ll come back and add links here as appropriate. Most of the examples use the &amp;ldquo;Chinook&amp;rdquo; sample database available from &lt;a href=&#34;https://chinookdatabase.codeplex.com/&#34;&gt;codeplex&lt;/a&gt;.&lt;/p&gt;
 </description>
         </item>
-      
-    
-      
-        <item>
-          <title>Verschlimmbesserung</title>
-          <link>http://arapaima.uk/post/2016-10-13-verschlimmbesserung/</link>
-          <pubDate>Thu, 13 Oct 2016 00:00:00 UTC</pubDate>
-          <author>Gavin Campbell</author>
-          <guid>http://arapaima.uk/post/2016-10-13-verschlimmbesserung/</guid>
-          <description>&lt;p&gt;Welcome to this, my new site. I&amp;rsquo;ll be adding content about Continuous Integration, database systems including but not limited to Microsoft® SQL Server and development tools including but not limited to Microsoft® Visual Studio. The site itself is provisioned in a moderately interesting way, which you can read about &lt;a href=&#34;http://arapaima.uk/fixed/BlogSetup/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-</description>
-        </item>
-      
-    
-      
-    
       
     
 
