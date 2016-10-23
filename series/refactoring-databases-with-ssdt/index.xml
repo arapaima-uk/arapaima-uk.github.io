@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Arapaima (UK) </title>
+    <link>http://arapaima.uk/series/refactoring-databases-with-ssdt/index.xml</link>
+    <language>en-us</language>
+    <author>Gavin Campbell</author>
+    <rights>(C) 2016</rights>
+    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+
+    
+      
+        <item>
+          <title>Refactoring Databases with SSDT</title>
+          <link>http://arapaima.uk/post/2016-10-21-database-refactoring-part-0/</link>
+          <pubDate>Fri, 21 Oct 2016 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2016-10-21-database-refactoring-part-0/</guid>
+          <description>&lt;p&gt;The book &lt;a href=&#34;http://www.pearsoned.co.uk/bookshop/detail.asp?WT.oss=refactoring%20databases&amp;amp;WT.oss_r=1&amp;amp;item=100000000444392&#34;&gt;Refactoring Databases&lt;/a&gt; by Scott Ambler and Pramod Sadalage, first published over ten years ago, has become something of a modern classic in the field of agile database delivery.  The authors give a definition (in fact taken from an &lt;a href=&#34;http://eu.wiley.com/WileyCDA/WileyTitle/productCd-0471202835.html&#34;&gt;earlier book&lt;/a&gt;) of a database refactoring as&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&amp;hellip;a simple change to a database schema that improves its design while retaining both its behavioral and informational semantics.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The book is divided into two sections, the first being a discission of agile database development techniques, placing database refactoring in a wider technical and organisational contect. This material, intended to be read in order,  is recommended reading for anyone struggling to improve the working practices associated with database delivery in any organisation, irrespective of the tools being used.&lt;/p&gt;
+
+&lt;p&gt;The second is a collection of named &amp;ldquo;refactorings&amp;rdquo; along with the steps required to implement each one, and is structured as a reference work than as a continuous narrative. There are online versions of this catalog maintained at the websites of &lt;a href=&#34;http://www.agiledata.org/essays/databaseRefactoringCatalog.html&#34;&gt;Scott Ambler&lt;/a&gt; and &lt;a href=&#34;http://databaserefactoring.com/&#34;&gt;Pramod Sadalage&lt;/a&gt; respectively.&lt;/p&gt;
+
+&lt;p&gt;This article marks the start of a series that examines a number of these named &amp;ldquo;refactorings&amp;rdquo; and looks at how they can be implemented using Microsoft® SQL Server and Microsoft® Visual Studio, in particular through the use of &lt;a href=&#34;https://blogs.msdn.microsoft.com/ssdt/&#34;&gt;SQL Server Data Tools&lt;/a&gt;, known as &amp;ldquo;SSDT&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;The code examples in the book use Oracle with bits of Java and Hibernate thrown in as appropriate, so the examples here will differ where the behaviour of SQL Server differs in some relevant way. In addition, the &amp;ldquo;&lt;a href=&#34;https://blogs.msdn.microsoft.com/gertd/2009/06/05/declarative-database-development&#34; title=&#34;The original DataDude article from way back&#34;&gt;declarative&lt;/a&gt;&amp;rdquo; development paradigm encouraged by SSDT hides a lot of the detail of the DDL behind the scenes, meaning that the steps outlined in the book to achieve each refactoring may not all occur in the same places.&lt;/p&gt;
+
+&lt;p&gt;That said, it is worth referring to the discussions of each individual refactoring contained in the book, since these provide a checklist of considerations before embarking on any change, including motivations, tradeoffs, schema update and data migration mechanics, and required application changes, most of which are outside the scope of SSDT. I will attempt to provide page numbers where appropriate, though I realise these are less useful for those with access to only an electronic copy of the book.&lt;/p&gt;
+
+&lt;p&gt;In general, the applicability of SSDT is restricted to managing schema changes, with a couple of extensibility points - namely &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/jj889461(v=vs.103).aspx&#34;&gt;Pre-deployment and Post-deployment scripts&lt;/a&gt; -  to manage data movements.&lt;/p&gt;
+
+&lt;p&gt;This series does presuppose some experience with SSDT; an overview can be obtained from MSDN &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/hh272686(v=vs.103).aspx&#34;&gt;here&lt;/a&gt;, particularly the material relating to &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/hh272702(v=vs.103).aspx&#34;&gt;Project-Oriented Offline Database Development&lt;/a&gt;. In the event that I ever get around to writing any introductory material of my own I&amp;rsquo;ll come back and add links here as appropriate. Most of the examples use the &amp;ldquo;Chinook&amp;rdquo; sample database available from &lt;a href=&#34;https://chinookdatabase.codeplex.com/&#34;&gt;codeplex&lt;/a&gt;.&lt;/p&gt;
+</description>
+        </item>
+      
+    
+
+  </channel>
+</rss>
