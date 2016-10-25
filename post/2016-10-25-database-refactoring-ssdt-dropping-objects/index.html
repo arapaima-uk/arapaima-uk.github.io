@@ -2,7 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 
   <head>
-	<meta name="generator" content="Hugo 0.17" />
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
@@ -11,7 +10,7 @@
 
   <title>
     
-      arapaima.uk &middot; Data, Databases, Delivery
+      Database Pruning &middot; arapaima.uk
     
   </title>
 
@@ -42,7 +41,7 @@
   </div>
 
   <nav class="sidebar-nav">
-    <a class="sidebar-nav-item  active " href="/">Home</a>
+    <a class="sidebar-nav-item " href="/">Home</a>
     <a class="sidebar-nav-item " href="/post">Posts</a>
 
     
@@ -92,15 +91,10 @@
       <div class="container content">
 
 
-
-
-
-<div class="posts">
+<div class="post">
+  <h1 class="post-title">Database Pruning</h1>
+  <span class="post-date">2016-10-25</span>
   
-    <div class="post">
-        <h1 class="post-title"><a href="http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/">Database Pruning</a></h1>
-        <span class="post-date">2016-10-25</span>
-        
 
 <p>After a period of time in use, most databases, like many systems that have grown in an organic matter, can benefit from some judicious pruning. This can take the form of removing columns or even tables no longer required to support the application, or that store redundant - and hence possibly erroneous - copies of information stored elsewhere. Equally there may be stored procedures, functions, and even triggers that contain out-of-date versions of application logic.</p>
 
@@ -185,52 +179,23 @@ IF EXISTS (SELECT TOP 1 1
 </ol>
 </div>
 
-    </div>
-  
-    <div class="post">
-        <h1 class="post-title"><a href="http://arapaima.uk/post/2016-10-21-database-refactoring-part-0/">Refactoring Databases with SSDT</a></h1>
-        <span class="post-date">2016-10-21</span>
-        <p>The book <a href="http://www.pearsoned.co.uk/bookshop/detail.asp?WT.oss=refactoring%20databases&amp;WT.oss_r=1&amp;item=100000000444392">Refactoring Databases</a> by Scott Ambler and Pramod Sadalage, first published over ten years ago, has become something of a modern classic in the field of agile database delivery. The authors give a definition (in fact taken from an <a href="http://eu.wiley.com/WileyCDA/WileyTitle/productCd-0471202835.html">earlier book</a>) of a database refactoring as</p>
-
-<blockquote>
-<p>&hellip;a simple change to a database schema that improves its design while retaining both its behavioral and informational semantics.</p>
-</blockquote>
-
-<p>The book is divided into two sections, the first being a discussion of agile database development techniques, placing database refactoring in a wider technical and organisational contect. This material, intended to be read in order, is recommended reading for anyone struggling to improve the working practices associated with database delivery in any organisation, irrespective of the tools being used.</p>
-
-<p>The second is a collection of named &ldquo;refactorings&rdquo; along with the steps required to implement each one, and is structured as a reference work rather than as a continuous narrative. There are online versions of this catalog maintained at the websites of <a href="http://www.agiledata.org/essays/databaseRefactoringCatalog.html">Scott Ambler</a> and <a href="http://databaserefactoring.com/">Pramod Sadalage</a> respectively.</p>
-
-<p>This article marks the start of a series that examines a number of these named &ldquo;refactorings&rdquo; and looks at how they can be implemented using Microsoft® SQL Server and Microsoft® Visual Studio, in particular through the use of <a href="https://blogs.msdn.microsoft.com/ssdt/">SQL Server Data Tools</a>, known as &ldquo;SSDT&rdquo;.</p>
-
-<p>The code examples in the book use Oracle with bits of Java and Hibernate thrown in as appropriate, so the examples here will differ where the behaviour of SQL Server differs in some relevant way. In addition, the &ldquo;<a href="https://blogs.msdn.microsoft.com/gertd/2009/06/05/declarative-database-development" title="The original DataDude article from way back">declarative</a>&rdquo; development paradigm encouraged by SSDT hides a lot of the detail of the DDL behind the scenes, meaning that the steps outlined in the book to achieve each refactoring may not all occur in the same places.</p>
-
-<p>That said, it is worth referring to the discussions of each individual refactoring contained in the book, since these provide a checklist of considerations before embarking on any change, including motivations, tradeoffs, schema update and data migration mechanics, and required application changes, most of which are outside the scope of SSDT. I will attempt to provide page numbers where appropriate, though I realise these are less useful for those with access to only an electronic copy of the book.</p>
-
-<p>In general, the applicability of SSDT is restricted to managing schema changes, with a couple of extensibility points - namely <a href="https://msdn.microsoft.com/en-us/library/jj889461(v=vs.103).aspx">Pre-deployment and Post-deployment scripts</a> -  to manage data movements.</p>
-
-<p>This series does presuppose some experience with SSDT; an overview can be obtained from MSDN <a href="https://msdn.microsoft.com/en-us/library/hh272686(v=vs.103).aspx">here</a>, particularly the material relating to <a href="https://msdn.microsoft.com/en-us/library/hh272702(v=vs.103).aspx">Project-Oriented Offline Database Development</a>. In the event that I ever get around to writing any introductory material of my own I&rsquo;ll come back and add links here as appropriate. Most of the examples use the &ldquo;Chinook&rdquo; sample database available from <a href="https://chinookdatabase.codeplex.com/">codeplex</a>.</p>
-
-    </div>
-  
-    <div class="post">
-        <h1 class="post-title"><a href="http://arapaima.uk/post/2016-10-13-verschlimmbesserung/">Verschlimmbesserung</a></h1>
-        <span class="post-date">2016-10-13</span>
-        <p>Welcome to this, my new site. I&rsquo;ll be adding content about Continuous Integration, database systems including but not limited to Microsoft® SQL Server and development tools including but not limited to Microsoft® Visual Studio. The site itself is provisioned in a moderately interesting way, which you can read about <a href="/fixed/BlogSetup/">here</a>.</p>
-
-    </div>
-  
 </div>
+<div id='discourse-comments'></div>
 
-<div class="pagination">
-  
-  <span class="pagination-item older">Older</span>
-  
+<script type="text/javascript">
+  DiscourseEmbed = { discourseUrl: 'http://discourse.arapaima.uk/',
+                     discourseEmbedUrl: 'http:\/\/arapaima.uk\/post\/2016-10-25-database-refactoring-ssdt-dropping-objects\/' };
 
-  
-  <span class="pagination-item newer">Newer</span>
-  
-</div>
+  (function() {
 
+     if (window.location.hostname == "localhost")
+       return;
+
+    var d = document.createElement('script'); d.type = 'text/javascript'; d.async = true;
+    d.src = DiscourseEmbed.discourseUrl + 'javascripts/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(d);
+  })();
+</script>
       </div>
     </div>
 

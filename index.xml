@@ -6,8 +6,103 @@
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2016</rights>
-    <updated>2016-10-21 00:00:00 &#43;0000 UTC</updated>
+    <updated>2016-10-25 00:00:00 &#43;0000 UTC</updated>
 
+    
+      
+        <item>
+          <title>Database Pruning</title>
+          <link>http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/</link>
+          <pubDate>Tue, 25 Oct 2016 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/</guid>
+          <description>
+
+&lt;p&gt;After a period of time in use, most databases, like many systems that have grown in an organic matter, can benefit from some judicious pruning. This can take the form of removing columns or even tables no longer required to support the application, or that store redundant - and hence possibly erroneous - copies of information stored elsewhere. Equally there may be stored procedures, functions, and even triggers that contain out-of-date versions of application logic.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://upload.wikimedia.org/wikipedia/commons/7/70/The_gardener%27s_assistant%3B_a_practical_and_scientific_exposition_of_the_art_of_gardening_in_all_its_branches_%281910%29_%2814761716416%29.jpg&#34; alt=&#34;The gardener&#39;s assistant; a practical and scientific exposition of the art of gardening in all its branches (1910) (14761716416).jpg&#34; title=&#34;[By Internet Archive Book Images [No restrictions], via Wikimedia Commons]&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;dropping-a-column&#34;&gt;Dropping a column&lt;/h2&gt;
+
+&lt;p&gt;Since SSDT operates in a declarative manner, each table is defined in a &lt;code&gt;CREATE TABLE&lt;/code&gt; script, and deleting a column is as simple as deleting the relevant line from the script. However, there are a couple of features of SSDT that are relevant here. If the column is referenced by any other database objects such as views, functions, or stored procedures, SSDT will display an error:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/DropColumnReferencedByProcedure.PNG&#34; alt=&#34;SSDT Broken Reference Error&#34; title=&#34;SSDT Broken Reference Error&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The full text of the error message reads &lt;code&gt;SQL71501: Procedure [dbo.UpdateInvoiceBillingAddress] has an unresolved reference to object [dbo].[Invoice].[BillingPostalCode]&lt;/code&gt;, and the offending reference in the stored procedure&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; has acquired a &amp;ldquo;red squiggly&amp;rdquo;. There&amp;rsquo;s no &amp;ldquo;builtin&amp;rdquo; refactoring action defined in the right-click context menu for deletions, presumably as it&amp;rsquo;s difficult to programmatically determine the &amp;ldquo;intent&amp;rdquo; of a deleting a column.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/Refactoring+Menu.PNG&#34; alt=&#34;Refactoring Context Menu&#34; title=&#34;Refactoring Context Menu&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;What is possible, however, is to use the &amp;ldquo;find all references&amp;rdquo; tool &lt;em&gt;before&lt;/em&gt; deleting the column to enable us to take appropriate action.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/findAllReferences.PNG&#34; alt=&#34;Find All References&#34; title=&#34;Find All References&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;dropping-a-table&#34;&gt;Dropping a table&lt;/h2&gt;
+
+&lt;p&gt;This is where things get more serious. The same technique of using the &amp;ldquo;Find All References&amp;rdquo; tool to assess the damage we&amp;rsquo;re about to do applies here, but there is a subtle difference in what happens when we actually brandish the pruning shears. It turns out that removing an entire table referenced by a stored procedure is only worthy of a warning or five rather than an error. This is due to an oddity of &lt;a href=&#34;https://technet.microsoft.com/en-us/library/ms190686.aspx&#34;&gt;deferred name resolution&lt;/a&gt; for stored procedures, namely that it is permitted to reference a non-existent table in the text of a stored procedure, but not permitted to reference a non-existent column in a table that &lt;em&gt;does&lt;/em&gt; exist.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/RemovingATableIsOnlyAWarning.PNG&#34; alt=&#34;Removing a table is only a warning&#34; title=&#34;Removing a table is only a warning&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Interestingly, if we convert our stored procedure to a user-defined function &lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:2&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:2&#34;&gt;2&lt;/a&gt;&lt;/sup&gt; the warnings turn into errors. It turns out deferred name resolution doesn&amp;rsquo;t work at all for functions, presumably as being &amp;ldquo;purely functional&amp;rdquo; and not side-effecting it is less likely that there will be objects that exist at runtime but not at creation time.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/FunctionsDontSupportDeferredNameResolution.PNG&#34; alt=&#34;Functions don&#39;t support deferred name resolution&#34; title=&#34;Functions don&#39;t support deferred name resolution&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;dropping-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules-https-msdn-microsoft-com-en-us-library-ms175081-aspx&#34;&gt;Dropping Programmable Objects (Views, Functions, Stored Procedures, other miscellany in &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/ms175081.aspx&#34;&gt;&lt;code&gt;sys.sql_modules&lt;/code&gt;&lt;/a&gt;)&lt;/h2&gt;
+
+&lt;p&gt;On the face of it this is simpler, as there is no data being thrown out with the bathwater.&lt;/p&gt;
+
+&lt;h3 id=&#34;dropping-triggers&#34;&gt;Dropping Triggers&lt;/h3&gt;
+
+&lt;p&gt;You should do this without hesitation. It&amp;rsquo;s 2016.&lt;/p&gt;
+
+&lt;h3 id=&#34;dropping-views-and-functions&#34;&gt;Dropping views and functions&lt;/h3&gt;
+
+&lt;p&gt;Generally, this is unproblematic. Since these don&amp;rsquo;t support deferred name resolution, you can get error checking in SSDT.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/NameCheckingInViews.PNG&#34; alt=&#34;Name checking in views&#34; title=&#34;Name checking in views&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;pulling-the-trigger-3&#34;&gt;Pulling the trigger&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:3&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:3&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;&lt;/h2&gt;
+
+&lt;p&gt;There&amp;rsquo;s one more thing to consider, which is what happens when we come to deploy our changes. Whether we do this by publishing from Visual Studio or at the command line using &lt;code&gt;sqlpackage.exe&lt;/code&gt;, if we are dropping a table or a column that contains data we will get an error along the lines of&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(48,1): SQL72014: .Net SqlClient Data Provider: Msg 50000, Level 16, State 127, Line 6 Rows were detected. The schema update is terminating because data loss might occur.
+(43,0): SQL72045: Script execution error.  The executed script:
+IF EXISTS (SELECT TOP 1 1
+           FROM   [dbo].[PlaylistTrack])
+    RAISERROR (N&#39;Rows were detected. The schema update is terminating because data loss might occur.&#39;, 16, 127)
+        WITH NOWAIT;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;IF EXISTS&lt;/code&gt; check gets inserted into the deployment script for every table, and every table containing a column, that is being dropped. It is worth noting that since the check is for &lt;code&gt;EXISTS (SELECT TOP 1 1)&lt;/code&gt;, this check will fail and the deployment will be blocked even if we are dropping a column that only contains &lt;code&gt;NULL&lt;/code&gt; values - I have found this to be mildly irritating in the past, particularly for &amp;ldquo;inadvertently&amp;rdquo; created columns.&lt;/p&gt;
+
+&lt;p&gt;To inhibit this behaviour and allow our potentially destructive change to proceed, we need to specify this at deploy time, the mechanism for which depends on the method we are using to deploy our project.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;For projects deployed using the Visual Studio &amp;ldquo;Publish&amp;rdquo; dialog, uncheck &amp;ldquo;Block Incremental Deployment if Data Loss might Occur&amp;rdquo; in the &amp;ldquo;Advanced Publish Settings&amp;rdquo; dialog available by clicking &amp;ldquo;Advanced&amp;rdquo; in the &amp;ldquo;Publish&amp;rdquo; dialog.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;For projects deployed using &lt;code&gt;sqlpackage.exe&lt;/code&gt;, we need to specify the parameter &lt;code&gt;/p:BlockOnPossibleDataLoss=False&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;For projects that use a publish profile to specify deployment options, we need to add the element &lt;code&gt;&amp;lt;BlockOnPossibleDataLoss&amp;gt;False&amp;lt;/BlockOnPossibleDataLoss&amp;gt;&lt;/code&gt; to the &lt;code&gt;.publish.xml&lt;/code&gt; file.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In each case, the default is &amp;ldquo;true&amp;rdquo;, meaning potentially destructive changes are blocked by default. This is for the benefit of those &amp;ldquo;enterprise&amp;rdquo; customers that deploy direct to production with no testing - remember that these people aren&amp;rsquo;t our problem but they are the SSDT development team&amp;rsquo;s problem, since they are paying to keep the lights on at SSDT HQ!&lt;/p&gt;
+
+&lt;p&gt;In general, this should always be set to false, meaning &amp;ldquo;allow potentially destructive changes&amp;rdquo;. This is unproblematic as long as production isn&amp;rsquo;t the &lt;em&gt;first&lt;/em&gt; environment where you deploy your changes.&lt;/p&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+
+&lt;hr /&gt;
+
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;This procedure isn&amp;rsquo;t in the original Chinook database, I added it for the purpose of this example.
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;which it should have been in the first place, as it doesn&amp;rsquo;t modify any data!
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:2&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34;&gt;No, not that kind of trigger, this refers to the metaphorical kind.
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:3&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
+        </item>
+      
     
       
         <item>
