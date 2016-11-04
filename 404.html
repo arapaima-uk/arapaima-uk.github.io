@@ -33,6 +33,9 @@
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
   (function() {
+  if (window.location.hostname == "localhost")
+       return;
+
     var u="//arapaima-piwik.azurewebsites.net/";
     _paq.push(['setTrackerUrl', u+'piwik.php']);
     _paq.push(['setSiteId', '1']);
