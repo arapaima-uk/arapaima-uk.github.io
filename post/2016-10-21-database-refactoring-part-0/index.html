@@ -74,6 +74,8 @@
       
     
       
+    
+      
         <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
       
     
@@ -127,13 +129,13 @@
 
 <p>This article marks the start of a series that examines a number of these named &ldquo;refactorings&rdquo; and looks at how they can be implemented using Microsoft® SQL Server and Microsoft® Visual Studio, in particular through the use of <a href="https://blogs.msdn.microsoft.com/ssdt/">SQL Server Data Tools</a>, known as &ldquo;SSDT&rdquo;.</p>
 
-<p>The code examples in the book use Oracle with bits of Java and Hibernate thrown in as appropriate, so the examples here will differ where the behaviour of SQL Server differs in some relevant way. In addition, the &ldquo;<a href="https://blogs.msdn.microsoft.com/gertd/2009/06/05/declarative-database-development" title="The original DataDude article from way back">declarative</a>&rdquo; development paradigm encouraged by SSDT hides a lot of the detail of the DDL behind the scenes, meaning that the steps outlined in the book to achieve each refactoring may not all occur in the same places.</p>
+<p>The code examples in the book use Oracle with bits of Java and Hibernate thrown in as appropriate, so the procedures here will differ where the behaviour of SQL Server differs in some relevant way. In addition, the &ldquo;<a href="https://blogs.msdn.microsoft.com/gertd/2009/06/05/declarative-database-development" title="The original DataDude article from way back">declarative</a>&rdquo; development paradigm encouraged by SSDT hides a lot of the detail of the DDL behind the scenes, meaning that the steps outlined in the book to achieve each refactoring may not all occur in the same places.</p>
 
 <p>That said, it is worth referring to the discussions of each individual refactoring contained in the book, since these provide a checklist of considerations before embarking on any change, including motivations, tradeoffs, schema update and data migration mechanics, and required application changes, most of which are outside the scope of SSDT. I will attempt to provide page numbers where appropriate, though I realise these are less useful for those with access to only an electronic copy of the book.</p>
 
 <p>In general, the applicability of SSDT is restricted to managing schema changes, with a couple of extensibility points - namely <a href="https://msdn.microsoft.com/en-us/library/jj889461(v=vs.103).aspx">Pre-deployment and Post-deployment scripts</a> -  to manage data movements.</p>
 
-<p>This series does presuppose some experience with SSDT; an overview can be obtained from MSDN <a href="https://msdn.microsoft.com/en-us/library/hh272686(v=vs.103).aspx">here</a>, particularly the material relating to <a href="https://msdn.microsoft.com/en-us/library/hh272702(v=vs.103).aspx">Project-Oriented Offline Database Development</a>. In the event that I ever get around to writing any introductory material of my own I&rsquo;ll come back and add links here as appropriate. Most of the examples use the &ldquo;Chinook&rdquo; sample database available from <a href="https://chinookdatabase.codeplex.com/">codeplex</a>.</p>
+<p>This series does presuppose some experience with SSDT; an overview can be obtained from MSDN <a href="https://msdn.microsoft.com/en-us/library/hh272686(v=vs.103).aspx">here</a>, particularly the material relating to <a href="https://msdn.microsoft.com/en-us/library/hh272702(v=vs.103).aspx">Project-Oriented Offline Database Development</a>. In the event that I ever get around to writing any introductory material of my own I&rsquo;ll come back and add links here as appropriate. Most of the examples use the &ldquo;Chinook&rdquo; sample database available from <a href="https://chinookdatabase.codeplex.com/">codeplex</a>. The SSDT project I am using is on <a href="https://github.com/arapaima-uk/Refactoring.Chinook" title="Link to the Refactoring.Chinook repo">Github</a>, but note that I&rsquo;ve made no attempt to make the commits sync with the articles in the series, and there are no guarantees, express or implied, that any given commit will actually be buildable.</p>
 
   
     
@@ -145,6 +147,9 @@
     
     
     <ul class="series">
+    
+    	<li>Nov 12, 2016 -
+    	<a href="http://arapaima.uk/post/2016-11-12-database-refactoring-ssdt-renaming-objects/">What&#39;s in a name?</a></li>
     
     	<li>Oct 25, 2016 -
     	<a href="http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/">Database Pruning</a></li>

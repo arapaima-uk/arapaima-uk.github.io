@@ -6,8 +6,333 @@
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2016</rights>
-    <updated>2016-10-25 00:00:00 &#43;0000 UTC</updated>
+    <updated>2016-11-12 00:00:00 &#43;0000 UTC</updated>
 
+    
+      
+        <item>
+          <title>What&#39;s in a name?</title>
+          <link>http://arapaima.uk/post/2016-11-12-database-refactoring-ssdt-renaming-objects/</link>
+          <pubDate>Sat, 12 Nov 2016 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2016-11-12-database-refactoring-ssdt-renaming-objects/</guid>
+          <description>
+
+&lt;p&gt;Continuing our horticultural theme, in this article we&amp;rsquo;ll look at the built-in support in SSDT for renaming database objects including tables, columns, and programmable objects, as well as peering into the details of how these changes are managed at deployment time.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://upload.wikimedia.org/wikipedia/commons/6/66/Rosa_laxa.jpg&#34; alt=&#34;That which we call a rose. By any other name would smell as sweet&#34; title=&#34;That which we call a rose. By any other name would smell as sweet&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;renaming-columns&#34;&gt;Renaming columns&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Refactoring Databases, p 109&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;the-easy-way&#34;&gt;The easy way&lt;/h3&gt;
+
+&lt;p&gt;We can rename a column just by right-clicking in the &lt;code&gt;CREATE TABLE&lt;/code&gt; script and selecting Refactor &amp;rarr; Rename.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/RefactorRenameSelected.PNG&#34; alt=&#34;Renaming the InvoiceId Column by right-clicking in the editor window&#34; title=&#34;Renaming the InvoiceId Column by right-clicking in the editor window&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Under normal circumstances, renaming the Primary Key column of a table such as &amp;ldquo;Invoices&amp;rdquo; would be a recipe for disaster, but SSDT can help to ease such changes by automatically updating all references to the column to use the new name. In this case we are renaming the column InvoiceId to Invoice_Id, and by specifying the option to preview the changes, we can see a list of all the objects that reference this column by its old name.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/rename%20column%20preview.PNG&#34; alt=&#34;SSDT shows a preview of which objects will be updated to refer to the new name&#34; title=&#34;SSDT shows a preview of which objects will be updated to refer to the new name&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s something of note here, which is that &lt;em&gt;only&lt;/em&gt; the InvoiceId column from the Invoices table is being renamed, any other columns called InvoiceId (such as the one in the InvoiceLine table) are unaffected. The foreign key constraint on that particular column, however, &lt;em&gt;is&lt;/em&gt; updated to use the new name of the referenced column.&lt;/p&gt;
+
+&lt;p&gt;What this demonstrates is that there is something more than global search and replace going on here; SSDT is using its in-memory model of the database to determine which changes need to be made&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-refactorlog&#34;&gt;The refactorlog&lt;/h3&gt;
+
+&lt;p&gt;When we click apply, two things happen. The first is that all the references to this column are updated to use the new name. The second is that a new file appears in the solution, with the extension &lt;code&gt;.refactorlog&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;utf-8&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Operations&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Version=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;1.0&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;xmlns=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Operation&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Rename Refactor&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Key=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;209f3afd-7195-401f-853f-aa3a906d39db&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;ChangeDateTime=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;11/08/2016 20:02:31&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ElementName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[dbo].[Invoice].[InvoiceId]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ElementType&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;SqlSimpleColumn&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ParentElementName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[dbo].[Invoice]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ParentElementType&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;SqlTable&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;NewName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[Invoice_Id]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;/Operation&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;/Operations&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This file is how &lt;code&gt;sqlpackage.exe&lt;/code&gt; (or SSDT publish, or DacFX.Deploy) will detemine &lt;em&gt;at deploy time&lt;/em&gt; that we are renaming this column from InvoiceID to Invoice_Id rather than dropping the InvoiceID column and creating a new column called Invoice_ID. We can see in the XML that this is specifying the column and table name, and the precise action to perform. This is known, in the jargon, as &amp;ldquo;preserving the intent&amp;rdquo; of the refactoring. If we build a project containing a &lt;code&gt;.refactorlog&lt;/code&gt; file and examine the resulting &lt;code&gt;.dacpac&lt;/code&gt;, we can see that the regular &lt;code&gt;.dacpac&lt;/code&gt; contents have been joined by a &lt;code&gt;refactor.xml&lt;/code&gt; file.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;$ unzip -l Refactoring.Chinook.dacpac
+Archive:  Refactoring.Chinook.dacpac
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+    69711  2016-11-10 05:44   model.xml
+      606  2016-11-10 05:44   refactor.xml
+      203  2016-11-10 05:44   DacMetadata.xml
+     1118  2016-11-10 05:44   Origin.xml
+      175  2016-11-10 05:44   [Content_Types].xml
+---------                     -------
+    71813                     5 files
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The contents of this file are the same as the &lt;code&gt;.refactorlog&lt;/code&gt; file from our solution.&lt;/p&gt;
+
+&lt;p&gt;When we publish the project we see the following output:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;The following operation was generated from a refactoring log file 209f3afd-7195-401f-853f-aa3a906d39db
+&lt;span style=&#34;color: #2838b0&#34;&gt;Rename&lt;/span&gt; [dbo].[Invoice].[InvoiceId] to Invoice_Id
+Caution: Changing any part of an object name could break scripts and stored procedures.
+
+Altering [dbo].[InvoicesWithLineTotals]...
+Altering [dbo].[UpdateInvoiceBillingAddress]...
+Update complete.
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The publish action has read the &lt;code&gt;refactorlog&lt;/code&gt; file and taken the appropriate action. In addition, the &amp;ldquo;key&amp;rdquo; for this refactoring has been stored in a new table in our database called &lt;code&gt;dbo._RefactorLog&lt;/code&gt;, which gets created the first time we deploy a dacpac containing a &lt;code&gt;refactor.xml&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;-- Refactoring step to update target server with deployed transaction logs&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;IF&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NOT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;EXISTS&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;SELECT&lt;/span&gt; OperationKey &lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;__RefactorLog&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;WHERE&lt;/span&gt; OperationKey &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;209f3afd-7195-401f-853f-aa3a906d39db&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;INSERT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;INTO&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;__RefactorLog&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;OperationKey&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;values&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;209f3afd-7195-401f-853f-aa3a906d39db&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;On subsequent deployments, this table is read and any refactorings recorded here are skipped from the deployment.&lt;/p&gt;
+
+&lt;h3 id=&#34;appearances-can-be-deceptive&#34;&gt;Appearances can be deceptive&lt;/h3&gt;
+
+&lt;p&gt;There&amp;rsquo;s another UI wrinkle here which is worth examining, so we will rename another column, this time using the table designer.&lt;/p&gt;
+
+&lt;p&gt;Another entry has been added to the &lt;code&gt;refactorlog&lt;/code&gt; file, and it appears as if the references to this column elsewhere in the model have been updated (note the red tick showing that &lt;code&gt;PlaylistTrack.sql&lt;/code&gt; and &lt;code&gt;InvoiceLine.sql&lt;/code&gt; have been modified.)
+&lt;img src=&#34;http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/Renaming%20a%20Column%20in%20the%20table%20designer.PNG&#34; alt=&#34;Renaming a column using the table designer&#34; title=&#34;Renaming a column using the table designer&#34; /&gt;
+However, when we go to build the project, we get an error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;SQL71501: Procedure: [dbo].[ChangeTrackPriceByFactor] has an unresolved reference to object [dbo].[Track].[TrackId].	
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(Alternatively, the error will appear in the SSDT UI as soon as the Intellisense catches up). There was a stored procedure referencing this column by name, which is now causing the build to fail (remember that &lt;a href=&#34;http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#dropping-a-table&#34;&gt;deferred name resolution works for table names but not for column names&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This is because of a detail of how foreign keys - and primary keys, for that matter - are maintained by SQL Server itself. If we look at the contents of &lt;code&gt;sys.foreign_key_columns&lt;/code&gt;, there isn&amp;rsquo;t a column name in sight (&lt;code&gt;sys.index_columns&lt;/code&gt; looks much the same):&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;constraint_ object_id&lt;/th&gt;
+&lt;th&gt;constraint_ column_id&lt;/th&gt;
+&lt;th&gt;parent_ object_id&lt;/th&gt;
+&lt;th&gt;parent_ column_id&lt;/th&gt;
+&lt;th&gt;referenced_ object_id&lt;/th&gt;
+&lt;th&gt;referenced_ column_id&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;1045578763&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;885578193&lt;/td&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;565577053&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;917578307&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;565577053&lt;/td&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;597577167&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;965578478&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;725577623&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;629577281&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;933578364&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;629577281&lt;/td&gt;
+&lt;td&gt;13&lt;/td&gt;
+&lt;td&gt;661577395&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;If we fix the reference in our stored procedure and go on to generate a publish script, all we see for this change is&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;PRINT N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;The following operation was generated from a refactoring log file 8a905288-76de-4cc4-aad9-c6dddf081a17&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+
+PRINT N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;Rename [dbo].[Track].[TrackId] to Track_Id&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;EXECUTE&lt;/span&gt; sp_rename &lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;objname &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;[dbo].[Track].[TrackId]&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;newname &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;Track_Id&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;objtype &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;COLUMN&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+PRINT N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;Altering [dbo].[ChangeTrackPriceByFactor]...&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;ALTER&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;PROCEDURE&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;ChangeTrackPriceByFactor&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt;
+	&lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;TrackID &lt;span style=&#34;color: #388038&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+	&lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;Factor &lt;span style=&#34;color: #388038&#34;&gt;NUMERIC&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #444444&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;AS&lt;/span&gt;
+	&lt;span style=&#34;color: #2838b0&#34;&gt;UPDATE&lt;/span&gt; Track &lt;span style=&#34;color: #2838b0&#34;&gt;SET&lt;/span&gt; UnitPrice &lt;span style=&#34;color: #666666&#34;&gt;*=&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;Factor &lt;span style=&#34;color: #2838b0&#34;&gt;WHERE&lt;/span&gt; Track_Id &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;TrackID&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;RETURN&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;0&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;-- Refactoring step to update target server with deployed transaction logs&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;IF&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NOT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;EXISTS&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;SELECT&lt;/span&gt; OperationKey &lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;__RefactorLog&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;WHERE&lt;/span&gt; OperationKey &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;8a905288-76de-4cc4-aad9-c6dddf081a17&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;INSERT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;INTO&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;__RefactorLog&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;OperationKey&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;values&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;8a905288-76de-4cc4-aad9-c6dddf081a17&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;code&gt;refactorlog&lt;/code&gt; is updated to include this change, but there are no changes deployed to any of the tables that referenced the &lt;code&gt;TrackId&lt;/code&gt; column via foreign keys. This is because foreign keys - as noted above - don&amp;rsquo;t &lt;em&gt;really&lt;/em&gt; use column names, they use object and column ids, so it is sufficient to rename the referenced column with &lt;code&gt;sp_rename&lt;/code&gt;. Stored Procedures, triggers, and other programmable objects, however, &lt;em&gt;do&lt;/em&gt; reference columns and tables by name - in &lt;code&gt;sys.sql_modules&lt;/code&gt; - so these references aren&amp;rsquo;t updated automatically.&lt;/p&gt;
+
+&lt;p&gt;However, SSDT itself takes into consideration that when we rename a column referenced by a foreign (or primary) key, the definition required to create the constraint from scratch will need to be updated, which is why the files containing the referencing tables are all updated.&lt;/p&gt;
+
+&lt;p&gt;This behaviour may seem inconsistent, but it is in fact consistent with the &lt;a href=&#34;https://msdn.microsoft.com/en-gb/library/ms188351.aspx#Anchor_3&#34; title=&#34;MSDN documentation for sp_rename&#34;&gt;behaviour of &lt;code&gt;sp_rename&lt;/code&gt; itself&lt;/a&gt;, which is to say that constraints and indexes aren&amp;rsquo;t broken by &lt;code&gt;sp_rename&lt;/code&gt;, but stored procedures, triggers, etc. are.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-wrong-way&#34;&gt;The wrong way&lt;/h3&gt;
+
+&lt;p&gt;In contrast, renaming a column by editing the Transact-SQL file directly delivers the promised disaster, as SSDT will attempt to drop the column with the old name and create a new column with the new name.&lt;/p&gt;
+
+&lt;p&gt;In the best-case scenario we get a validation error that stops the project from building, assuming the renamed column is referenced by some other object in the project.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/renaming%20a%20key%20column%20in%20the%20sql%20file.PNG&#34; alt=&#34;Renaming a column by editing the .sql file&#34; title=&#34;Renaming a column by editing the .sql file]&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In all other scenarios, the script executed at deploy time is as follows:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;PRINT N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;Altering [dbo].[Genre]...&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;ALTER&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;Genre&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;DROP&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;COLUMN&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;Name&lt;span style=&#34;color: #888888&#34;&gt;];&lt;/span&gt;
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;ALTER&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;Genre&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;ADD&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;GenreName&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; NVARCHAR &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #444444&#34;&gt;120&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NULL&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The only safety net left at this point is the &lt;a href=&#34;http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#pulling-the-trigger-3&#34;&gt;BlockOnPossibleDataLoss&lt;/a&gt; deploy-time option, which is enabled by default. This will stop the deployment from proceeding.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Msg 50000, Level 16, State 127, Line 48
+Rows were detected. The schema update is terminating because data loss might occur.
+** An error was encountered during execution of batch. Exiting.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;renaming-tables&#34;&gt;Renaming tables&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Refactoring Databases, p 113&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;There are two options in the refactoring context menu that are relevant to naming tables; &amp;ldquo;Rename&amp;rdquo; and &amp;ldquo;Move to Schema&amp;rdquo;. In some RDBMSs, notably &lt;a href=&#34;https://docs.oracle.com/database/122/CNCPT/tables-and-table-clusters.htm#GUID-72E247B5-F39A-47F1-9445-72D9221F57E3&#34; title=&#34;Introduction to schema objects, Oracle 12.2&#34;&gt;Oracle&lt;/a&gt;, the notion of a schema is tightly coupled to the notion of a user, such that the user account in question &amp;ldquo;owns&amp;rdquo; the tables and other objects contained therein. SQL Server implemented a similar concept prior to SQL Server 2005, when the &lt;a href=&#34;https://technet.microsoft.com/en-us/library/dd283095.aspx&#34; title=&#34;SQL Server Best Practices – Implementation of Database Object Schemas&#34;&gt;link between users and schemas was severed&lt;/a&gt; such that a schema became more like a namespace, or even a filesystem folder, since a schema remains a securable object. Under either analogy - namespace or folder - the name of the schema can be considered to be a part of the (qualified) name of the table, meaning that moving an object to a new schema is merely a special case of renaming.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-right-way&#34;&gt;The right way&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/refactoring-menu.PNG&#34; alt=&#34;Right-click refactor menu for a table&#34; title=&#34;Right-click Refactor menu for a table&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;When we rename a table, we get the usual &amp;ldquo;refactor preview&amp;rdquo; showing the changes about to be applied to the project:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/Refactor%20renaming%20a%20table.PNG&#34; alt=&#34;Refactor preview for renaming a table&#34; title=&#34;Refactor preview for renaming a table&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;On clicking apply, the relevant objects are updated and a new entry is inserted into the &lt;code&gt;refactorlog&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Operation&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Rename Refactor&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Key=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;cce28c30-adb0-4019-876e-d93cc2ca0011&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;ChangeDateTime=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;11/12/2016 14:22:18&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;gt;&lt;/span&gt;
+   &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ElementName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[dbo].[Artist]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+   &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ElementType&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;SqlTable&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+   &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ParentElementName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[dbo]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+   &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ParentElementType&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;SqlSchema&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+   &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;NewName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[Artiste]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+ &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;/Operation&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The process for moving a table between schemas is similar, we are presented with a preview of the changes about to be made:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/move%20to%20schema%20preview.PNG&#34; alt=&#34;Refactor preview for move to schema&#34; title=&#34;Refactor preview for move to schema&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;and a new entry is made in the &lt;code&gt;refactorlog&lt;/code&gt; file.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Operation&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Move Schema&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #388038&#34;&gt;Key=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;985e03c6-37f8-48c8-8ce8-5ed37fbb7c00&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #388038&#34;&gt;ChangeDateTime=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;11/12/2016 14:46:31&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ElementName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[dbo].[Invoice]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ElementType&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;SqlTable&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;NewSchema&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Sales&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;IsNewSchemaExternal&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;False&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;/Operation&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Finally, when we come to deploy our change, the table is moved to the new schema and all the referencing objects are updated:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;PRINT N&#39;The following operation was generated from a refactoring log file 985e03c6-37f8-48c8-8ce8-5ed37fbb7c00&#39;;
+
+PRINT N&#39;Move object [dbo].[Invoice] to different schema [Sales]&#39;;
+
+GO
+ALTER SCHEMA [Sales] TRANSFER [dbo].[Invoice];
+
+GO
+ALTER VIEW [dbo].[InvoicesWithLineTotals] 
+	AS SELECT I.[Invoice_Id],
+	InvoiceTotal
+	FROM [Sales].Invoice AS I CROSS APPLY dbo.CalculateInvoiceTotal(I.[Invoice_Id]);
+GO
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;the-wrong-way-1&#34;&gt;The wrong way&lt;/h3&gt;
+
+&lt;p&gt;As with columns, if we rename a table by editing the &lt;code&gt;.sql&lt;/code&gt; file directly, we get a potentially undesirable outcome, namely that a new table will created with the new name, possibly at the expense of the current table. If we are lucky we get a validation error that stops the project from building:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/rename%20validation%20error.PNG&#34; alt=&#34;Error from renaming a table in the sql file&#34; title=&#34;error from renaming a table in the .sql file&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If we are less lucky we may get some warnings (remember that deferred name resolution means that a missing table is only a warning rather than an error in a stored procedure), but at deploy time we will get a new table created with the new name, and possibly even a &lt;code&gt;DROP TABLE&lt;/code&gt; for the existing table, assuming we have the appropriate options set. (By default, SSDT won&amp;rsquo;t drop objects from the database unless we specify &amp;ldquo;&lt;a href=&#34;http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#a-note-on-drop-objects-not-in-source&#34;&gt;Drop objects in target but not in source&lt;/a&gt;&amp;rdquo;).&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;PRINT N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;Dropping [dbo].[PlaylistTrack]...&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;DROP&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;PlaylistTrack&lt;span style=&#34;color: #888888&#34;&gt;];&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+PRINT N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;Creating [dbo].[Playlist_Track]...&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;CREATE&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;Playlist_Track&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;PlaylistId&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;INT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NOT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NULL&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;TrackId&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt;    &lt;span style=&#34;color: #388038&#34;&gt;INT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NOT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NULL&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;CONSTRAINT&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;PK_PlaylistTrack&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;PRIMARY&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;KEY&lt;/span&gt; NONCLUSTERED &lt;span style=&#34;color: #888888&#34;&gt;([&lt;/span&gt;PlaylistId&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;ASC&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;TrackId&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;ASC&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&#34;renaming-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules&#34;&gt;Renaming Programmable Objects (Views, Functions, Stored Procedures, other miscellany in [&lt;code&gt;sys.sql_modules&lt;/code&gt;]&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Refactoring Databases, p 117&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;As noted in the &lt;a href=&#34;http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#dropping-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules-https-msdn-microsoft-com-en-us-library-ms175081-aspx&#34;&gt;discussion of dropping programmable objects&lt;/a&gt;, operations involving these objects involve substantially less risk of catastrophic data loss and consequent unemployment than similar operation involving tables and columns.&lt;/p&gt;
+
+&lt;p&gt;It is still important to use the Refactor &amp;rarr; Rename and Refactor &amp;rarr; Move to Schema techniques to rename these objects rather than directly editing the &lt;code&gt;.sql&lt;/code&gt; files, so that an entry is written to the &lt;code&gt;.refactorlog&lt;/code&gt; file. This will ensure that the existing object is altered rather than a new one created at the expense of the old one.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Operation&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Rename Refactor&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Key=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;fc4b928d-9b00-4028-9cac-5859ba9b666c&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;ChangeDateTime=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;11/12/2016 22:50:20&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ElementName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[dbo].[ChangeTrackPriceByFactor]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ElementType&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;SqlProcedure&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ParentElementName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[dbo]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;ParentElementType&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;SqlSchema&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;Property&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Name=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;NewName&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Value=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[ChangeTrackPriceByMultiplier]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;lt;/Operation&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+
+&lt;hr /&gt;
+
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;It isn&amp;rsquo;t magic, this doesn&amp;rsquo;t work with dynamic SQL, for instance.
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
+        </item>
+      
     
       
         <item>
@@ -24,6 +349,10 @@
 
 &lt;h2 id=&#34;dropping-a-column&#34;&gt;Dropping a column&lt;/h2&gt;
 
+&lt;blockquote&gt;
+&lt;p&gt;Refactoring Databases, p 72&lt;/p&gt;
+&lt;/blockquote&gt;
+
 &lt;p&gt;Since SSDT operates in a declarative manner, each table is defined in a &lt;code&gt;CREATE TABLE&lt;/code&gt; script, and deleting a column is as simple as deleting the relevant line from the script. However, there are a couple of features of SSDT that are relevant here. If the column is referenced by any other database objects such as views, functions, or stored procedures, SSDT will display an error:&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/DropColumnReferencedByProcedure.PNG&#34; alt=&#34;SSDT Broken Reference Error&#34; title=&#34;SSDT Broken Reference Error&#34; /&gt;&lt;/p&gt;
@@ -38,6 +367,10 @@
 
 &lt;h2 id=&#34;dropping-a-table&#34;&gt;Dropping a table&lt;/h2&gt;
 
+&lt;blockquote&gt;
+&lt;p&gt;Refactoring Databases, p 77&lt;/p&gt;
+&lt;/blockquote&gt;
+
 &lt;p&gt;This is where things get more serious. The same technique of using the &amp;ldquo;Find All References&amp;rdquo; tool to assess the damage we&amp;rsquo;re about to do applies here, but there is a subtle difference in what happens when we actually brandish the pruning shears. It turns out that removing an entire table referenced by a stored procedure is only worthy of a warning or five rather than an error. This is due to an oddity of &lt;a href=&#34;https://technet.microsoft.com/en-us/library/ms190686.aspx&#34;&gt;deferred name resolution&lt;/a&gt; for stored procedures, namely that it is permitted to reference a non-existent table in the text of a stored procedure, but not permitted to reference a non-existent column in a table that &lt;em&gt;does&lt;/em&gt; exist.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/RemovingATableIsOnlyAWarning.PNG&#34; alt=&#34;Removing a table is only a warning&#34; title=&#34;Removing a table is only a warning&#34; /&gt;&lt;/p&gt;
@@ -47,6 +380,10 @@
 &lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/FunctionsDontSupportDeferredNameResolution.PNG&#34; alt=&#34;Functions don&#39;t support deferred name resolution&#34; title=&#34;Functions don&#39;t support deferred name resolution&#34; /&gt;&lt;/p&gt;
 
 &lt;h2 id=&#34;dropping-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules-https-msdn-microsoft-com-en-us-library-ms175081-aspx&#34;&gt;Dropping Programmable Objects (Views, Functions, Stored Procedures, other miscellany in &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/ms175081.aspx&#34;&gt;&lt;code&gt;sys.sql_modules&lt;/code&gt;&lt;/a&gt;)&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Refactoring Databases, p 79&lt;/p&gt;
+&lt;/blockquote&gt;
 
 &lt;p&gt;On the face of it this is simpler, as there is no data being thrown out with the bathwater.&lt;/p&gt;
 
@@ -87,6 +424,26 @@ IF EXISTS (SELECT TOP 1 1
 &lt;p&gt;In each case, the default is &amp;ldquo;true&amp;rdquo;, meaning potentially destructive changes are blocked by default. This is for the benefit of those &amp;ldquo;enterprise&amp;rdquo; customers that deploy direct to production with no testing - remember that these people aren&amp;rsquo;t our problem but they are the SSDT development team&amp;rsquo;s problem, since they are paying to keep the lights on at SSDT HQ!&lt;/p&gt;
 
 &lt;p&gt;In general, this should always be set to false, meaning &amp;ldquo;allow potentially destructive changes&amp;rdquo;. This is unproblematic as long as production isn&amp;rsquo;t the &lt;em&gt;first&lt;/em&gt; environment where you deploy your changes.&lt;/p&gt;
+
+&lt;p&gt;Similarly, the default behaviour of SSDT is &lt;em&gt;not&lt;/em&gt; to drop objects that are in the target (i.e. the database) but not in the source (i.e. the database project). To allow these changes to be applied, we need to do one of the following.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;For projects deployed using the Visual Studio &amp;ldquo;Publish&amp;rdquo; dialog, check &amp;ldquo;Drop objects in target but not in source&amp;rdquo; in the &amp;ldquo;Advanced Publish Settings&amp;rdquo; dialog available by clicking &amp;ldquo;Advanced&amp;rdquo; in the &amp;ldquo;Publish&amp;rdquo; dialog.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;For projects deployed using &lt;code&gt;sqlpackage.exe&lt;/code&gt;, we need to specify the parameter &lt;code&gt;/p:DropObjectsNotInSource=True&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;For projects that use a publish profile to specify deployment options, we need to add the element &lt;code&gt;&amp;lt;DropObjectsNotInSource&amp;gt;True&amp;lt;/DropObjectsNotInSource&amp;gt;&lt;/code&gt; to the &lt;code&gt;.publish.xml&lt;/code&gt; file.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;a-note-on-drop-objects-not-in-source&#34;&gt;A note on &amp;ldquo;Drop objects not in source&amp;rdquo;&lt;/h3&gt;
+
+&lt;p&gt;If this option is selected, SSDT will drop &lt;em&gt;all&lt;/em&gt; objects from the target database that are not defined in the project. Rather inconveniently, this includes users, permissions - including, cruciallly, the &lt;code&gt;CONNECT&lt;/code&gt; permission - and all the other things we need to be present for our application (or us!) to be able to connect to the database. Rather than specify all these items as part of the project, it is often simpler to ignore these at deployment time using the publish profile. The most important ones are probably users, permissions, roles, and role memberships, but anyone with a more obscure security model (Application Roles??) might want to investigate some of the other options.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-1/Options-for-drop-objects.PNG&#34; alt=&#34;Advanced Publish Settings showing drop objects&#34; title=&#34;Advanced Publish Settings showing drop objects&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The difference between the &amp;ldquo;Drop&amp;rdquo; and &amp;ldquo;Ignore&amp;rdquo; settings is that the former apply &lt;em&gt;only&lt;/em&gt; to the target - so selecting object types here prevents objects of that type from being dropped. The &amp;ldquo;ignore&amp;rdquo; settings allow us to specify that objects of the selected types are not dropped in the target if they are absent from the source, but also not created or modified in the target even if they are present in the source.&lt;/p&gt;
+
+&lt;p&gt;As above, these settings can also be specified as command-line arguments to &lt;code&gt;sqlpackage.exe&lt;/code&gt; or as xml in a publish profile.&lt;/p&gt;
 &lt;div class=&#34;footnotes&#34;&gt;
 
 &lt;hr /&gt;
@@ -123,13 +480,13 @@ IF EXISTS (SELECT TOP 1 1
 
 &lt;p&gt;This article marks the start of a series that examines a number of these named &amp;ldquo;refactorings&amp;rdquo; and looks at how they can be implemented using Microsoft® SQL Server and Microsoft® Visual Studio, in particular through the use of &lt;a href=&#34;https://blogs.msdn.microsoft.com/ssdt/&#34;&gt;SQL Server Data Tools&lt;/a&gt;, known as &amp;ldquo;SSDT&amp;rdquo;.&lt;/p&gt;
 
-&lt;p&gt;The code examples in the book use Oracle with bits of Java and Hibernate thrown in as appropriate, so the examples here will differ where the behaviour of SQL Server differs in some relevant way. In addition, the &amp;ldquo;&lt;a href=&#34;https://blogs.msdn.microsoft.com/gertd/2009/06/05/declarative-database-development&#34; title=&#34;The original DataDude article from way back&#34;&gt;declarative&lt;/a&gt;&amp;rdquo; development paradigm encouraged by SSDT hides a lot of the detail of the DDL behind the scenes, meaning that the steps outlined in the book to achieve each refactoring may not all occur in the same places.&lt;/p&gt;
+&lt;p&gt;The code examples in the book use Oracle with bits of Java and Hibernate thrown in as appropriate, so the procedures here will differ where the behaviour of SQL Server differs in some relevant way. In addition, the &amp;ldquo;&lt;a href=&#34;https://blogs.msdn.microsoft.com/gertd/2009/06/05/declarative-database-development&#34; title=&#34;The original DataDude article from way back&#34;&gt;declarative&lt;/a&gt;&amp;rdquo; development paradigm encouraged by SSDT hides a lot of the detail of the DDL behind the scenes, meaning that the steps outlined in the book to achieve each refactoring may not all occur in the same places.&lt;/p&gt;
 
 &lt;p&gt;That said, it is worth referring to the discussions of each individual refactoring contained in the book, since these provide a checklist of considerations before embarking on any change, including motivations, tradeoffs, schema update and data migration mechanics, and required application changes, most of which are outside the scope of SSDT. I will attempt to provide page numbers where appropriate, though I realise these are less useful for those with access to only an electronic copy of the book.&lt;/p&gt;
 
 &lt;p&gt;In general, the applicability of SSDT is restricted to managing schema changes, with a couple of extensibility points - namely &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/jj889461(v=vs.103).aspx&#34;&gt;Pre-deployment and Post-deployment scripts&lt;/a&gt; -  to manage data movements.&lt;/p&gt;
 
-&lt;p&gt;This series does presuppose some experience with SSDT; an overview can be obtained from MSDN &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/hh272686(v=vs.103).aspx&#34;&gt;here&lt;/a&gt;, particularly the material relating to &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/hh272702(v=vs.103).aspx&#34;&gt;Project-Oriented Offline Database Development&lt;/a&gt;. In the event that I ever get around to writing any introductory material of my own I&amp;rsquo;ll come back and add links here as appropriate. Most of the examples use the &amp;ldquo;Chinook&amp;rdquo; sample database available from &lt;a href=&#34;https://chinookdatabase.codeplex.com/&#34;&gt;codeplex&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This series does presuppose some experience with SSDT; an overview can be obtained from MSDN &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/hh272686(v=vs.103).aspx&#34;&gt;here&lt;/a&gt;, particularly the material relating to &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/hh272702(v=vs.103).aspx&#34;&gt;Project-Oriented Offline Database Development&lt;/a&gt;. In the event that I ever get around to writing any introductory material of my own I&amp;rsquo;ll come back and add links here as appropriate. Most of the examples use the &amp;ldquo;Chinook&amp;rdquo; sample database available from &lt;a href=&#34;https://chinookdatabase.codeplex.com/&#34;&gt;codeplex&lt;/a&gt;. The SSDT project I am using is on &lt;a href=&#34;https://github.com/arapaima-uk/Refactoring.Chinook&#34; title=&#34;Link to the Refactoring.Chinook repo&#34;&gt;Github&lt;/a&gt;, but note that I&amp;rsquo;ve made no attempt to make the commits sync with the articles in the series, and there are no guarantees, express or implied, that any given commit will actually be buildable.&lt;/p&gt;
 </description>
         </item>
       

@@ -74,6 +74,8 @@
       
     
       
+    
+      
         <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
       
     
@@ -123,6 +125,10 @@
 
 <h2 id="dropping-a-column">Dropping a column</h2>
 
+<blockquote>
+<p>Refactoring Databases, p 72</p>
+</blockquote>
+
 <p>Since SSDT operates in a declarative manner, each table is defined in a <code>CREATE TABLE</code> script, and deleting a column is as simple as deleting the relevant line from the script. However, there are a couple of features of SSDT that are relevant here. If the column is referenced by any other database objects such as views, functions, or stored procedures, SSDT will display an error:</p>
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/DropColumnReferencedByProcedure.PNG" alt="SSDT Broken Reference Error" title="SSDT Broken Reference Error" /></p>
@@ -137,6 +143,10 @@
 
 <h2 id="dropping-a-table">Dropping a table</h2>
 
+<blockquote>
+<p>Refactoring Databases, p 77</p>
+</blockquote>
+
 <p>This is where things get more serious. The same technique of using the &ldquo;Find All References&rdquo; tool to assess the damage we&rsquo;re about to do applies here, but there is a subtle difference in what happens when we actually brandish the pruning shears. It turns out that removing an entire table referenced by a stored procedure is only worthy of a warning or five rather than an error. This is due to an oddity of <a href="https://technet.microsoft.com/en-us/library/ms190686.aspx">deferred name resolution</a> for stored procedures, namely that it is permitted to reference a non-existent table in the text of a stored procedure, but not permitted to reference a non-existent column in a table that <em>does</em> exist.</p>
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/RemovingATableIsOnlyAWarning.PNG" alt="Removing a table is only a warning" title="Removing a table is only a warning" /></p>
@@ -146,6 +156,10 @@
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/FunctionsDontSupportDeferredNameResolution.PNG" alt="Functions don't support deferred name resolution" title="Functions don't support deferred name resolution" /></p>
 
 <h2 id="dropping-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules-https-msdn-microsoft-com-en-us-library-ms175081-aspx">Dropping Programmable Objects (Views, Functions, Stored Procedures, other miscellany in <a href="https://msdn.microsoft.com/en-us/library/ms175081.aspx"><code>sys.sql_modules</code></a>)</h2>
+
+<blockquote>
+<p>Refactoring Databases, p 79</p>
+</blockquote>
 
 <p>On the face of it this is simpler, as there is no data being thrown out with the bathwater.</p>
 
@@ -186,6 +200,26 @@ IF EXISTS (SELECT TOP 1 1
 <p>In each case, the default is &ldquo;true&rdquo;, meaning potentially destructive changes are blocked by default. This is for the benefit of those &ldquo;enterprise&rdquo; customers that deploy direct to production with no testing - remember that these people aren&rsquo;t our problem but they are the SSDT development team&rsquo;s problem, since they are paying to keep the lights on at SSDT HQ!</p>
 
 <p>In general, this should always be set to false, meaning &ldquo;allow potentially destructive changes&rdquo;. This is unproblematic as long as production isn&rsquo;t the <em>first</em> environment where you deploy your changes.</p>
+
+<p>Similarly, the default behaviour of SSDT is <em>not</em> to drop objects that are in the target (i.e. the database) but not in the source (i.e. the database project). To allow these changes to be applied, we need to do one of the following.</p>
+
+<ul>
+<li><p>For projects deployed using the Visual Studio &ldquo;Publish&rdquo; dialog, check &ldquo;Drop objects in target but not in source&rdquo; in the &ldquo;Advanced Publish Settings&rdquo; dialog available by clicking &ldquo;Advanced&rdquo; in the &ldquo;Publish&rdquo; dialog.</p></li>
+
+<li><p>For projects deployed using <code>sqlpackage.exe</code>, we need to specify the parameter <code>/p:DropObjectsNotInSource=True</code></p></li>
+
+<li><p>For projects that use a publish profile to specify deployment options, we need to add the element <code>&lt;DropObjectsNotInSource&gt;True&lt;/DropObjectsNotInSource&gt;</code> to the <code>.publish.xml</code> file.</p></li>
+</ul>
+
+<h3 id="a-note-on-drop-objects-not-in-source">A note on &ldquo;Drop objects not in source&rdquo;</h3>
+
+<p>If this option is selected, SSDT will drop <em>all</em> objects from the target database that are not defined in the project. Rather inconveniently, this includes users, permissions - including, cruciallly, the <code>CONNECT</code> permission - and all the other things we need to be present for our application (or us!) to be able to connect to the database. Rather than specify all these items as part of the project, it is often simpler to ignore these at deployment time using the publish profile. The most important ones are probably users, permissions, roles, and role memberships, but anyone with a more obscure security model (Application Roles??) might want to investigate some of the other options.</p>
+
+<p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-1/Options-for-drop-objects.PNG" alt="Advanced Publish Settings showing drop objects" title="Advanced Publish Settings showing drop objects" /></p>
+
+<p>The difference between the &ldquo;Drop&rdquo; and &ldquo;Ignore&rdquo; settings is that the former apply <em>only</em> to the target - so selecting object types here prevents objects of that type from being dropped. The &ldquo;ignore&rdquo; settings allow us to specify that objects of the selected types are not dropped in the target if they are absent from the source, but also not created or modified in the target even if they are present in the source.</p>
+
+<p>As above, these settings can also be specified as command-line arguments to <code>sqlpackage.exe</code> or as xml in a publish profile.</p>
 <div class="footnotes">
 
 <hr />
@@ -210,6 +244,9 @@ IF EXISTS (SELECT TOP 1 1
     
     
     <ul class="series">
+    
+    	<li>Nov 12, 2016 -
+    	<a href="http://arapaima.uk/post/2016-11-12-database-refactoring-ssdt-renaming-objects/">What&#39;s in a name?</a></li>
     
     	<li>Oct 25, 2016 -
     	<a href="http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/">Database Pruning</a></li>
