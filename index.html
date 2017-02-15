@@ -60,6 +60,8 @@
       
     
       
+    
+      
         <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
       
     
@@ -102,6 +104,170 @@
 
 
 <div class="posts">
+  
+    <div class="post">
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-02-15-jenkins-pipeline-checkout-branch-if-exists/">Testing whether a branch exists before checking out in Jenkins Pipeline</a></h1>
+        <span class="post-date">2017-02-17</span>
+        
+
+<p>For reasons, I recently found myself in a scenario where I needed to test whether a branch existed before checking it out, and resorting to a sensible default - such as checking out <code>master</code>, if it didn&rsquo;t. From the command line, this is a simple matter of <code>git branch -l | grep myBranch</code>, but I needed to do this from the context of a Jenkins pipeline job.</p>
+
+<h2 id="preliminaries">Preliminaries</h2>
+
+<p>For simplicity, I&rsquo;m creating a local repo I can point my Jenkins job at, right inside the <code>JENKINS_HOME</code> folder.</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>jenkins@d99f4f77acdb:/$ <span style="color: #388038">cd</span> <span style="color: #b04040">$JENKINS_HOME</span>
+jenkins@d99f4f77acdb:~$ mkdir testBranch <span style="color: #888888">;</span> <span style="color: #388038">cd</span> testBranch
+jenkins@d99f4f77acdb:~/testBranch$ git init
+Initialized empty Git repository in /var/jenkins_home/testBranch/.git/
+jenkins@d99f4f77acdb:~/testBranch$ <span style="color: #388038">echo</span> <span style="color: #b83838">&quot;Half a league, half a league, Half a league onward.&quot;</span> &gt; myFile.txt
+jenkins@d99f4f77acdb:~/testBranch$ git add .
+jenkins@d99f4f77acdb:~/testBranch$ git commit -m <span style="color: #b83838">&quot;Initial Commit&quot;</span>
+<span style="color: #666666">[</span>master <span style="color: #666666">(</span>root-commit<span style="color: #666666">)</span> 7ef4b3b<span style="color: #666666">]</span> Initial Commit
+ <span style="color: #444444">1</span> file changed, <span style="color: #444444">1</span> insertion<span style="color: #666666">(</span>+<span style="color: #666666">)</span>
+ create mode <span style="color: #444444">100644</span> myFile.txt
+jenkins@d99f4f77acdb:~/testBranch$ git checkout -b thisBranchExists
+Switched to a new branch <span style="color: #b83838">&#39;thisBranchExists&#39;</span>
+jenkins@d99f4f77acdb:~/testBranch$ <span style="color: #388038">echo</span> <span style="color: #b83838">&quot;All in the valley of Death Rode the six hundred&quot;</span> &gt;&gt; myFile.txt
+jenkins@d99f4f77acdb:~/testBranch$ git commit -am <span style="color: #b83838">&quot;a change&quot;</span>
+jenkins@d99f4f77acdb:~/testBranch$ git checkout master
+Switched to branch <span style="color: #b83838">&#39;master&#39;</span>
+jenkins@d99f4f77acdb:~/testBranch$ git log --oneline --decorate --all --graph
+* 550587f <span style="color: #666666">(</span>thisBranchExists<span style="color: #666666">)</span> a change
+* 7ef4b3b <span style="color: #666666">(</span>HEAD, master<span style="color: #666666">)</span> Initial Commit
+</pre></div>
+
+<p>With that out of the way, we have a repo with two branches, one of which is a single commit ahead of the other. Our goal, in the pipeline script, is to checkout the <code>thisBranchExists</code> branch, if it exists, or to fall back to <code>master</code> if it doesn&rsquo;t.</p>
+
+<h2 id="the-pipeline-script">The Pipeline script</h2>
+
+<p>I&rsquo;ve created a simple script in the Pipeline UI to demonstrate the use of <a href="https://jenkins.io/doc/pipeline/steps/workflow-multibranch/#resolvescm-resolves-an-scm-from-an-scm-source-and-a-list-of-candidate-target-branch-names"><code>resolveScm</code></a> to figure out whether the branch we want exists. <code>resolveScm</code> will go through the contents of <code>targets</code> in order, and return the first one that matches a branch name in the repo. We then checkout the branch and print the contents of the file to the console with <code>cat</code>.</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>node<span style="color: #666666">{</span>
+<span style="color: #2838b0; font-style: italic">def</span> b <span style="color: #666666">=</span> resolveScm <span style="color: #289870">source:</span> <span style="color: #666666">[</span>$class<span style="color: #666666">:</span> <span style="color: #b83838">&#39;GitSCMSource&#39;</span><span style="color: #666666">,</span> <span style="color: #289870">credentialsId:</span> <span style="color: #b83838">&#39;&#39;</span><span style="color: #666666">,</span> 
+    <span style="color: #289870">excludes:</span> <span style="color: #b83838">&#39;&#39;</span><span style="color: #666666">,</span> <span style="color: #289870">id:</span> <span style="color: #b83838">&#39;_&#39;</span><span style="color: #666666">,</span> <span style="color: #289870">ignoreOnPushNotifications:</span> <span style="color: #444444; font-style: italic">false</span><span style="color: #666666">,</span> <span style="color: #289870">includes:</span> <span style="color: #b83838">&#39;*&#39;</span><span style="color: #666666">,</span> 
+    <span style="color: #289870">remote:</span> <span style="color: #b83838">&#39;file://$JENKINS_HOME/testBranch&#39;</span><span style="color: #666666">],</span> <span style="color: #289870">targets:</span> <span style="color: #666666">[</span><span style="color: #b83838">&#39;thisBranchExists&#39;</span><span style="color: #666666">,</span> <span style="color: #b83838">&#39;master&#39;</span><span style="color: #666666">]</span>
+checkout b
+sh <span style="color: #b83838">&#39;cat myFile.txt&#39;</span>
+   
+<span style="color: #666666">}</span>
+</pre></div>
+
+<h2 id="the-happy-path">The Happy path</h2>
+
+<p>When we run this job we get the following output, indicating that our branch was located successfully. The contents of the file after the second commit are printed to the console.</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">{</span>
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> resolveScm
+Checking <span style="color: #2838b0">for</span> first existing branch from <span style="color: #666666">[</span>thisBranchExists, master<span style="color: #666666">]</span>...
+ &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
+Setting origin to file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch
+ &gt; git config remote.origin.url file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
+Fetching <span style="color: #888888">&amp;</span> pruning origin...
+Fetching upstream changes from origin
+ &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
+ &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
+Getting remote branches...
+Seen branch in repository origin/master
+Seen branch in repository origin/thisBranchExists
+Seen <span style="color: #444444">2</span> remote branches
+Checking branch master
+Checking branch thisBranchExists
+Found thisBranchExists at revision 550587fa43778989f50ca314feea38fdee50b21c
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> checkout
+ &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
+Fetching changes from the remote Git repository
+ &gt; git config remote.origin.url file:///var/jenkins_home/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
+Fetching upstream changes from file:///var/jenkins_home/testBranch
+ &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
+ &gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
+Checking out Revision 550587fa43778989f50ca314feea38fdee50b21c <span style="color: #666666">(</span>thisBranchExists<span style="color: #666666">)</span>
+ &gt; git config core.sparsecheckout <span style="color: #888888; font-style: italic"># timeout=10</span>
+ &gt; git checkout -f 550587fa43778989f50ca314feea38fdee50b21c
+ &gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c <span style="color: #888888; font-style: italic"># timeout=10</span>
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> sh
+<span style="color: #666666">[</span>checkout_branch_if_exists<span style="color: #666666">]</span> Running shell script
++ cat myFile.txt
+Half a league, half a league, Half a league onward.
+All in the valley of Death Rode the six hundred
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">}</span>
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> // node
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> End of Pipeline
+Finished: SUCCESS
+</pre></div>
+
+<h2 id="the-less-happy-path">The &ldquo;less-happy&rdquo; path</h2>
+
+<p>Lets see what happens if we change our list of <code>targets</code> to <code>['thisBranchDoesNotExist', 'master']</code>. This time we don&rsquo;t find our &ldquo;preferred&rdquo; branch, so we fall back to <code>master</code> and print the contents of the file as it was after the first commit.</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> node
+Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">{</span>
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> resolveScm
+Checking <span style="color: #2838b0">for</span> first existing branch from <span style="color: #666666">[</span>thisBranchDoesNotExist, master<span style="color: #666666">]</span>...
+ &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
+Setting origin to file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch
+ &gt; git config remote.origin.url file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
+Fetching <span style="color: #888888">&amp;</span> pruning origin...
+Fetching upstream changes from origin
+ &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
+ &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
+Getting remote branches...
+Seen branch in repository origin/master
+Seen branch in repository origin/thisBranchExists
+Seen <span style="color: #444444">2</span> remote branches
+Checking branch thisBranchExists
+Checking branch master
+Done.
+Found master at revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> checkout
+ &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
+Fetching changes from the remote Git repository
+ &gt; git config remote.origin.url file:///var/jenkins_home/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
+Fetching upstream changes from file:///var/jenkins_home/testBranch
+ &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
+ &gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
+Checking out Revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95 <span style="color: #666666">(</span>master<span style="color: #666666">)</span>
+ &gt; git config core.sparsecheckout <span style="color: #888888; font-style: italic"># timeout=10</span>
+ &gt; git checkout -f 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
+ &gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c <span style="color: #888888; font-style: italic"># timeout=10</span>
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> sh
+<span style="color: #666666">[</span>checkout_branch_if_exists<span style="color: #666666">]</span> Running shell script
++ cat myFile.txt
+Half a league, half a league, Half a league onward.
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">}</span>
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> // node
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> End of Pipeline
+Finished: SUCCESS
+</pre></div>
+
+<h2 id="the-unhappy-path">The Unhappy path</h2>
+
+<p>Finally, let&rsquo;s see what happens if none of the branches we specify in <code>targets</code> exist in the repo. Regrettably, the output is rather shorter, as the step fails if no matching branches are found.</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">{</span>
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> resolveScm
+Checking <span style="color: #2838b0">for</span> first existing branch from <span style="color: #666666">[</span>thisBranchDoesNotExist, thisBranchDoesNotExistEither<span style="color: #666666">]</span>...
+ &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
+Setting origin to file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch
+ &gt; git config remote.origin.url file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
+Fetching <span style="color: #888888">&amp;</span> pruning origin...
+Fetching upstream changes from origin
+ &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
+ &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
+Getting remote branches...
+Seen branch in repository origin/master
+Seen branch in repository origin/thisBranchExists
+Seen <span style="color: #444444">2</span> remote branches
+Checking branch master
+Checking branch thisBranchExists
+Done.
+Could not find any matching branch%n
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">}</span>
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> // node
+<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> End of Pipeline
+ERROR: Could not find any matching branch
+Finished: FAILURE
+</pre></div>
+
+    </div>
   
     <div class="post">
         <h1 class="post-title"><a href="http://arapaima.uk/post/2016-11-12-database-refactoring-ssdt-renaming-objects/">What&#39;s in a name?</a></h1>
