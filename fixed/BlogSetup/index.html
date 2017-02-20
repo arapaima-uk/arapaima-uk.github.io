@@ -149,10 +149,7 @@
 </ul></li>
 <li><a href="#profit">Profit!</a>
 <ul>
-<li>
-<ul>
 <li><a href="#hosting">Hosting</a></li>
-</ul></li>
 </ul></li>
 </ul>
 </nav>
@@ -370,13 +367,13 @@ git push -q upstream HEAD:master
 
 <p>In fact, I think I&rsquo;ll have one here too: <a href="https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io"><img src="https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt="Build Status" /></a> You can get these links in various formats by clicking on the build status icon in the home page of your repo on Travis.</p>
 
-<p>#The Numbers Game</p>
+<p># The Numbers Game</p>
 
 <p>For a good while, there were no &ldquo;analytics&rdquo;, Google or otherwise, attached to this site. For tinfoil-hat reasons, I wasn&rsquo;t all that keen on GA, and it seemed like rather a lot of effort to set up anything else.</p>
 
 <p>I had played with Piwik on a free Azure Website in the past, but ended up being free of satisfaction with the performance. In addition, the site was quite often down as I had maxed my free MSDN credits playing with Azure SQL DW and other such oddities. AWS, even with Lightsail, was pretty expensive, and I wasn&rsquo;t in the mood to sign up for yet another contract with one of the many low-cost VPS providers.</p>
 
-<h3 id="hosting">Hosting</h3>
+<h2 id="hosting">Hosting</h2>
 
 <p>It then occurred to me that Piwik could be hosted on any shared hosting company, and I already had an extra slot on my <a href="http://my.tsohost.com/aff.php?aff=1905" title="Affiliate link. This time next year, Rodney...">tsohost.com</a> &ldquo;el cheapo&rdquo; shared hosting subscription.</p>
 
@@ -392,7 +389,7 @@ git push -q upstream HEAD:master
 
 <p><a href="http://my.tsohost.com/aff.php?aff=1905" title="Affiliate link. This time next year, Rodney...">Tsohost</a> had a UI to do this, so not much to say. After a bit of <code>.htaccess</code> tinkering the site was redirecting to <a href="https://youtu.be/A0zxE0SUG1c?t=10s" title="No, this isn't the real domain...">https://piwik.arapaima.uk</a> and we were ready for action, following the <a href="https://piwik.org/docs/installation/#the-5-minut-piwik-installation" title="5 minute Piwik installation instructions">&ldquo;5 minute install&rdquo;</a> instructions for Piwik.</p>
 
-<p>### Piwik configuration</p>
+<p>## Piwik configuration</p>
 
 <p>Piwik did its &ldquo;system check&rdquo;, which was passed with flying colours. I used the tsohost wizard to create a mysql database, provided the details to the Piwik installer, and created a &ldquo;superuser&rdquo; login for Piwik.</p>
 
