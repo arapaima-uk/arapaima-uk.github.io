@@ -154,17 +154,12 @@
 </ul></li>
 </ul></li>
 <li><a href="#profit">Profit!</a></li>
-<li><a href="#the-numbers-game">The Numbers Game</a>
+<li><a href="#talk-is-cheap">Talk is cheap</a>
 <ul>
-<li><a href="#hosting">Hosting</a>
-<ul>
-<li><a href="#let-s-encrypt">Let&rsquo;s encrypt</a></li>
-</ul></li>
-<li><a href="#piwik-configuration">Piwik configuration</a>
-<ul>
-<li><a href="#integrating-piwik-with-the-hugo-site">Integrating Piwik with the Hugo site</a></li>
-<li><a href="#profit-1">Profit!</a></li>
-</ul></li>
+<li><a href="#the-github-part">The Github part</a></li>
+<li><a href="#staticman-configuration">Staticman configuration</a></li>
+<li><a href="#mailgun">Mailgun</a></li>
+<li><a href="#adding-the-comments-form-to-our-pages">Adding the comments form to our pages</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -382,69 +377,29 @@ git push -q upstream HEAD:master
 
 <p>In fact, I think I&rsquo;ll have one here too: <a href="https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io"><img src="https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt="Build Status" /></a> You can get these links in various formats by clicking on the build status icon in the home page of your repo on Travis.</p>
 
-<h1 id="the-numbers-game">The Numbers Game</h1>
+<h1 id="talk-is-cheap">Talk is cheap</h1>
 
-<p>For a good while, there were no &ldquo;analytics&rdquo;, Google or otherwise, attached to this site. For tinfoil-hat reasons, I wasn&rsquo;t all that keen on GA, and it seemed like rather a lot of effort to set up anything else.</p>
+<p>I wanted to add support for comments to the site. Having ruled out discourse on grounds of cost and complexity, I settled on <a href="https://staticman.net">staticman</a>, which is a hosted (but self-hostable) service that takes comments from a form on your website and adds them to your github repo. Comment moderation is implemented by turning each individual comment into a pull request.</p>
 
-<p>I had played with Piwik on a free Azure Website in the past, but ended up being free of satisfaction with the performance. In addition, the site was quite often down as I had maxed my free MSDN credits playing with Azure SQL DW and other such oddities. AWS, even with Lightsail, was pretty expensive, and I wasn&rsquo;t in the mood to sign up for yet another contract with one of the many low-cost VPS providers.</p>
+<h2 id="the-github-part">The Github part</h2>
 
-<h2 id="hosting">Hosting</h2>
+<p>In the instructions on the staticman site, it suggests granting the github bot <code>staticmanapp</code> push access to your repo. Out of abundant caution, I decided to create a <code>submodule</code> under my site to hold the comments, grant push access to <em>this</em> repo, and deal with the resulting complexity.</p>
 
-<p>It then occurred to me that Piwik could be hosted on any shared hosting company, and I already had an extra slot on my <a href="http://my.tsohost.com/aff.php?aff=1905" title="Affiliate link. This time next year, Rodney...">tsohost.com</a> &ldquo;el cheapo&rdquo; shared hosting subscription.</p>
+<h2 id="staticman-configuration">Staticman configuration</h2>
 
-<p>In a trice, I had created a new website <a href="https://youtu.be/A0zxE0SUG1c?t=10s" title="No, this isn't the real domain...">piwik.arapaima.uk</a> and enabled <code>ssh</code>. All shared web hosts have a different, and differently annoying, method to do this, but tsohost had fairly clear instructions. <code>ssh</code> was password-auth only, but you can&rsquo;t have everything. It can also be switched on and off on demand through the web interface.</p>
+<p>This is done through a file <code>staticman.yml</code> stored at the root of the repo. You can download a sample from <a href="https://github.com/eduardoboucas/staticman/blob/master/staticman.sample.yml">the staticman gitgub repo</a> to get started. I didn&rsquo;t change many of the defaults, other than the path for staticman to write its files to; since the comments are in their own subrepo we can simply specify <code>{options.slug}</code> to create a folder for each post.</p>
 
-<p>After that it was a question of downloading and extracting Piwik:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  wget https://builds.piwik.org/piwik.zip <span style="color: #666666">&amp;&amp;</span> unzip piwik.zip
-</pre></div>
+<h2 id="mailgun">Mailgun</h2>
 
-<p>and moving the files to the <code>public_html</code> folder. The site was then accessible on the domain <a href="https://youtu.be/A0zxE0SUG1c?t=10shttps://youtu.be/A0zxE0SUG1c?t=10s" title="No, this isn't the real domain...">http://piwik.arapaima.uk</a>.</p>
+<p>Staticman includes support for <a href="https://mailgun.com">mailgun</a> for sending notification emails. Mailgun recommend creating a dedicated subdomain for sending transactional emails, and I&rsquo;m <a href="https://runbox.com/mail?r=1not">https://runbox.com/mail?r=1not</a> inclined to disagree with them, especially since the consequences of ignoring this advice almost certainly extend to the email from your main domain not working again ever.</p>
 
-<h3 id="let-s-encrypt">Let&rsquo;s encrypt</h3>
+<p>There is a bit of DNS twiddling to do in order to get the details needed to set up staticman; most of this is concerned with ensuring that you really do own the domain you want to send mails from, and that other mailservers also believe it when your mailgun tells them this. This is a bit fiddly, and the exact procedure depends on where yur DNS is managed. It can also take a while for mailgun to pick up the changes, long enough for it to seem like you have done something wrong.</p>
 
-<p><a href="http://my.tsohost.com/aff.php?aff=1905" title="Affiliate link. This time next year, Rodney...">Tsohost</a> had a UI to do this, so not much to say. After a bit of <code>.htaccess</code> tinkering the site was redirecting to <a href="https://youtu.be/A0zxE0SUG1c?t=10s" title="No, this isn't the real domain...">https://piwik.arapaima.uk</a> and we were ready for action, following the <a href="https://piwik.org/docs/installation/#the-5-minut-piwik-installation" title="5 minute Piwik installation instructions">&ldquo;5 minute install&rdquo;</a> instructions for Piwik.</p>
+<p>Of course, there&rsquo;s no need to use mailgun, if you have access to your own mailserver - which I do - you could just use that, but this would mean self-hosting - and forking - staticman too, which I&rsquo;m not inclined to do right now.</p>
 
-<h2 id="piwik-configuration">Piwik configuration</h2>
+<h2 id="adding-the-comments-form-to-our-pages">Adding the comments form to our pages</h2>
 
-<p>Piwik did its &ldquo;system check&rdquo;, which was passed with flying colours. I used the tsohost wizard to create a mysql database, provided the details to the Piwik installer, and created a &ldquo;superuser&rdquo; login for Piwik.</p>
-
-<h3 id="integrating-piwik-with-the-hugo-site">Integrating Piwik with the Hugo site</h3>
-
-<p>The final step was to add the javascript client generated by Piwik to our pages. I added it in the <a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/blob/master/layouts/partials/head.html"><code>layouts/partials/head</code></a> file:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  
-  <span style="color: #888888; font-style: italic">&lt;!-- RSS --&gt;</span>
-  <span style="color: #888888">&lt;</span><span style="color: #2838b0">link</span> <span style="color: #388038">rel</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;alternate&quot;</span> <span style="color: #388038">type</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;application/rss+xml&quot;</span> <span style="color: #388038">title</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;RSS&quot;</span> <span style="color: #388038">href</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;/atom.xml&quot;</span><span style="color: #888888">&gt;</span>
- 
-<span style="color: #888888; font-style: italic">&lt;!-- Piwik --&gt;</span>
-<span style="color: #888888">&lt;</span><span style="color: #2838b0">script</span> <span style="color: #388038">type</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;text/javascript&quot;</span><span style="color: #888888">&gt;</span>
-  <span style="color: #2838b0; font-style: italic">var</span> _paq <span style="color: #666666">=</span> _paq <span style="color: #666666">||</span> <span style="color: #888888">[];</span>
-  <span style="color: #888888; font-style: italic">// tracker methods like &quot;setCustomDimension&quot; should be called before &quot;trackPageView&quot;</span>
-  _paq<span style="color: #888888">.</span>push<span style="color: #888888">([</span><span style="color: #b83838">&#39;trackPageView&#39;</span><span style="color: #888888">]);</span>
-  _paq<span style="color: #888888">.</span>push<span style="color: #888888">([</span><span style="color: #b83838">&#39;enableLinkTracking&#39;</span><span style="color: #888888">]);</span>
-  <span style="color: #888888">(</span><span style="color: #2838b0; font-style: italic">function</span><span style="color: #888888">()</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">if</span> <span style="color: #888888">(</span><span style="color: #388038">window</span><span style="color: #888888">.</span>location<span style="color: #888888">.</span>hostname <span style="color: #666666">==</span> <span style="color: #b83838">&quot;localhost&quot;</span><span style="color: #888888">)</span>
-      <span style="color: #2838b0">return</span><span style="color: #888888">;</span>
-
-    <span style="color: #2838b0; font-style: italic">var</span> u<span style="color: #666666">=</span><span style="color: #b83838">&quot;//piwik.arapaima.uk/&quot;</span><span style="color: #888888">;</span>
-    _paq<span style="color: #888888">.</span>push<span style="color: #888888">([</span><span style="color: #b83838">&#39;setTrackerUrl&#39;</span><span style="color: #888888">,</span> u<span style="color: #666666">+</span><span style="color: #b83838">&#39;piwik.php&#39;</span><span style="color: #888888">]);</span>
-    _paq<span style="color: #888888">.</span>push<span style="color: #888888">([</span><span style="color: #b83838">&#39;setSiteId&#39;</span><span style="color: #888888">,</span> <span style="color: #b83838">&#39;1&#39;</span><span style="color: #888888">]);</span>
-    <span style="color: #2838b0; font-style: italic">var</span> d<span style="color: #666666">=</span><span style="color: #388038">document</span><span style="color: #888888">,</span> g<span style="color: #666666">=</span>d<span style="color: #888888">.</span>createElement<span style="color: #888888">(</span><span style="color: #b83838">&#39;script&#39;</span><span style="color: #888888">),</span> s<span style="color: #666666">=</span>d<span style="color: #888888">.</span>getElementsByTagName<span style="color: #888888">(</span><span style="color: #b83838">&#39;script&#39;</span><span style="color: #888888">)[</span><span style="color: #444444">0</span><span style="color: #888888">];</span>
-    g<span style="color: #888888">.</span>type<span style="color: #666666">=</span><span style="color: #b83838">&#39;text/javascript&#39;</span><span style="color: #888888">;</span> g<span style="color: #888888">.</span>async<span style="color: #666666">=</span><span style="color: #444444; font-style: italic">true</span><span style="color: #888888">;</span> g<span style="color: #888888">.</span>defer<span style="color: #666666">=</span><span style="color: #444444; font-style: italic">true</span><span style="color: #888888">;</span> g<span style="color: #888888">.</span>src<span style="color: #666666">=</span>u<span style="color: #666666">+</span><span style="color: #b83838">&#39;piwik.js&#39;</span><span style="color: #888888">;</span> s<span style="color: #888888">.</span>parentNode<span style="color: #888888">.</span>insertBefore<span style="color: #888888">(</span>g<span style="color: #888888">,</span>s<span style="color: #888888">);</span>
-  <span style="color: #888888">})();</span>
-<span style="color: #888888">&lt;/</span><span style="color: #2838b0">script</span><span style="color: #888888">&gt;</span>
-<span style="color: #888888; font-style: italic">&lt;!-- End Piwik Code --&gt;</span>
-</pre></div>
-
-<p>I did add the lines</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span> <span style="color: #2838b0">if</span> <span style="color: #888888">(</span><span style="color: #388038">window</span><span style="color: #888888">.</span>location<span style="color: #888888">.</span>hostname <span style="color: #666666">==</span> <span style="color: #b83838">&quot;localhost&quot;</span><span style="color: #888888">)</span>
-     <span style="color: #2838b0">return</span><span style="color: #888888">;</span>
-</pre></div>
-
-<p>to the start of the tracking function so that it doesn&rsquo;t get called when working locally.</p>
-
-<h3 id="profit-1">Profit!</h3>
-
-<p>All that remains is to push our changes, and Piwik is ready for action.</p>
+<p>Staticman is pretty light on documentation in this area; unlike commercial commenting servers there&rsquo;s no handy javascript to paste into your pages. There is, however, an example site at <a href="https://hugo.staticman.net/">https://hugo.staticman.net/</a>, for which the source is available at <a href="https://github.com/eduardoboucas/hugo-plus-staticman">https://github.com/eduardoboucas/hugo-plus-staticman</a>. This includes a <a href="https://github.com/eduardoboucas/hugo-plus-staticman/blob/master/themes/hugo-type-theme/layouts/partials/post-comments.html">partial template for post comments</a> that we can adapt for our own purposes.</p>
 
 </div>
 
