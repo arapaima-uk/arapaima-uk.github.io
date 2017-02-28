@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Arapaima (UK) </title>
+    <link>http://arapaima.uk/tags/pester/index.xml</link>
+    <language>en-us</language>
+    <author>Gavin Campbell</author>
+    <rights>(C) 2017</rights>
+    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+
+    
+      
+        <item>
+          <title>A script to download and install the Pester testing framework for PowerShell</title>
+          <link>http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/</link>
+          <pubDate>Tue, 28 Feb 2017 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/</guid>
+          <description>
+
+&lt;p&gt;I finally got around to looking into &lt;a href=&#34;https://github.com/pester/Pester&#34;&gt;Pester&lt;/a&gt; for test-driven development with PowerShell. In case it&amp;rsquo;s useful to anyone, and so that I don&amp;rsquo;t lose it, I created a script to download the latest release version, store it in the user&amp;rsquo;s PowerShell modules folder, and run a quick test to make sure everything is working. The script is stored in a &lt;a href=&#34;https://gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a&#34;&gt;GitHubGist&lt;/a&gt; and is reproduced below. Some of the cmdlets require a fairly recent version of PowerShell, possibly even 5.0. The steps are roughly as follows:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Figure out what the latest release number is.&lt;/li&gt;
+&lt;li&gt;Assemble the correct url to download the zip file.&lt;/li&gt;
+&lt;li&gt;Download and &amp;ldquo;Unblock&amp;rdquo; the zip file.&lt;/li&gt;
+&lt;li&gt;Figure out where the user&amp;rsquo;s modules folder is and create it if it doesn&amp;rsquo;t exist. I had to exclude the &lt;a href=&#34;https://code.visualstudio.com/&#34;&gt;vscode&lt;/a&gt; modules folder for this to work for me.&lt;/li&gt;
+&lt;li&gt;Unzip the downloaded file to the right place.&lt;/li&gt;
+&lt;li&gt;Import the newly installed modules.&lt;/li&gt;
+&lt;li&gt;Scaffold a test with &lt;code&gt;New-Fixture&lt;/code&gt;. The name is randomised to minimise the chance of overwriting something that&amp;rsquo;s already there.&lt;/li&gt;
+&lt;li&gt;Hack the generated files about a bit.&lt;/li&gt;
+&lt;li&gt;Run the test.&lt;/li&gt;
+&lt;li&gt;Clean up the generated files.&lt;/li&gt;
+&lt;li&gt;Profit!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;the-script&#34;&gt;The script&lt;/h2&gt;
+
+&lt;script src=&#34;//gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a.js&#34;&gt;&lt;/script&gt;
+</description>
+        </item>
+      
+    
+
+  </channel>
+</rss>

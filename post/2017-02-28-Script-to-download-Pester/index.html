@@ -10,7 +10,7 @@
 
   <title>
     
-      Get in touch &middot; arapaima.uk
+      A script to download and install the Pester testing framework for PowerShell &middot; arapaima.uk
     
   </title>
 
@@ -87,7 +87,7 @@
       
     
       
-        <a class="sidebar-nav-item  active " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
       
     
       
@@ -125,28 +125,35 @@
       <div class="container content">
 
 
-<div class="page">
-  <h1 class="page-title">Get in touch</h1>
+<div class="post">
+  <h1 class="post-title">A script to download and install the Pester testing framework for PowerShell</h1>
+  <span class="post-date">2017-02-28</span>
+  
 
+<p>I finally got around to looking into <a href="https://github.com/pester/Pester">Pester</a> for test-driven development with PowerShell. In case it&rsquo;s useful to anyone, and so that I don&rsquo;t lose it, I created a script to download the latest release version, store it in the user&rsquo;s PowerShell modules folder, and run a quick test to make sure everything is working. The script is stored in a <a href="https://gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a">GitHubGist</a> and is reproduced below. Some of the cmdlets require a fairly recent version of PowerShell, possibly even 5.0. The steps are roughly as follows:</p>
 
+<ul>
+<li>Figure out what the latest release number is.</li>
+<li>Assemble the correct url to download the zip file.</li>
+<li>Download and &ldquo;Unblock&rdquo; the zip file.</li>
+<li>Figure out where the user&rsquo;s modules folder is and create it if it doesn&rsquo;t exist. I had to exclude the <a href="https://code.visualstudio.com/">vscode</a> modules folder for this to work for me.</li>
+<li>Unzip the downloaded file to the right place.</li>
+<li>Import the newly installed modules.</li>
+<li>Scaffold a test with <code>New-Fixture</code>. The name is randomised to minimise the chance of overwriting something that&rsquo;s already there.</li>
+<li>Hack the generated files about a bit.</li>
+<li>Run the test.</li>
+<li>Clean up the generated files.</li>
+<li>Profit!</li>
+</ul>
 
-  <p>I&rsquo;m a <a href="https://uk.linkedin.com/in/gavincampbell" title="LinkedIn, if you insist...">freelance database developer</a> specialised in improving working practices in database delivery through the use of tools such as <a href="https://blogs.msdn.microsoft.com/ssdt/">SQL Server Data Tools</a>, <a href="http://tsqlt.org/">tSQLt</a>, <a href="https://www.visualstudio.com/team-services/">Visual Studio Team Services</a>, <a href="https://git-scm.com/">Git</a> and <a href="https://jenkins.io/">Jenkins</a>, on platforms such as <a href="https://aws.amazon.com/">AWS</a> and <a href="https://azure.microsoft.com">Microsoft Azure</a>, and methodologies such as Continuous Delivery and Agile.</p>
+<h2 id="the-script">The script</h2>
 
-<p>I <a href="/fixed/Speaking/">present at conferences and user groups now and then</a>, as well as engaging in intermittent flurries of activity on <a href="http://stackoverflow.com/users/1100346/gavin-campbell">StackOverflow</a>.</p>
+<script src="//gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a.js"></script>
 
-<p>You can get in touch with me about this site, any of the above topics, or anything else at all by completing the form below.</p>
-
-<form action="https://formspree.io/contactform@arapaima.uk"
-      method="POST">
-    <input type="text" name="name" placeholder="Your Name">
-    <input type="email" name="_replyto"placeholder = "Your Email">
-    <br/>
-    <textarea rows="10" cols="80" name="message" placeholder="Your message"></textarea><br/>
-    <input type="text" name="_gotcha" style="display:none"/>
-    <input type="submit" value="Send">
-</form> 
-
+   
 </div>
+<div id='discourse-comments'></div>
+
 
       </div>
     </div>

@@ -86,6 +86,8 @@
       
     
       
+    
+      
         <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
       
     
@@ -128,6 +130,33 @@
 
 
 <div class="posts">
+  
+    <div class="post">
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/">A script to download and install the Pester testing framework for PowerShell</a></h1>
+        <span class="post-date">2017-02-28</span>
+        
+
+<p>I finally got around to looking into <a href="https://github.com/pester/Pester">Pester</a> for test-driven development with PowerShell. In case it&rsquo;s useful to anyone, and so that I don&rsquo;t lose it, I created a script to download the latest release version, store it in the user&rsquo;s PowerShell modules folder, and run a quick test to make sure everything is working. The script is stored in a <a href="https://gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a">GitHubGist</a> and is reproduced below. Some of the cmdlets require a fairly recent version of PowerShell, possibly even 5.0. The steps are roughly as follows:</p>
+
+<ul>
+<li>Figure out what the latest release number is.</li>
+<li>Assemble the correct url to download the zip file.</li>
+<li>Download and &ldquo;Unblock&rdquo; the zip file.</li>
+<li>Figure out where the user&rsquo;s modules folder is and create it if it doesn&rsquo;t exist. I had to exclude the <a href="https://code.visualstudio.com/">vscode</a> modules folder for this to work for me.</li>
+<li>Unzip the downloaded file to the right place.</li>
+<li>Import the newly installed modules.</li>
+<li>Scaffold a test with <code>New-Fixture</code>. The name is randomised to minimise the chance of overwriting something that&rsquo;s already there.</li>
+<li>Hack the generated files about a bit.</li>
+<li>Run the test.</li>
+<li>Clean up the generated files.</li>
+<li>Profit!</li>
+</ul>
+
+<h2 id="the-script">The script</h2>
+
+<script src="//gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a.js"></script>
+
+    </div>
   
     <div class="post">
         <h1 class="post-title"><a href="http://arapaima.uk/post/2017-02-15-jenkins-pipeline-checkout-branch-if-exists/">Testing whether a branch exists before checking out in Jenkins Pipeline</a></h1>
