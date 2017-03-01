@@ -157,17 +157,14 @@
 </ul></li>
 </ul></li>
 <li><a href="#profit">Profit!</a></li>
-<li><a href="#the-numbers-game">The Numbers Game</a>
+<li><a href="#bells-and-whistles">Bells and Whistles</a>
 <ul>
-<li><a href="#hosting">Hosting</a>
+<li><a href="#talk-is-cheap">Talk is cheap</a>
 <ul>
-<li><a href="#let-s-encrypt">Let&rsquo;s encrypt</a></li>
+<li><a href="#options-for-hosting-comments-on-statically-generated-sites">Options for hosting comments on statically generated sites</a></li>
+<li><a href="#storing-the-comments-in-the-repo-along-with-the-rest-of-the-content">Storing the comments in the repo along with the rest of the content</a></li>
 </ul></li>
-<li><a href="#piwik-configuration">Piwik configuration</a>
-<ul>
-<li><a href="#integrating-piwik-with-the-hugo-site">Integrating Piwik with the Hugo site</a></li>
-<li><a href="#profit-1">Profit!</a></li>
-</ul></li>
+<li><a href="#staticman">Staticman</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -385,69 +382,35 @@ git push -q upstream HEAD:master
 
 <p>In fact, I think I&rsquo;ll have one here too: <a href="https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io"><img src="https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt="Build Status" /></a> You can get these links in various formats by clicking on the build status icon in the home page of your repo on Travis.</p>
 
-<h1 id="the-numbers-game">The Numbers Game</h1>
+<h1 id="bells-and-whistles">Bells and Whistles</h1>
 
-<p>For a good while, there were no &ldquo;analytics&rdquo;, Google or otherwise, attached to this site. For tinfoil-hat reasons, I wasn&rsquo;t all that keen on GA, and it seemed like rather a lot of effort to set up anything else.</p>
+<h2 id="talk-is-cheap">Talk is cheap</h2>
 
-<p>I had played with Piwik on a free Azure Website in the past, but ended up being free of satisfaction with the performance. In addition, the site was quite often down as I had maxed my free MSDN credits playing with Azure SQL DW and other such oddities. AWS, even with Lightsail, was pretty expensive, and I wasn&rsquo;t in the mood to sign up for yet another contract with one of the many low-cost VPS providers.</p>
+<p>One of the more difficult things to do on a static site is to support user-generated content such as comments. Many sites resort to hosted services such as <a href="https://disqus.com/">Disqus</a>, but I wasn&rsquo;t too keen on this option for the usual tinfoil-hat reasons; inline adverts, tracking cookies, <em>&ldquo;7 Secrets UK Billionaires Don&rsquo;t want You to Know&rdquo;</em>, etc., etc.</p>
 
-<h2 id="hosting">Hosting</h2>
+<h3 id="options-for-hosting-comments-on-statically-generated-sites">Options for hosting comments on statically generated sites</h3>
 
-<p>It then occurred to me that Piwik could be hosted on any shared hosting company, and I already had an extra slot on my <a href="http://my.tsohost.com/aff.php?aff=1905" title="Affiliate link. This time next year, Rodney...">tsohost.com</a> &ldquo;el cheapo&rdquo; shared hosting subscription.</p>
+<p>There are a number of self-hosted alternatives available, most notably <a href="https://discourse.org/">Discourse</a>, which provides a full-featured discussion forum that can be pressed into service as a comments engine.</p>
 
-<p>In a trice, I had created a new website <a href="https://youtu.be/A0zxE0SUG1c?t=10s" title="No, this isn't the real domain...">piwik.arapaima.uk</a> and enabled <code>ssh</code>. All shared web hosts have a different, and differently annoying, method to do this, but tsohost had fairly clear instructions. <code>ssh</code> was password-auth only, but you can&rsquo;t have everything. It can also be switched on and off on demand through the web interface.</p>
+<p>I did play with this in an earlier incarnation of this site, and I think it&rsquo;s great, but it is fairly demanding of server resources; their recommended configuration costs $20 a month at DigitalOcean at the time of writing, which is a bit much for a site that otherwise costs $0. If this were a bigger, more popular site, I&rsquo;d definitely be considering it, but given that 90% of the visitors to these pages could probably phone me if they wished to comment on any of the material here it seems like overkill.</p>
 
-<p>After that it was a question of downloading and extracting Piwik:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  wget https://builds.piwik.org/piwik.zip <span style="color: #666666">&amp;&amp;</span> unzip piwik.zip
-</pre></div>
+<p>I liked the look of <a href="https://posativ.org/isso/">isso</a> too, this still requires a VPS to host, but a much lower specfication one will do. <a href="https://github.com/jacobwb/hashover-next">Hashover</a> also looked promising, and can apparently be made to work on cheap shared hosting without a VPS. I also looked at <a href="https://github.com/jimpick/lambda-comments">lambda-comments</a>, which I think is a very interesting example of a &ldquo;serverless&rdquo; service and has given me a couple of ideas of my own. What all these approaches have in common is that the comments are stored somewhere other than on the main site - probably in a database of some description. This means at least <em>thinking</em> about maybe backing this data up, even if the thought is just &ldquo;really should get around to backing that data up&rdquo;.</p>
 
-<p>and moving the files to the <code>public_html</code> folder. The site was then accessible on the domain <a href="https://youtu.be/A0zxE0SUG1c?t=10shttps://youtu.be/A0zxE0SUG1c?t=10s" title="No, this isn't the real domain...">http://piwik.arapaima.uk</a>.</p>
+<p>This content will need to be read and rendered somehow every time the page is served.</p>
 
-<h3 id="let-s-encrypt">Let&rsquo;s encrypt</h3>
+<h3 id="storing-the-comments-in-the-repo-along-with-the-rest-of-the-content">Storing the comments in the repo along with the rest of the content</h3>
 
-<p><a href="http://my.tsohost.com/aff.php?aff=1905" title="Affiliate link. This time next year, Rodney...">Tsohost</a> had a UI to do this, so not much to say. After a bit of <code>.htaccess</code> tinkering the site was redirecting to <a href="https://youtu.be/A0zxE0SUG1c?t=10s" title="No, this isn't the real domain...">https://piwik.arapaima.uk</a> and we were ready for action, following the <a href="https://piwik.org/docs/installation/#the-5-minut-piwik-installation" title="5 minute Piwik installation instructions">&ldquo;5 minute install&rdquo;</a> instructions for Piwik.</p>
+<p>I was aware, however, from some previous experimentation with <a href="https://getpelican.com/">Pelican</a>, that there were techniques available for storing comments as text - or markdown, yaml, whatever - files in the repo along with the rest of the content, and using the GitHub &ldquo;Pull Request&rdquo; mechanism to provide a means for comment moderation. Some searching brought me to <a href="https://staticman.net/">Staticman</a>, a free service that promises to do just this, either via their own hosted instance or via a private instance hosted on your own server.</p>
 
-<h2 id="piwik-configuration">Piwik configuration</h2>
+<h2 id="staticman">Staticman</h2>
 
-<p>Piwik did its &ldquo;system check&rdquo;, which was passed with flying colours. I used the tsohost wizard to create a mysql database, provided the details to the Piwik installer, and created a &ldquo;superuser&rdquo; login for Piwik.</p>
+<p>I went for the Staticman hosted version, and managed to get pretty well set up by following the instructions on the website. Staticman seems to be mainly aimed at <a href="https://jekyllrb.com/">Jekyll</a> users, but there is an <a href="https://hugo.staticman.net/">example Hugo site</a> with source code on <a href="https://github.com/eduardoboucas/hugo-plus-staticman">Github</a> that was a great help in the Hugo-specific templates (and I borrowed the <a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/blob/master/static/css/comments.css">css</a> for the form from there too!).</p>
 
-<h3 id="integrating-piwik-with-the-hugo-site">Integrating Piwik with the Hugo site</h3>
+<p>In principle, the user fills in a form on your page, and the comment is sent to the Staticman web service, which turns the comment into a pull request - or a commit, if moderation is turned off - in your source repo. For this to work, the staticmanapp user needs to be added as a &ldquo;collaborator&rdquo; on your Github project - this is, as far as I can see, the main motivation for using a self-hosted instance of the service, but I decided to take the risk that the Staticman developer will go crazy and start posting lewd messages to his users&rsquo; repos!</p>
 
-<p>The final step was to add the javascript client generated by Piwik to our pages. I added it in the <a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/blob/master/layouts/partials/head.html"><code>layouts/partials/head</code></a> file:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  
-  <span style="color: #888888; font-style: italic">&lt;!-- RSS --&gt;</span>
-  <span style="color: #888888">&lt;</span><span style="color: #2838b0">link</span> <span style="color: #388038">rel</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;alternate&quot;</span> <span style="color: #388038">type</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;application/rss+xml&quot;</span> <span style="color: #388038">title</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;RSS&quot;</span> <span style="color: #388038">href</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;/atom.xml&quot;</span><span style="color: #888888">&gt;</span>
- 
-<span style="color: #888888; font-style: italic">&lt;!-- Piwik --&gt;</span>
-<span style="color: #888888">&lt;</span><span style="color: #2838b0">script</span> <span style="color: #388038">type</span><span style="color: #666666">=</span><span style="color: #b83838">&quot;text/javascript&quot;</span><span style="color: #888888">&gt;</span>
-  <span style="color: #2838b0; font-style: italic">var</span> _paq <span style="color: #666666">=</span> _paq <span style="color: #666666">||</span> <span style="color: #888888">[];</span>
-  <span style="color: #888888; font-style: italic">// tracker methods like &quot;setCustomDimension&quot; should be called before &quot;trackPageView&quot;</span>
-  _paq<span style="color: #888888">.</span>push<span style="color: #888888">([</span><span style="color: #b83838">&#39;trackPageView&#39;</span><span style="color: #888888">]);</span>
-  _paq<span style="color: #888888">.</span>push<span style="color: #888888">([</span><span style="color: #b83838">&#39;enableLinkTracking&#39;</span><span style="color: #888888">]);</span>
-  <span style="color: #888888">(</span><span style="color: #2838b0; font-style: italic">function</span><span style="color: #888888">()</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">if</span> <span style="color: #888888">(</span><span style="color: #388038">window</span><span style="color: #888888">.</span>location<span style="color: #888888">.</span>hostname <span style="color: #666666">==</span> <span style="color: #b83838">&quot;localhost&quot;</span><span style="color: #888888">)</span>
-      <span style="color: #2838b0">return</span><span style="color: #888888">;</span>
+<p>Each message is stored as a separate file, in a folder that corresponds to the post. In my configuration, file and folder names are md5 checksums, so not the most user friendly, but the <a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/blob/master/layouts/partials/post-comments.html">post-comments.html</a> partial is able to use these to make sure the right comments get displayed with the right post. All of this behaviour - and much more - is configurable through the <a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/blob/master/staticman.yml">staticman.yml</a> file stored in the root of the source repo. It follows from this that users are able to edit their comments by finding the appropriate file in the repo and submitting a new pull request!</p>
 
-    <span style="color: #2838b0; font-style: italic">var</span> u<span style="color: #666666">=</span><span style="color: #b83838">&quot;//piwik.arapaima.uk/&quot;</span><span style="color: #888888">;</span>
-    _paq<span style="color: #888888">.</span>push<span style="color: #888888">([</span><span style="color: #b83838">&#39;setTrackerUrl&#39;</span><span style="color: #888888">,</span> u<span style="color: #666666">+</span><span style="color: #b83838">&#39;piwik.php&#39;</span><span style="color: #888888">]);</span>
-    _paq<span style="color: #888888">.</span>push<span style="color: #888888">([</span><span style="color: #b83838">&#39;setSiteId&#39;</span><span style="color: #888888">,</span> <span style="color: #b83838">&#39;1&#39;</span><span style="color: #888888">]);</span>
-    <span style="color: #2838b0; font-style: italic">var</span> d<span style="color: #666666">=</span><span style="color: #388038">document</span><span style="color: #888888">,</span> g<span style="color: #666666">=</span>d<span style="color: #888888">.</span>createElement<span style="color: #888888">(</span><span style="color: #b83838">&#39;script&#39;</span><span style="color: #888888">),</span> s<span style="color: #666666">=</span>d<span style="color: #888888">.</span>getElementsByTagName<span style="color: #888888">(</span><span style="color: #b83838">&#39;script&#39;</span><span style="color: #888888">)[</span><span style="color: #444444">0</span><span style="color: #888888">];</span>
-    g<span style="color: #888888">.</span>type<span style="color: #666666">=</span><span style="color: #b83838">&#39;text/javascript&#39;</span><span style="color: #888888">;</span> g<span style="color: #888888">.</span>async<span style="color: #666666">=</span><span style="color: #444444; font-style: italic">true</span><span style="color: #888888">;</span> g<span style="color: #888888">.</span>defer<span style="color: #666666">=</span><span style="color: #444444; font-style: italic">true</span><span style="color: #888888">;</span> g<span style="color: #888888">.</span>src<span style="color: #666666">=</span>u<span style="color: #666666">+</span><span style="color: #b83838">&#39;piwik.js&#39;</span><span style="color: #888888">;</span> s<span style="color: #888888">.</span>parentNode<span style="color: #888888">.</span>insertBefore<span style="color: #888888">(</span>g<span style="color: #888888">,</span>s<span style="color: #888888">);</span>
-  <span style="color: #888888">})();</span>
-<span style="color: #888888">&lt;/</span><span style="color: #2838b0">script</span><span style="color: #888888">&gt;</span>
-<span style="color: #888888; font-style: italic">&lt;!-- End Piwik Code --&gt;</span>
-</pre></div>
-
-<p>I did add the lines</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span> <span style="color: #2838b0">if</span> <span style="color: #888888">(</span><span style="color: #388038">window</span><span style="color: #888888">.</span>location<span style="color: #888888">.</span>hostname <span style="color: #666666">==</span> <span style="color: #b83838">&quot;localhost&quot;</span><span style="color: #888888">)</span>
-     <span style="color: #2838b0">return</span><span style="color: #888888">;</span>
-</pre></div>
-
-<p>to the start of the tracking function so that it doesn&rsquo;t get called when working locally.</p>
-
-<h3 id="profit-1">Profit!</h3>
-
-<p>All that remains is to push our changes, and Piwik is ready for action.</p>
+<p>All of this has the huge advantage that comments aren&rsquo;t summoned up from any external source at page load time; they are simply baked into the html source of the page by the Hugo build process.</p>
 
 </div>
 
