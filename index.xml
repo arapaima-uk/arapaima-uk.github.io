@@ -6,8 +6,249 @@
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2017</rights>
-    <updated>2017-02-28 00:00:00 &#43;0000 UTC</updated>
+    <updated>2017-03-16 00:00:00 &#43;0000 UTC</updated>
 
+    
+      
+        <item>
+          <title>Recovering from the &#34;La-La-Land Moment&#34;</title>
+          <link>http://arapaima.uk/post/2017-03-16-inserting-marked-transaction-ssdt-deployment/</link>
+          <pubDate>Thu, 16 Mar 2017 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2017-03-16-inserting-marked-transaction-ssdt-deployment/</guid>
+          <description>
+
+&lt;h1 id=&#34;how-ssdt-can-help-with-restoring-a-sql-server-database-to-just-before-that-last-deployment&#34;&gt;How SSDT can help with restoring a SQL Server database to &amp;ldquo;just before that last deployment&amp;rdquo;&lt;/h1&gt;
+
+&lt;p&gt;For as long as I can remember, SSDT and its predecessors have had the option to &amp;ldquo;Back up database before deployment&amp;rdquo;, currently available in the &amp;ldquo;Advanced Publish Settings&amp;rdquo; dialog, among other places. Regrettably, I&amp;rsquo;ve never really had much use for this particular option. Whilst restoring from backup might be a valid strategy for recovering from some kinds of deployment disaster, this could add a great deal of time to the deployment process, assuming a database of non-trivial size.&lt;/p&gt;
+
+&lt;p&gt;In any case, there are really only two kinds of database - the ones where you don&amp;rsquo;t care about the data, such as development and test environments, and the ones (one?) where you do. In the former case, backups don&amp;rsquo;t matter anyway, and in the latter case it is to be hoped that there is already some kind of backup solution in place, ideally managed by someone who isn&amp;rsquo;t you.&lt;/p&gt;
+
+&lt;p&gt;Further, the &amp;ldquo;Backup database before deployment&amp;rdquo; option appears not to offer much control over &lt;em&gt;how&lt;/em&gt; the database is backed up. The backup will be created in the default backup directory of the instance, and will be a &lt;em&gt;full&lt;/em&gt; rather than a &lt;em&gt;copy only&lt;/em&gt; backup, which has the potential to endanger the &amp;ldquo;real&amp;rdquo; disaster recovery plans in the event that these include differential database backups, as the SSDT-generated backup will reset the differential base, meaning &lt;em&gt;this&lt;/em&gt; backup, which the DBAs don&amp;rsquo;t even know about,  will be necessary, along with the subsequent differentials, in case the database needs to be restored.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s likely that the &amp;ldquo;real&amp;rdquo; backup strategy will involve some combination of full, differential, and transaction log backups, and if you&amp;rsquo;re especially lucky will be managed by some kind of &amp;ldquo;Enterprise Backup Solution&amp;rdquo;, which will allow rapid restores to any point in time, just as soon as you figure out where it is that the &amp;ldquo;Enterprise Backup Solution&amp;rdquo; keeps the backup files for your database.&lt;/p&gt;
+
+&lt;p&gt;So, assuming the worst case scenario has arisen, your newly deployed release has been writing rubbish data to the database for the last few hours, the &amp;ldquo;war room&amp;rdquo; has been convened and someone you&amp;rsquo;ve never heard of called the &amp;ldquo;Problem Management Executive Consultant&amp;rdquo; has decided that the right course of action is to &amp;ldquo;Restore the database to immediately before the deployment&amp;rdquo;, how are you to decide when this was?&lt;/p&gt;
+
+&lt;p&gt;Well, hopefully you know from your release logs what time the database was deployed, but what if there was a better way? And what if you aren&amp;rsquo;t sure what timezone the deployment server is in or whether it uses daylight savings time? Well, one solution to this involves a somewhat neglected feature of SQL Server known as &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/ms188929.aspx#Anchor_3&#34;&gt;Marked Transactions&lt;/a&gt;. (See, it doesn&amp;rsquo;t even get its own page in MSDN!)&lt;/p&gt;
+
+&lt;h2 id=&#34;marked-transactions&#34;&gt;Marked Transactions&lt;/h2&gt;
+
+&lt;p&gt;The syntax &lt;code&gt;BEGIN TRANSACTION&lt;/code&gt; &lt;em&gt;tran-name&lt;/em&gt; &lt;code&gt;WITH MARK &#39;Mark Description&#39;&lt;/code&gt; will record the name of the transaction in the transaction log, along with the date, time, LSN, etc. The description is optional, but that gets saved too.&lt;/p&gt;
+
+&lt;p&gt;We can see this in action using the &lt;a href=&#34;https://technet.microsoft.com/en-us/library/ms143221.aspx&#34;&gt;&lt;code&gt;pubs&lt;/code&gt;&lt;/a&gt; database, which if you&amp;rsquo;re younger than a certain age, sadly isn&amp;rsquo;t what you think.&lt;/p&gt;
+
+&lt;p&gt;Note that if you&amp;rsquo;re playing along at home, there are a couple of extra considerations; the database needs to be using the full (or bulk-logged) recovery model and &lt;em&gt;a full backup must already have been taken&lt;/em&gt;, i.e. the database is not in the &lt;a href=&#34;http://www.sqlskills.com/blogs/paul/new-script-is-that-database-really-in-the-full-recovery-mode/&#34;&gt;pseudo-simple&lt;/a&gt; recovery model.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;USE pubs&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;BEGIN&lt;/span&gt; TRANSACTION update_auths &lt;span style=&#34;color: #2838b0&#34;&gt;WITH&lt;/span&gt; MARK &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;update authors entry&amp;#39;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;UPDATE&lt;/span&gt; authors &lt;span style=&#34;color: #2838b0&#34;&gt;set&lt;/span&gt; 
+phone &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;408 496-7223&amp;#39;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;WHERE&lt;/span&gt; au_id &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;172-32-1176&amp;#39;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;COMMIT&lt;/span&gt; TRANSACTION
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If we take a peek at the transaction log we can see our marked transaction there:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;SELECT&lt;/span&gt;  &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;Transaction ID&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;Current&lt;/span&gt; LSN&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;Transaction Name&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;Operation&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+        Description &lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;Transaction SID&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+        sp&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;name
+&lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt;    fn_dblog&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;NULL&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NULL&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;AS&lt;/span&gt; f
+        &lt;span style=&#34;color: #2838b0&#34;&gt;JOIN&lt;/span&gt; sys&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;server_principals sp &lt;span style=&#34;color: #2838b0&#34;&gt;ON&lt;/span&gt; f&lt;span style=&#34;color: #888888&#34;&gt;.[&lt;/span&gt;Transaction SID&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; sp&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;sid
+&lt;span style=&#34;color: #2838b0&#34;&gt;WHERE&lt;/span&gt;   &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;transaction Name&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;update_auths&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Transaction ID&lt;/th&gt;
+&lt;th&gt;Current LSN&lt;/th&gt;
+&lt;th&gt;Transaction Name&lt;/th&gt;
+&lt;th&gt;Operation&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;th&gt;Transaction SID&lt;/th&gt;
+&lt;th&gt;name&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0000:000004ee&lt;/td&gt;
+&lt;td&gt;00000022:000005f2:0001&lt;/td&gt;
+&lt;td&gt;update_auths&lt;/td&gt;
+&lt;td&gt;LOP_BEGIN_XACT&lt;/td&gt;
+&lt;td&gt;2017/03/16 18:09:58:327;update_auths;0x0105000000000005150000004cca9a3fa9173a6eba0c5dc9e9030000&lt;/td&gt;
+&lt;td&gt;0x0105000000000005150000004CCA9A3FA9173A6EBA0C5DC9E9030000&lt;/td&gt;
+&lt;td&gt;ARAPAIMA\Arapaima&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;The &lt;code&gt;logmarkhistory&lt;/code&gt; table in &lt;code&gt;msdb&lt;/code&gt; also stores a list of our marked transactions:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;SELECT&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt; msdb&lt;span style=&#34;color: #888888&#34;&gt;..&lt;/span&gt;logmarkhistory
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;database_name&lt;/th&gt;
+&lt;th&gt;mark_name&lt;/th&gt;
+&lt;th&gt;description&lt;/th&gt;
+&lt;th&gt;user_name&lt;/th&gt;
+&lt;th&gt;lsn&lt;/th&gt;
+&lt;th&gt;mark_time&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;pubs&lt;/td&gt;
+&lt;td&gt;update_auths&lt;/td&gt;
+&lt;td&gt;update authors entry&lt;/td&gt;
+&lt;td&gt;ARAPAIMA\Arapaima&lt;/td&gt;
+&lt;td&gt;34000000152200003&lt;/td&gt;
+&lt;td&gt;2017-03-16 18:09:58.327&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;So, it seems we can use this functionality to give us a named point in the transaction log to restore to in the event of career-threatening disaster.&lt;/p&gt;
+
+&lt;p&gt;The thing to note is that we need to update &lt;em&gt;something&lt;/em&gt; in the database where we&amp;rsquo;re creating the mark, but it doesn&amp;rsquo;t really matter &lt;em&gt;what&lt;/em&gt; we update. It&amp;rsquo;s often useful to have a &lt;code&gt;Releases&lt;/code&gt; table in our databases where we can store the version number, date, and other fun facts about our database, so this is as good a candidate as any.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;CREATE&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;TABLE&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;Releases&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;
+        ReleaseVersion &lt;span style=&#34;color: #388038&#34;&gt;VARCHAR&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #444444&#34;&gt;20&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NOT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NULL&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;PRIMARY&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;KEY&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+        DateDeployed DATETIME2 &lt;span style=&#34;color: #2838b0&#34;&gt;NOT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;NULL&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;DEFAULT&lt;/span&gt; SYSUTCDATETIME&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt; 
+        &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;--Not taking any chances with the time zone!&lt;/span&gt;
+
+&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;We need to create this table and add it to our database project.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve created a proc to do the inserting:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;CREATE&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;PROCEDURE&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;dbo&lt;span style=&#34;color: #888888&#34;&gt;].[&lt;/span&gt;spFireInTheHole&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt;
+	&lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;ReleaseVersion &lt;span style=&#34;color: #388038&#34;&gt;varchar&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #444444&#34;&gt;20&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;AS&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;BEGIN&lt;/span&gt; TRANSACTION &lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;ReleaseVersion &lt;span style=&#34;color: #2838b0&#34;&gt;WITH&lt;/span&gt; MARK &lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;ReleaseVersion 
+  &lt;span style=&#34;color: #2838b0&#34;&gt;INSERT&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;INTO&lt;/span&gt; dbo&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Releases&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;ReleaseVersion&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;VALUES&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;ReleaseVersion&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;COMMIT&lt;/span&gt; TRANSACTION
+&lt;span style=&#34;color: #2838b0&#34;&gt;RETURN&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;0&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And now for the tricky part&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;The &lt;em&gt;first&lt;/em&gt; time we deploy the database project after adding these objects, they won&amp;rsquo;t be present in the target database, so we won&amp;rsquo;t be able to call them from the pre-deployment script. This means we need to wrap them with &lt;code&gt;IF EXISTS&lt;/code&gt; in the pre-deployment script so that they don&amp;rsquo;t get called if they don&amp;rsquo;t exist. The drawback of this approach, naturally, is that &amp;ldquo;Release 0.0.1&amp;rdquo; won&amp;rsquo;t be recorded in your database for posterity. In my experience of such matters, the gap between Release 0.0.1 and Release 0.0.2 is normally measured in minutes rather than years, so I&amp;rsquo;m not particularly concerned about this.&lt;/p&gt;
+
+&lt;p&gt;Finally, we are going to use a &lt;code&gt;sqlcmd&lt;/code&gt; &lt;em&gt;variable&lt;/em&gt; to hold the release number; this means we can pass it in at deployment time. Most deployment tools know how to do this, for this example we&amp;rsquo;ll just pass it on the command line.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-pre-deployment-script&#34;&gt;The pre-deployment script&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;/*&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Pre-Deployment Script Template							&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;--------------------------------------------------------------------------------------&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; This file contains SQL statements that will be executed before the build script.	&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Use SQLCMD syntax to include a file in the pre-deployment script.			&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Example:      :r .\myfile.sql								&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Use SQLCMD syntax to reference a variable in the pre-deployment script.		&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Example:      :setvar TableName MyTable							&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;               SELECT * FROM [$(TableName)]					&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;--------------------------------------------------------------------------------------&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;*/&lt;/span&gt;
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;IF&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;EXISTS&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;SELECT&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt; sys&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;tables &lt;span style=&#34;color: #2838b0&#34;&gt;where&lt;/span&gt; name &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;Releases&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; 
+&lt;span style=&#34;color: #2838b0&#34;&gt;AND&lt;/span&gt; 
+&lt;span style=&#34;color: #2838b0&#34;&gt;EXISTS&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;SELECT&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt; sys&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;procedures &lt;span style=&#34;color: #2838b0&#34;&gt;WHERE&lt;/span&gt; NAME &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;spFireInTheHole&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;BEGIN&lt;/span&gt;
+	
+        &lt;span style=&#34;color: #2838b0&#34;&gt;EXEC&lt;/span&gt; spFireInTheHole &lt;span style=&#34;color: #666666&#34;&gt;@&lt;/span&gt;ReleaseVersion &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;$(ReleaseVersion)&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;END&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now, after we build our &lt;code&gt;dacpac&lt;/code&gt;, we supply the version number at deploy time:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sqlpackage.exe /Action:Publish /SourceFile:pubs.dacpac /TargetServerName:(local) /TargetDatabaseName:pubs /v:ReleaseVersion=0.2.0
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If we run a few &amp;ldquo;Releases&amp;rdquo;, we can see the marks building up in &lt;code&gt;msdb..logmarkhistory&lt;/code&gt;:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;database name&lt;/th&gt;
+&lt;th&gt;mark name&lt;/th&gt;
+&lt;th&gt;description&lt;/th&gt;
+&lt;th&gt;user name&lt;/th&gt;
+&lt;th&gt;lsn&lt;/th&gt;
+&lt;th&gt;mark_time&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;pubs&lt;/td&gt;
+&lt;td&gt;0.0.2&lt;/td&gt;
+&lt;td&gt;0.0.2&lt;/td&gt;
+&lt;td&gt;ARAPAIMA\Arapaima&lt;/td&gt;
+&lt;td&gt;34000000172100002&lt;/td&gt;
+&lt;td&gt;2017-03-16 20:06:40.490&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;pubs&lt;/td&gt;
+&lt;td&gt;0.0.3&lt;/td&gt;
+&lt;td&gt;0.0.3&lt;/td&gt;
+&lt;td&gt;ARAPAIMA\Arapaima&lt;/td&gt;
+&lt;td&gt;34000000172200003&lt;/td&gt;
+&lt;td&gt;2017-03-16 20:07:14.673&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;pubs&lt;/td&gt;
+&lt;td&gt;0.0.3&lt;/td&gt;
+&lt;td&gt;0.0.3&lt;/td&gt;
+&lt;td&gt;ARAPAIMA\Arapaima&lt;/td&gt;
+&lt;td&gt;34000000172300002&lt;/td&gt;
+&lt;td&gt;2017-03-16 20:08:16.183&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;pubs&lt;/td&gt;
+&lt;td&gt;0.0.4&lt;/td&gt;
+&lt;td&gt;0.0.4&lt;/td&gt;
+&lt;td&gt;ARAPAIMA\Arapaima&lt;/td&gt;
+&lt;td&gt;34000000172400003&lt;/td&gt;
+&lt;td&gt;2017-03-16 20:08:39.760&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;In this particular setup, you&amp;rsquo;ll get an error if you try to supply the same version number more than once, as &lt;code&gt;ReleaseVersion&lt;/code&gt; is the primary key of the &lt;code&gt;Releases&lt;/code&gt; table.&lt;/p&gt;
+
+&lt;h3 id=&#34;disaster-strikes&#34;&gt;Disaster Strikes&lt;/h3&gt;
+
+&lt;p&gt;So, the career-threatening disaster has happened, and we need to restore our database to its state immediately prior to release 0.6.0. If there hasn&amp;rsquo;t been a log backup since the deployment, the first step is to make one.&lt;/p&gt;
+
+&lt;p&gt;Then, with a bit of DBA magic, we can restore our database to just before the deployment started. I generated these scripts from SQL Server Management Studio, unless you&amp;rsquo;ve got a competent adult handy I suggest you do the same. The crucial bit is in the last time where we specify &lt;code&gt;STOPBEFOREMARK&lt;/code&gt;, which is exactly what we want to do.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;USE &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;master&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt;
+BACKUP LOG &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;pubs&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;TO&lt;/span&gt;  DISK &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs_LogBackup_2017-03-16_21-05-56.bak&amp;#39;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;WITH&lt;/span&gt; NOFORMAT&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; NOINIT&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  NAME &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;pubs_LogBackup_2017-03-16_21-05-56&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; NOSKIP&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; NOREWIND&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; NOUNLOAD&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  NORECOVERY &lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  STATS &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;5&lt;/span&gt;
+RESTORE &lt;span style=&#34;color: #2838b0&#34;&gt;DATABASE&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;pubs&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt;  DISK &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&amp;#39;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;WITH&lt;/span&gt;  FILE &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  NORECOVERY&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  NOUNLOAD&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  STATS &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;5&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+RESTORE LOG &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;pubs&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt;  DISK &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&amp;#39;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;WITH&lt;/span&gt;  FILE &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  NORECOVERY&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  NOUNLOAD&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  STATS &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;10&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+RESTORE LOG &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;pubs&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt;  DISK &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&amp;#39;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;WITH&lt;/span&gt;  FILE &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;4&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  NORECOVERY&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  NOUNLOAD&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  STATS &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;10&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+RESTORE LOG &lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;pubs&lt;span style=&#34;color: #888888&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;FROM&lt;/span&gt;  DISK &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&amp;#39;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;WITH&lt;/span&gt;  FILE &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  NOUNLOAD&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  STATS &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #444444&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;  STOPBEFOREMARK &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;0.6.0&amp;#39;&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;AFTER&lt;/span&gt; N&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;2017-03-16T20:46:07&amp;#39;&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;GO&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;And with that, the database is restored to its state immediately prior to the deployment - you can check this by looking at the &lt;code&gt;Releases&lt;/code&gt; table - , and all that is left to do is blame the guy that left last month for the &amp;ldquo;rogue code&amp;rdquo; that &amp;ldquo;crept&amp;rdquo; into the release. This is normally possible by editing old git commit messages and force pushing the master branch, but that&amp;rsquo;s a topic for another day.&lt;/p&gt;
+</description>
+        </item>
+      
     
       
         <item>
