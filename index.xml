@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Arapaima (UK) </title>
+    <title>arapaima.uk </title>
     <link>http://arapaima.uk/index.xml</link>
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2017</rights>
     <updated>2017-03-16 00:00:00 &#43;0000 UTC</updated>
 
+    
+      
+    
+      
     
       
         <item>
@@ -943,10 +947,6 @@ IF EXISTS (SELECT TOP 1 1
           <description>&lt;p&gt;Welcome to this, my new site. I&amp;rsquo;ll be adding content about Continuous Integration, database systems including but not limited to Microsoft® SQL Server and development tools including but not limited to Microsoft® Visual Studio. The site itself is provisioned in a moderately interesting way, which you can read about &lt;a href=&#34;http://arapaima.uk/fixed/BlogSetup/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 </description>
         </item>
-      
-    
-      
-    
       
     
       

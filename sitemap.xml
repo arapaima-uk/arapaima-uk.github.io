@@ -2,8 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://arapaima.uk/</loc>
-    <lastmod>2017-03-16T00:00:00+00:00</lastmod>
+    <loc>http://arapaima.uk/fixed/About/</loc>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/fixed/BlogSetup/</loc>
   </url>
   
   <url>
@@ -42,15 +45,76 @@
   </url>
   
   <url>
+    <loc>http://arapaima.uk/fixed/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/tags/jenkins/</loc>
+    <lastmod>2017-02-17T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/tags/pester/</loc>
+    <lastmod>2017-02-28T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/post/</loc>
+    <lastmod>2017-03-16T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/tags/powershell/</loc>
+    <lastmod>2017-02-28T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/tags/refactoring/</loc>
+    <lastmod>2016-11-12T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/series/refactoring-databases-with-ssdt/</loc>
+    <lastmod>2016-11-12T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/series/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>http://arapaima.uk/fixed/Speaking/</loc>
   </url>
   
   <url>
-    <loc>http://arapaima.uk/fixed/About/</loc>
+    <loc>http://arapaima.uk/tags/ssdt/</loc>
+    <lastmod>2017-03-16T00:00:00+00:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://arapaima.uk/fixed/BlogSetup/</loc>
+    <loc>http://arapaima.uk/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/tags/tdd/</loc>
+    <lastmod>2017-02-28T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://arapaima.uk/</loc>
+    <lastmod>2017-03-16T00:00:00+00:00</lastmod>
+    <priority>0</priority>
   </url>
   
 </urlset>
