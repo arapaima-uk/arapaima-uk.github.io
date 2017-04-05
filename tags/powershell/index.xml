@@ -11,6 +11,254 @@
     
       
         <item>
+          <title>Automating SSDT build and deployment with Jenkins from a local git repo</title>
+          <link>http://arapaima.uk/post/2017-04-04-jenkins-windows-git-ssdt-profit/</link>
+          <pubDate>Tue, 04 Apr 2017 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2017-04-04-jenkins-windows-git-ssdt-profit/</guid>
+          <description>
+
+&lt;p&gt;This is a short illustration of using a local installation of Jenkins on Windows to build an SSDT project from a local git repo and deploy it to a SQL Server on the same machine.&lt;/p&gt;
+
+&lt;p&gt;This is probably useful for a quick demonstration or to understand how the various moving parts fit together, but possibly less applicable to &amp;ldquo;Real Life&amp;rdquo; production environments.&lt;/p&gt;
+
+&lt;p&gt;There are no build agents and no git remotes; all the action takes place on the Jenkins master, and the git repo is local to the same machine. No &amp;ldquo;git management&amp;rdquo; software such as GitHub/VSTS/GitLab/BitBucket/etc is involved (except for some slight cheating regarding the build definition itself.)&lt;/p&gt;
+
+&lt;h2 id=&#34;getting-set-up&#34;&gt;Getting set up&lt;/h2&gt;
+
+&lt;p&gt;I am using Windows 10 with SQL Server 2016 Developer Edition and Visual Studio 2015 Professional. Most of this stuff should work with most editions and versions of SQL Server and Visual Studio, but some of the paths will vary here and there. I am using SQL Server Data Tools Version 14.0.61021.0, released on October 26, 2016.&lt;/p&gt;
+
+&lt;h3 id=&#34;installing-jenkins&#34;&gt;Installing Jenkins&lt;/h3&gt;
+
+&lt;p&gt;I used the windows installer linked &lt;a href=&#34;https://jenkins.io/content/thank-you-downloading-windows-installer/#stable&#34;&gt;here&lt;/a&gt; (note that this link will trigger the download &lt;em&gt;immediately&lt;/em&gt;). At the time of writing this is version 2.46.1. In the initial setup, I selected the option to &amp;ldquo;Install Recommended Plugins&amp;rdquo;; this installs more than is required for this example.&lt;/p&gt;
+
+&lt;h3 id=&#34;further-jenkins-twiddling&#34;&gt;Further Jenkins twiddling&lt;/h3&gt;
+
+&lt;p&gt;The MSBuild plugin needs to be installed separately (as it isn&amp;rsquo;t &amp;ldquo;&lt;em&gt;recommended&lt;/em&gt;&amp;rdquo;!), which can be done from &lt;a href=&#34;http://localhost:8080/pluginManager/available&#34;&gt;http://localhost:8080/pluginManager/available&lt;/a&gt; or by clicking through &lt;em&gt;Jenkins -&amp;gt; Manage Jenkins -&amp;gt; Manage Plugins -&amp;gt; Available&lt;/em&gt;. We need to tell Jenkins where it can find &lt;code&gt;MSBuild.exe&lt;/code&gt;, this is done on &lt;a href=&#34;http://localhost:8080/configureTools/&#34;&gt;http://localhost:8080/configureTools/&lt;/a&gt; (&lt;em&gt;Jenkins -&amp;gt; Manage Jenkins -&amp;gt; Global Tool Configuration&lt;/em&gt;). You can find out where &lt;code&gt;MSBuild&lt;/code&gt; is installled by opening the &amp;ldquo;Developer Command Prompt for Visual Studio&amp;rdquo; and typing&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Program&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Files (x86)\Microsoft Visual Studio 14.0&amp;gt;where msbuild&lt;/span&gt;
+C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Program&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Files (x86)\MSBuild\14.0\Bin\MSBuild.exe&lt;/span&gt;
+C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;I used the first of these, as this is the one installed by Visual Studio&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; 2015, and should avoid having to re-read the somewhat convoluted StackOverflow thread &lt;a href=&#34;http://stackoverflow.com/questions/22968561/msbuild-errors-for-database-project-on-tfs-server-with-vs-2013-shell&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I already had git installed and in the path, so there was no need to configure this separately in Jenkins.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;$ git --version
+git version &lt;span style=&#34;color: #444444&#34;&gt;2&lt;/span&gt;.11.0.windows.3
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;compromising-your-sql-server-2&#34;&gt;Compromising your SQL Server &lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:2&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:2&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/h3&gt;
+
+&lt;p&gt;By default, the Jenkins service will run as &amp;ldquo;Local System&amp;rdquo; on Windows. In order to allow this account - which will authenticate to SQL Server as the machine account - to deploy the database, I made &amp;ldquo;Local System&amp;rdquo; an &lt;code&gt;sa&lt;/code&gt; of the SQL Server:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;EXEC&lt;/span&gt; sp_addsrvrolemember &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;NT AUTHORITY\SYSTEM&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;sysadmin&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;There are many circumstances in which this wouldn&amp;rsquo;t be a good idea, if any of them apply in your scenario you should make appropriate adjustments to the scripts that follow.&lt;/p&gt;
+
+&lt;h3 id=&#34;find-something-to-build&#34;&gt;Find something to build&lt;/h3&gt;
+
+&lt;p&gt;I started by cloning a repo I had prepared earlier, containing a copy of the Chinook database.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;git clone https://github.com/arapaima-uk/Chinook.JenkinsDemo.git&lt;/span&gt;
+Cloning into &amp;#39;Chinook.JenkinsDemo&amp;#39;...
+remote: Counting objects: 26, done.
+remote: Compressing objects: 100% (20/20), done.
+remote: Total 26 (delta 5), reused 26 (delta 5), pack-reused 0
+Unpacking objects: 100% (26/26), done.
+
+C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;tree&lt;/span&gt;
+Folder PATH listing
+Volume serial number is 000000B7 806E:E890
+C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;.&lt;/span&gt;
+└───Chinook.JenkinsDemo
+    └───Chinook.JenkinsDemo
+        └───dbo
+            └───Tables
+
+C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;having done that, I then removed the reference to the GitHub remote with&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects\Chinook.JenkinsDemo&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;git remote rm origin&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;From here on, everything is local (&lt;em&gt;geddit?&lt;/em&gt;).&lt;/p&gt;
+
+&lt;h2 id=&#34;creating-the-jenkins-job&#34;&gt;Creating the Jenkins job&lt;/h2&gt;
+
+&lt;p&gt;The first step is to create the Jenkins job that will build our project into a dacpac, and deploy it to a local SQL Server.&lt;/p&gt;
+
+&lt;p&gt;The job definition is contained in the following Jenkinsfile, which consists of three fairly self-explanatory stages. The first stage &lt;code&gt;git checkout&lt;/code&gt; checks out our master branch from the local (indicated by the &lt;code&gt;file:\\&lt;/code&gt; prefix) repo. The second stage calls the &lt;code&gt;MSBuild&lt;/code&gt; tool we defined earlier, taking advantage of the fact that our project is very simple to provide very few parameters on the command line. The third calls out to the shell to call &lt;code&gt;sqlpackage.exe&lt;/code&gt;, again with very few parameters. This last stage is the one that requires whatever account Jenkins is running under to be able to authenticate to the SQL Server (though there are alternatives involving storing credentials in Jenkins).&lt;/p&gt;
+
+&lt;script src=&#34;//gist.github.com/gavincampbell/e3dfa25abf427752e919eb2110f03852.js&#34;&gt;&lt;/script&gt;
+
+&lt;p&gt;Conveniently, since this is stored in a GitHub gist, and a gist is a git repo, I can create a new pipeline job and specify &amp;ldquo;Pipeline Script from SCM&amp;rdquo; in the build definition then provide the url of the gist for the repository url.&lt;/p&gt;
+
+&lt;p&gt;Note that this repo contains a single file, namely the build definition - all the project files are coming from the git repo on our local machine. If you want to copy and paste the complete url, it&amp;rsquo;s in the build output log reproduced below.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-ssdt-git/pipeline-job-from-gist.PNG&#34; alt=&#34;Screenshot of Jenkins showing pipeline from SCM&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;One more detail is that the job needs to be set to &amp;ldquo;Poll SCM&amp;rdquo;, but the schedule can be left empty (ignore the warning). This isn&amp;rsquo;t required to test the build, but will be required later on to trigger the build on a commit to our git repo.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-ssdt-git/jenkins-job-set-to-poll-with-empty-schedule.PNG&#34; alt=&#34;Jenkins Pipeline Job showing Poll SCM Setting with empty schedule&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;testing-the-build&#34;&gt;Testing the build&lt;/h3&gt;
+
+&lt;p&gt;We should now be able to trigger the build from the Jenkins dashboard, and see some output like the following (under &amp;ldquo;Console Output&amp;rdquo;)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Started by user arapaima
+Obtained Jenkinsfile from git https://gist.github.com/gavincampbell/e3dfa25abf427752e919eb2110f03852
+[Pipeline] node
+Running on master in C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (git checkout)
+[Pipeline] git
+ &amp;gt; git.exe rev-parse --is-inside-work-tree # timeout=10
+Fetching changes from the remote Git repository
+ &amp;gt; git.exe config remote.origin.url file:///C:/Projects/Chinook.JenkinsDemo # timeout=10
+Fetching upstream changes from file:///C:/Projects/Chinook.JenkinsDemo
+ &amp;gt; git.exe --version # timeout=10
+ &amp;gt; git.exe fetch --tags --progress file:///C:/Projects/Chinook.JenkinsDemo +refs/heads/*:refs/remotes/origin/*
+ &amp;gt; git.exe rev-parse &amp;quot;refs/remotes/origin/master^{commit}&amp;quot; # timeout=10
+ &amp;gt; git.exe rev-parse &amp;quot;refs/remotes/origin/origin/master^{commit}&amp;quot; # timeout=10
+Checking out Revision 8ccbac95d2edd4ce0cbf14ec9f5f3f7ac2868eac (refs/remotes/origin/master)
+ &amp;gt; git.exe config core.sparsecheckout # timeout=10
+ &amp;gt; git.exe checkout -f 8ccbac95d2edd4ce0cbf14ec9f5f3f7ac2868eac
+ &amp;gt; git.exe branch -a -v --no-abbrev # timeout=10
+ &amp;gt; git.exe branch -D master # timeout=10
+ &amp;gt; git.exe checkout -b master 8ccbac95d2edd4ce0cbf14ec9f5f3f7ac2868eac
+ &amp;gt; git.exe rev-list 8ccbac95d2edd4ce0cbf14ec9f5f3f7ac2868eac # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build Dacpac from SQLProj)
+[Pipeline] tool
+[Pipeline] bat
+[BuildDeploySsdtFromLocalRepo] Running batch script
+
+C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo&amp;gt;&amp;quot;C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe&amp;quot;  /p:Configuration=Release 
+Microsoft (R) Build Engine version 14.0.25420.1
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Building the projects in this solution one at a time. To enable parallel build, please add the &amp;quot;/m&amp;quot; switch.
+Build started 05/04/2017 00:55:50.
+Project &amp;quot;C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo\Chinook.JenkinsDemo.sln&amp;quot; on node 1 (default targets).
+ValidateSolutionConfiguration:
+  Building solution configuration &amp;quot;Release|Any CPU&amp;quot;.
+Project &amp;quot;C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo\Chinook.JenkinsDemo.sln&amp;quot; (1) is building &amp;quot;C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo\Chinook.JenkinsDemo\Chinook.JenkinsDemo.sqlproj&amp;quot; (2) on node 1 (default targets).
+GenerateSqlTargetFrameworkMoniker:
+Skipping target &amp;quot;GenerateSqlTargetFrameworkMoniker&amp;quot; because all output files are up-to-date with respect to the input files.
+CoreCompile:
+Skipping target &amp;quot;CoreCompile&amp;quot; because all output files are up-to-date with respect to the input files.
+SqlBuild:
+Skipping target &amp;quot;SqlBuild&amp;quot; because all output files are up-to-date with respect to the input files.
+CopyFilesToOutputDirectory:
+  Chinook.JenkinsDemo -&amp;gt; C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo\Chinook.JenkinsDemo\bin\Release\Chinook.JenkinsDemo.dll
+SqlPrepareForRun:
+  Chinook.JenkinsDemo -&amp;gt; C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo\Chinook.JenkinsDemo\bin\Release\Chinook.JenkinsDemo.dacpac
+Done Building Project &amp;quot;C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo\Chinook.JenkinsDemo\Chinook.JenkinsDemo.sqlproj&amp;quot; (default targets).
+Done Building Project &amp;quot;C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo\Chinook.JenkinsDemo.sln&amp;quot; (default targets).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.53
+[Pipeline] stash
+Stashed 1 file(s)
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy Dacpac to SQL Server)
+[Pipeline] unstash
+[Pipeline] bat
+[BuildDeploySsdtFromLocalRepo] Running batch script
+
+C:\Program Files (x86)\Jenkins\workspace\BuildDeploySsdtFromLocalRepo&amp;gt;&amp;quot;C:\Program Files (x86)\Microsoft SQL Server\130\DAC\bin\sqlpackage.exe&amp;quot; /Action:Publish /SourceFile:&amp;quot;Chinook.JenkinsDemo\bin\Release\Chinook.JenkinsDemo.dacpac&amp;quot; /TargetServerName:(local) /TargetDatabaseName:Chinook 
+Publishing to database &#39;Chinook&#39; on server &#39;(local)&#39;.
+Initializing deployment (Start)
+Initializing deployment (Complete)
+Analyzing deployment plan (Start)
+Analyzing deployment plan (Complete)
+Updating database (Start)
+Update complete.
+Updating database (Complete)
+Successfully published database.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &amp;ldquo;stage view&amp;rdquo; of the build should be showing green:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-ssdt-git/passing-stage-view.PNG&#34; alt=&#34;passing builds in Jenkins&#34; title=&#34;Earlier builds omitted for clarity, naturally!&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;triggering-the-build-from-the-git-repo&#34;&gt;Triggering the build from the git repo&lt;/h2&gt;
+
+&lt;p&gt;Many approaches to building a project automatically on each commit rely on the CI server, in this case Jenkins, polling the source control system at some pre-defined interval.&lt;/p&gt;
+
+&lt;p&gt;However, if the geo-political events of 2016 are any guide, polling doesn&amp;rsquo;t always lead to the outcome we expect, so in this case we&amp;rsquo;ll create a git &amp;ldquo;hook&amp;rdquo; to trigger the build on every commit to master.&lt;/p&gt;
+
+&lt;p&gt;A &lt;a href=&#34;https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks&#34; title=&#34;Link to git hooks chapter of git book&#34;&gt;git hook&lt;/a&gt; is a script that runs in response to a specific event that occurs in git. There are a bunch of events that can fire hooks, these can be used to enforce commit message conventions, run static code analysis, prevent force-pushes, and all kinds of other arbitrary busywork. The event that&amp;rsquo;s of interest here is the &lt;code&gt;post-commit&lt;/code&gt; hook, which runs &lt;em&gt;after&lt;/em&gt; a commit has been added. In &amp;ldquo;Real Life&amp;rdquo;, hooks are normally added to the &lt;em&gt;server&lt;/em&gt; copy of the repo but since there&amp;rsquo;s no remote in our setup, everything has to be local.&lt;/p&gt;
+
+&lt;p&gt;Notably, even though we&amp;rsquo;re on Windows in this example, hooks are executed by the &lt;code&gt;msysgit&lt;/code&gt; subsystem so much of the usual UNIX shell stuff will work.&lt;/p&gt;
+
+&lt;p&gt;Hooks are stored in the &lt;code&gt;.git&lt;/code&gt; folder in our repo (this is usually hidden on Windows) in files that match the name of the hook. So, our file is called &lt;code&gt;post-commit&lt;/code&gt; (no extension) and contains the &lt;code&gt;#!/bin/sh&lt;/code&gt; &amp;ldquo;shebang&amp;rdquo; plus a single line that uses &lt;code&gt;curl&lt;/code&gt; to hit a specific URL in the Jenkins server that will cause our Jenkins job to poll its source repo as defined in the build pipeline (i.e. &lt;code&gt;file:///C:/Projects/Chinook.JenkinsDemo&lt;/code&gt; )&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects\Chinook.JenkinsDemo\.git\hooks&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;type post-commit&lt;/span&gt;
+#!/bin/sh
+curl http://localhost:8080/git/notifyCommit?url=file:///C:/Projects/Chinook.JenkinsDemo
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Note for &lt;code&gt;git&lt;/code&gt; beginners: this file isn&amp;rsquo;t in the repo when you download it, you&amp;rsquo;ll need to add it yourself!&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Now, all that remains is to make an arbitrary change to our project and add a commit.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-ssdt-git/changed-table-with-commit-dialog.PNG&#34; alt=&#34;Visual Studio showing changed table and commit dialog&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If everything is working the pipeline job should be triggered, and the new build will also log that it was &amp;ldquo;Started by an SCM Change&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-ssdt-git/build-started-by-scm-change.PNG&#34; alt=&#34;Build Triggered by SCM Change&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To clarify what&amp;rsquo;s happened here, we made a change and committed it to our local repo, the &lt;code&gt;post-commit&lt;/code&gt; hook called the url in Jenkins, and Jenkins then &amp;ldquo;polled&amp;rdquo; the git repo, found a new commit, and triggered the pipeline job.&lt;/p&gt;
+
+&lt;p&gt;Until next time, happy triggering!&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;If you commit the change from the &lt;code&gt;git&lt;/code&gt; command line, you may see output along the lines of:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git commit -am &amp;quot;add shoesize to artist table&amp;quot;
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   135  100   135    0     0   9000      0 --:--:-- --:--:-- --:--:--  9000Scheduled polling of BuildDeploySsdtFromLocalRepo
+No Git consumers using SCM API plugin for: file:///C:/Projects/Chinook.JenkinsDemo
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &amp;ldquo;error&amp;rdquo; message is nothing to worry about, as long as the line &amp;ldquo;Scheduled Polling of &lt;em&gt;myJobName&lt;/em&gt; is present then everything is hunky-dory!&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+
+&lt;hr /&gt;
+
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;&lt;a href=&#34;https://blogs.msdn.microsoft.com/visualstudio/2013/07/24/msbuild-is-now-part-of-visual-studio/&#34;&gt;MSBuild is now part of Visual Studio!&lt;/a&gt;
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;&lt;a href=&#34;https://blogs.msdn.microsoft.com/dataaccesstechnologies/2010/01/29/testing-connection-to-sql-server-from-a-service-running-under-local-system-account/&#34;&gt;Testing connection to SQL Server from a service running under Local System Account&lt;/a&gt;
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:2&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
+        </item>
+      
+    
+      
+        <item>
           <title>A script to download and install the Pester testing framework for PowerShell</title>
           <link>http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/</link>
           <pubDate>Tue, 28 Feb 2017 00:00:00 UTC</pubDate>
