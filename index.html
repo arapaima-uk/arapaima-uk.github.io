@@ -124,6 +124,8 @@
     
       
     
+      
+    
     <a class="sidebar-nav-item " href="/index.xml">RSS</a>
     
 
@@ -159,6 +161,104 @@
 
 
 <div class="posts">
+  
+    <div class="post">
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-05-25-conditional-processing-jenkins-multibranch/">Enabling per-branch configuration in a Jenkins Multibranch Pipeline</a></h1>
+        <span class="post-date">2017-05-25</span>
+        
+
+<p>For reasons, you might want your <a href="https://jenkins.io/doc/book/pipeline/multibranch/">Jenkins Multibranch Pipeline</a> jobs do do a different thing depending on which branch is being built.</p>
+
+<p>Fortunately, the multibranch plugin provides us with a built-in variable <code>BRANCH_NAME</code>, which we can use to figure out which branch we are currently building.</p>
+
+<p>In such scenarios, it&rsquo;s not a bad idea to create a minimal <code>Jenkinsfile</code> at the repo root that contains just enough logic to figure out which branch we are on,  and then call another groovy script that contains the actual build definition:</p>
+
+<script src="//gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1.js?file=Jenkinsfile"></script>
+
+<p>In this script we load an external groovy file based on the current branch, and then call the function defined therein. In this particular case, the <code>run_build()</code> functions don&rsquo;t do anything particularly exciting, but they probably do enough to demonstrate this mechanism.</p>
+
+<h4 id="the-script-for-the-master-branch">The script for the master branch:</h4>
+
+<script src="//gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1.js?file=master.groovy"></script>
+
+<h4 id="the-script-for-any-other-branch">The script for any other branch:</h4>
+
+<script src="//gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1.js?file=not-master.groovy"></script>
+
+<p>The most important line in each of these scripts is the <code>return this</code> at the end; as <a href="https://jenkins.io/doc/pipeline/steps/workflow-cps/#code-load-code-evaluate-a-groovy-source-file-into-the-pipeline-script">documented</a>, this is required for the functions to be callable from the outer script. The <code>checkout scm</code> step in the root <code>Jenkinsfile</code> is also required, as without it the rest of the scripts won&rsquo;t be fetched from the repo. All three of these files are in the root of the repo, this is because gist doesn&rsquo;t support folders. In &ldquo;real life&rdquo;, it&rsquo;s probably a good idea to create a separate folder for these scripts, and provide the path to the <code>load</code> function.</p>
+
+<h2 id="trying-this-out-at-home">Trying this out at home</h2>
+
+<p>If you don&rsquo;t have a Jenkins server handy, you can create a new one with <code>docker run -p 8080:8080 jenkinsci/jenkins:lts</code><sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup> and connect to it on <a href="http://localhost:8080">http://localhost:8080</a>. After that, it&rsquo;s just a question of creating a new job of type &ldquo;Mutibranch Pipeline&rdquo; and specifying an appropriate name.</p>
+
+<p>In the &ldquo;Branch Sources&rdquo; section, add a source of type &ldquo;Git&rdquo;, and provide it with the path to the source repo.</p>
+
+<h3 id="using-a-gist-as-a-source-repo">Using a gist as a source repo?</h3>
+
+<p>It might be a lesser known fact about Github that gists are <a href="https://help.github.com/articles/forking-and-cloning-gists/">really just repos with a few extra rules</a> that can be forked and cloned like any other Github repo. What it doesn&rsquo;t say in that linked page is that you can also create branches, even if these new branches aren&rsquo;t visible in the Gist UI. So, if you create a fork of <a href="https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1">https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1</a>, you should end up with an identical gist in your own Github account. You can then paste the url of this gist into the Jenkins job definition as shown:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-multibranch-gist/multibranch-pipeline-from-gist.png" alt="Gist url in git scm step" /></p>
+
+<p>The other thing to note here is the checkbox for &ldquo;Scan Multibranch Pipeline Triggers&rdquo;; since we aren&rsquo;t configuring any push notifications from our git repo, we need to get Jenkins to scan the repo periodically to look for any new branches, or new commits in existing branches. (In my particular case, since the Jenkins instance is just an ephemeral Docker image, there&rsquo;s no route to it anyway.)</p>
+
+<p>When you save the job configuration, Jenkins will scan the source repo, and create the first pipeline job:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-multibranch-gist/master-pipeline-job.png" alt="pipeline job for master branch" /></p>
+
+<h3 id="creating-a-new-branch">Creating a new branch</h3>
+
+<p>As noted above, there&rsquo;s nothing in the gist UI to support creating new branches. However, if we clone the gist repo to a local folder we can create the branch and push it back to the origin. You can substitute the url to your own fork of the gist in place of mine (there&rsquo;s only one branch in mine, and you don&rsquo;t have permission to create more!)</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #444444">$</span> mkdir j <span style="color: #666666">&amp;&amp;</span> <span style="color: #388038">cd</span> j<span style="color: #888888">;</span>
+<span style="color: #444444">$</span> git clone https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+<span style="color: #666666">Cloning into &#39;480843552e43efa84c60f9bb4840d6c1&#39;...</span>
+<span style="color: #666666">remote: Counting objects: 32, done.</span>
+<span style="color: #666666">remote: Compressing objects: 100% (32/32), done.</span>
+<span style="color: #666666">remote: Total 32 (delta 7), reused 0 (delta 0), pack-reused 0</span>
+<span style="color: #666666">Unpacking objects: 100% (32/32), done.</span>
+<span style="color: #666666">Checking connectivity... done.</span>
+<span style="color: #444444">$</span> <span style="color: #388038">cd</span> 480843552e43efa84c60f9bb4840d6c1/
+<span style="color: #444444">$</span> git status
+<span style="color: #666666">On branch master</span>
+<span style="color: #666666">Your branch is up-to-date with &#39;origin/master&#39;.</span>
+<span style="color: #666666">nothing to commit, working tree clean</span>
+<span style="color: #444444">$</span> git checkout -b fancyFeature
+<span style="color: #666666">Switched to a new branch &#39;fancyFeature&#39;</span>
+<span style="color: #444444">$</span> git push --set-upstream origin fancyFeature
+
+<span style="color: #666666">Total 0 (delta 0), reused 0 (delta 0)</span>
+<span style="color: #666666">To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1</span>
+<span style="color: #666666"> * [new branch]      fancyFeature -&gt; fancyFeature</span>
+<span style="color: #666666">Branch fancyFeature set up to track remote branch fancyFeature from origin.</span>
+</pre></div>
+
+<p>The next time the repo is scanned,  the new job will be created in Jenkins:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-multibranch-gist/job-created-for-new-branch.png" alt="job created for new branch" /></p>
+
+<p>When the branch is deleted, the job wil disappear too:</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #444444">$</span> git push origin --delete fancyFeature
+
+<span style="color: #666666">To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1</span>
+<span style="color: #666666"> - [deleted]         fancyFeature</span>
+</pre></div>
+
+<p>Looking in the &ldquo;Multibranch Pipeline Log&rdquo; confirms this:</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #666666">[Thu May 25 22:40:36 UTC 2017] Finished branch indexing. Indexing took 1.7 sec</span>
+<span style="color: #666666">Evaluating orphaned items in jenkins-branch-conditions</span>
+<span style="color: #666666">Will remove fancyFeature as it is #1 in the list</span>
+<span style="color: #666666">Finished: SUCCESS</span>
+</pre></div>
+<div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1">Depending on your system configuration, this step may have one or more prerequisites!
+ <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+</ol>
+</div>
+
+    </div>
   
     <div class="post">
         <h1 class="post-title"><a href="http://arapaima.uk/post/2017-04-04-jenkins-windows-git-ssdt-profit/">Automating SSDT build and deployment with Jenkins from a local git repo</a></h1>
