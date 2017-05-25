@@ -161,7 +161,7 @@
   <span class="post-date">2017-05-25</span>
   
 
-<p>For reasons, you might want your <a href="https://jenkins.io/doc/book/pipeline/multibranch/">Jenkins Multibranch Pipeline</a> jobs do do a different thing depending on which branch is being built.</p>
+<p>For reasons, you might want your <a href="https://jenkins.io/doc/book/pipeline/multibranch/">Jenkins Multibranch Pipeline</a> jobs to do a different thing depending on which branch is being built.</p>
 
 <p>Fortunately, the multibranch plugin provides us with a built-in variable <code>BRANCH_NAME</code>, which we can use to figure out which branch we are currently building.</p>
 
@@ -185,7 +185,7 @@
 
 <p>If you don&rsquo;t have a Jenkins server handy, you can create a new one with <code>docker run -p 8080:8080 jenkinsci/jenkins:lts</code><sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup> and connect to it on <a href="http://localhost:8080">http://localhost:8080</a>. After that, it&rsquo;s just a question of creating a new job of type &ldquo;Mutibranch Pipeline&rdquo; and specifying an appropriate name.</p>
 
-<p>In the &ldquo;Branch Sources&rdquo; section, add a source of type &ldquo;Git&rdquo;, and provide it with the path to the source repo.</p>
+<p>In the &ldquo;Branch Sources&rdquo; section, add a source of type &ldquo;Git&rdquo; (not &ldquo;Github&rdquo;!), and provide it with the path to the source repo, in this case the gist.</p>
 
 <h3 id="using-a-gist-as-a-source-repo">Using a gist as a source repo?</h3>
 
@@ -201,7 +201,7 @@
 
 <h3 id="creating-a-new-branch">Creating a new branch</h3>
 
-<p>As noted above, there&rsquo;s nothing in the gist UI to support creating new branches. However, if we clone the gist repo to a local folder we can create the branch and push it back to the origin. You can substitute the url to your own fork of the gist in place of mine (there&rsquo;s only one branch in mine, and you don&rsquo;t have permission to create more!)</p>
+<p>As noted above, there&rsquo;s nothing in the gist UI to support creating new branches. However, if we clone the gist repo to a local folder we can create the branch and push it back to the origin. You can substitute the url to your own fork of the gist in place of mine (there&rsquo;s only one branch in mine, and you don&rsquo;t have permission to create more!). The downside of this approach of using a gist rather than a &ldquo;proper&rdquo; repo is that by default you get a long guid instead of a readable folder name.</p>
 <div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #444444">$</span> mkdir j <span style="color: #666666">&amp;&amp;</span> <span style="color: #388038">cd</span> j<span style="color: #888888">;</span>
 <span style="color: #444444">$</span> git clone https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
 <span style="color: #666666">Cloning into &#39;480843552e43efa84c60f9bb4840d6c1&#39;...</span>

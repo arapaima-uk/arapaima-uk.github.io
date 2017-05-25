@@ -18,7 +18,7 @@
           <guid>http://arapaima.uk/post/2017-05-25-conditional-processing-jenkins-multibranch/</guid>
           <description>
 
-&lt;p&gt;For reasons, you might want your &lt;a href=&#34;https://jenkins.io/doc/book/pipeline/multibranch/&#34;&gt;Jenkins Multibranch Pipeline&lt;/a&gt; jobs do do a different thing depending on which branch is being built.&lt;/p&gt;
+&lt;p&gt;For reasons, you might want your &lt;a href=&#34;https://jenkins.io/doc/book/pipeline/multibranch/&#34;&gt;Jenkins Multibranch Pipeline&lt;/a&gt; jobs to do a different thing depending on which branch is being built.&lt;/p&gt;
 
 &lt;p&gt;Fortunately, the multibranch plugin provides us with a built-in variable &lt;code&gt;BRANCH_NAME&lt;/code&gt;, which we can use to figure out which branch we are currently building.&lt;/p&gt;
 
@@ -42,7 +42,7 @@
 
 &lt;p&gt;If you don&amp;rsquo;t have a Jenkins server handy, you can create a new one with &lt;code&gt;docker run -p 8080:8080 jenkinsci/jenkins:lts&lt;/code&gt;&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; and connect to it on &lt;a href=&#34;http://localhost:8080&#34;&gt;http://localhost:8080&lt;/a&gt;. After that, it&amp;rsquo;s just a question of creating a new job of type &amp;ldquo;Mutibranch Pipeline&amp;rdquo; and specifying an appropriate name.&lt;/p&gt;
 
-&lt;p&gt;In the &amp;ldquo;Branch Sources&amp;rdquo; section, add a source of type &amp;ldquo;Git&amp;rdquo;, and provide it with the path to the source repo.&lt;/p&gt;
+&lt;p&gt;In the &amp;ldquo;Branch Sources&amp;rdquo; section, add a source of type &amp;ldquo;Git&amp;rdquo; (not &amp;ldquo;Github&amp;rdquo;!), and provide it with the path to the source repo, in this case the gist.&lt;/p&gt;
 
 &lt;h3 id=&#34;using-a-gist-as-a-source-repo&#34;&gt;Using a gist as a source repo?&lt;/h3&gt;
 
@@ -58,7 +58,7 @@
 
 &lt;h3 id=&#34;creating-a-new-branch&#34;&gt;Creating a new branch&lt;/h3&gt;
 
-&lt;p&gt;As noted above, there&amp;rsquo;s nothing in the gist UI to support creating new branches. However, if we clone the gist repo to a local folder we can create the branch and push it back to the origin. You can substitute the url to your own fork of the gist in place of mine (there&amp;rsquo;s only one branch in mine, and you don&amp;rsquo;t have permission to create more!)&lt;/p&gt;
+&lt;p&gt;As noted above, there&amp;rsquo;s nothing in the gist UI to support creating new branches. However, if we clone the gist repo to a local folder we can create the branch and push it back to the origin. You can substitute the url to your own fork of the gist in place of mine (there&amp;rsquo;s only one branch in mine, and you don&amp;rsquo;t have permission to create more!). The downside of this approach of using a gist rather than a &amp;ldquo;proper&amp;rdquo; repo is that by default you get a long guid instead of a readable folder name.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #444444&#34;&gt;$&lt;/span&gt; mkdir j &lt;span style=&#34;color: #666666&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;cd&lt;/span&gt; j&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
 &lt;span style=&#34;color: #444444&#34;&gt;$&lt;/span&gt; git clone https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
 &lt;span style=&#34;color: #666666&#34;&gt;Cloning into &amp;#39;480843552e43efa84c60f9bb4840d6c1&amp;#39;...&lt;/span&gt;
