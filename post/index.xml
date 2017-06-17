@@ -6,8 +6,102 @@
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2017</rights>
-    <updated>2017-05-25 00:00:00 &#43;0000 UTC</updated>
+    <updated>2017-06-17 00:00:00 &#43;0000 UTC</updated>
 
+    
+      
+        <item>
+          <title>Using Vagrant to create a Virtual Machine running SQL Server on CentOS Linux</title>
+          <link>http://arapaima.uk/post/2017-06-17-vagrant-sql-server-linux-libvirt/</link>
+          <pubDate>Sat, 17 Jun 2017 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2017-06-17-vagrant-sql-server-linux-libvirt/</guid>
+          <description>
+
+&lt;p&gt;In my mind, the ability to do this kind of thing is the really big &amp;ldquo;win&amp;rdquo; with SQL Server on Linux. In their own words,&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.vagrantup.com/&#34;&gt;Vagrant&lt;/a&gt; is a tool for building and managing virtual machine environments in a single workflow. With an easy-to-use workflow and focus on automation, Vagrant lowers development environment setup time, increases production parity, and makes the &amp;ldquo;works on my machine&amp;rdquo; excuse a relic of the past.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I&amp;rsquo;ve been doing &lt;a href=&#34;http://arapaima.uk/fixed/Speaking/&#34;&gt;presentations&lt;/a&gt; at conferences and meetups for a few years, so I&amp;rsquo;m familiar with the pain of setting up &amp;ldquo;Demo VMs&amp;rdquo; for SQL Server on Windows. I also have less than fond memories of setting up and maintaining multiple VMs on a single host to reproduce client problems with clustering, replication, etc.; fortunately I don&amp;rsquo;t tend to get involved with this kind of thing too much these days, so it&amp;rsquo;s not in the scope of this example.&lt;/p&gt;
+
+&lt;p&gt;Anyway, with the advent of SQL Server on Linux, it struck me that &lt;a href=&#34;https://www.vagrantup.com/&#34;&gt;Vagrant&lt;/a&gt;, which I&amp;rsquo;d used for some other stuff in the &amp;ldquo;day job&amp;rdquo; might be a way out of this spiral of despair.&lt;/p&gt;
+
+&lt;p&gt;The promise is that having set up a couple of config files, we can stand up a new VM with everything configured and in the right place merely my typing &lt;code&gt;vagrant up&lt;/code&gt; at a command prompt, and remove it again by typing &lt;code&gt;vagrant destroy&lt;/code&gt;. If we want to keep it around for another day, &lt;code&gt;vagrant halt&lt;/code&gt; is at our disposal. We can even &lt;code&gt;ssh&lt;/code&gt; to our new VM by typing &lt;code&gt;vagrant ssh&lt;/code&gt;, without any fiddling around with keys or passwords.&lt;/p&gt;
+
+&lt;h2 id=&#34;preamble&#34;&gt;Preamble&lt;/h2&gt;
+
+&lt;p&gt;Yes, I&amp;rsquo;m aware it&amp;rsquo;s possible to manage Windows guests with Vagrant, even from a Windows host, but my experience of trying this is that it&amp;rsquo;s a world of pain, not least because the Windows box files are 800lb gorillas. The most complete attempt I&amp;rsquo;ve seen has been by &lt;a href=&#34;https://chocolatey.org/&#34;&gt;chocolately&lt;/a&gt; creator &lt;a href=&#34;https://github.com/ferventcoder/vagrant-windows-puppet&#34;&gt;Rob Reynolds&lt;/a&gt;, who I suppose has (or had) some fairly unique needs in this area.&lt;/p&gt;
+
+&lt;p&gt;My own use case is further complicated by the fact that I&amp;rsquo;ve been using &lt;a href=&#34;https://getfedora.org/&#34;&gt;Fedora Linux&lt;/a&gt; on the desktop for the last few years, which doesn&amp;rsquo;t &lt;em&gt;really&lt;/em&gt; support Virtualbox - though I&amp;rsquo;m aware it does &lt;em&gt;mostly&lt;/em&gt; work - but prefers &lt;a href=&#34;https://www.linux-kvm.org&#34;&gt;kvm&lt;/a&gt;-based virtual machines which can be managed through a number of utilities, including the supposedly idiot-proof &lt;a href=&#34;https://wiki.gnome.org/Apps/Boxes&#34;&gt;Gnome Boxes&lt;/a&gt;. There are some slightly outdated results from &lt;a href=&#34;http://www.phoronix.com/scan.php?page=article&amp;amp;item=ubuntu-1510-virt&#34;&gt;Phoronix&lt;/a&gt; that suggest there may be some performance gains from using KVM as opposed to Virtualbox.&lt;/p&gt;
+
+&lt;h2 id=&#34;anyway-on-with-the-show&#34;&gt;Anyway, on with the show&amp;hellip;&lt;/h2&gt;
+
+&lt;p&gt;There are three supported platforms (plus Docker) listed on the &lt;a href=&#34;https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup&#34;&gt;installation guide&lt;/a&gt; for SQL Server on Linux, namely Ubuntu, Suse, and RedHat.&lt;/p&gt;
+
+&lt;p&gt;Given that, I decided to proceed with the creation of a &lt;a href=&#34;https://www.centos.org/&#34;&gt;Centos&lt;/a&gt; VM, given that it&amp;rsquo;s &amp;ldquo;quite like&amp;rdquo; RedHat, and also has a vendor-created image in the &lt;a href=&#34;https://atlas.hashicorp.com/centos/boxes/7&#34;&gt;Vagrant Catalog&lt;/a&gt; that supports libvirt (almost all boxes, including the Ubuntu ones, are VirtualBox only). Suse also has vendor images for libvirt, but I haven&amp;rsquo;t used Suse Linux since the Spice Girls were topping the charts and wasn&amp;rsquo;t inclined to investigate further.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-vagrantfile&#34;&gt;The Vagrantfile&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://www.vagrantup.com/docs/vagrantfile/&#34;&gt;Vagrantfile&lt;/a&gt; is a file called &lt;code&gt;Vagrantfile&lt;/code&gt; that is used to tell Vagrant what the VM you want to create needs to look like.&lt;/p&gt;
+
+&lt;p&gt;In this case it&amp;rsquo;s fairly simple, but I&amp;rsquo;ve left the autogenerated comments in the version in the &lt;a href=&#34;https://github.com/gavincampbell/VagrantSqlServerCentosEtc&#34;&gt;github repo that accompanies this post&lt;/a&gt; (they&amp;rsquo;re useful if, as is almost certain, you want to reproduce this on a slighly different platform to me, i.e. Virtualbox!), so I&amp;rsquo;ve extracted the highlights to a &lt;a href=&#34;https://gist.github.com/gavincampbell/a9b920ff7b1c7f3547aeeca46e186050&#34;&gt;gist&lt;/a&gt; here.&lt;/p&gt;
+
+&lt;script src=&#34;//gist.github.com/gavincampbell/a9b920ff7b1c7f3547aeeca46e186050.js&#34;&gt;&lt;/script&gt;
+
+&lt;p&gt;We specify the &amp;ldquo;base box&amp;rdquo;, in this case Centos 7 on which our VM is going to be based. After that, we just specify the ways in which our VM is going to diverge from this base. In our case, we are setting up a forwarded port for 1433, so that clients on the host can connect to the SQL Server as if it were &amp;ldquo;local&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;re increasing the default memory allocation to the VM from the default (which I think is 512MB) to 4GB - the minimum requirement for SQL Server on Linux is 3.25, and I have read that the installer will fail if you have less than this available.&lt;/p&gt;
+
+&lt;p&gt;After that, we specify a shell script to run to set up everything else; In Vagrant-speak this is known as a &amp;ldquo;provisioner&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Vagrant doesn&amp;rsquo;t have to use shell scripts for configuration, it supports a number of alternative provisioners, such as the usual suspects of &lt;a href=&#34;https://www.ansible.com/&#34;&gt;Ansible&lt;/a&gt;, &lt;a href=&#34;https://www.chef.io/chef/&#34;&gt;Chef&lt;/a&gt;, and &lt;a href=&#34;https://puppet.com/&#34;&gt;Puppet&lt;/a&gt;, in addition to a couple of others.&lt;/p&gt;
+
+&lt;p&gt;The advantage of these latter approaches, of course, is that they are idempotent, making the scripts easy to build up over time; I intend to revisit this example, probably with Ansible, once SQL Server on Linux is generally available and the installation procedure is a bit less &amp;ldquo;dynamic&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;The shell script fetches updates with &lt;code&gt;yum&lt;/code&gt; (for those more accustomed to Debian-derivatives such as Ubuntu this is like &lt;code&gt;apt&lt;/code&gt;), then adds the Microsoft repository definitions to &lt;code&gt;yum&lt;/code&gt;&amp;rsquo;s configuration. It also installs a package called &lt;code&gt;tcping&lt;/code&gt; from another repo called &lt;code&gt;epel&lt;/code&gt; (which stands for Extra Packages for Enterprise Linux), which we&amp;rsquo;re going to need in our script. Having got everything downloaded, we install the SQL Server client and server, which are separate packages.&lt;/p&gt;
+
+&lt;p&gt;Not only are they separate packages, they require different mechanisms for accepting the terms of the EULA; one requires an environment variable &lt;code&gt;ACCEPT_EULA=y&lt;/code&gt;, and the other requires a parameter &lt;code&gt;accept-eula&lt;/code&gt;!&lt;/p&gt;
+
+&lt;p&gt;We also pass the top-secret sa password as an environment variable; this is required to run the installation silently.&lt;/p&gt;
+
+&lt;p&gt;Having done all that, we wait for the service to start before proceeding. This is why &lt;code&gt;tcping&lt;/code&gt; was required, it&amp;rsquo;s among the simplest ways to figure out if there&amp;rsquo;s anything listening on a given port.&lt;/p&gt;
+
+&lt;p&gt;Finally, we restore a database from a backup and run a script to install the tSQLt unit testing framework. By default, Vagrant will rsync the folder containing the &lt;code&gt;Vagrantfile&lt;/code&gt; to a &lt;code&gt;/Vagrant&lt;/code&gt; folder inside our VM, so we can simply put any files we need for provisioning (or for anything else) inside this folder. In this case, I&amp;rsquo;ve extracted the contents of the &lt;code&gt;tSQLt.zip&lt;/code&gt; from the &lt;a href=&#34;http://tsqlt.org/downloads/&#34;&gt;tSQLt downloads page&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Originally, I had the database backup copied from the &lt;a href=&#34;https://github.com/microsoft/sql-server-samples&#34;&gt;original repo&lt;/a&gt; here too, but had to replace this with a call to &lt;code&gt;curl&lt;/code&gt;; I&amp;rsquo;m glad to say I&amp;rsquo;d sever run into the Github file size limit before! Obviously this makes the re-provisioning process a bit slower, it&amp;rsquo;s best to have these large file dependencies somewhere local if you can manage it.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-we-didn-t-do&#34;&gt;What we didn&amp;rsquo;t do&lt;/h3&gt;
+
+&lt;p&gt;There&amp;rsquo;s nothing in the (abbreviated) &lt;code&gt;Vagrantfile&lt;/code&gt; about networking (other than the forwarded port), storage, logins, cores, etc. etc. All these things are configurable, but the point of this approach is that we trust Vagrant to &amp;ldquo;do the right thing&amp;rdquo; unless we specify otherwise.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-moment-of-truth&#34;&gt;The Moment of Truth&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;vagrant up&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;profit&#34;&gt;Profit&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/sql-linux-vagrant/vscode.png&#34; alt=&#34;vscode on fedora connected to linux on centos in vagrant!&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To be clear, this is a picture of Visual Studio Code, running on Fedora Linux 25, connected to SQL Server running on Centos 7.3 in a virtual machine provisioned by vagrant. The mssql extension for Visual Studio Code is a very recent alpha; this was to do with .net core compatibility on &amp;ldquo;modern&amp;rdquo; versions of Linux.&lt;/p&gt;
+
+&lt;p&gt;The VM is a &amp;ldquo;regular&amp;rdquo; VM, you can see it here in the Fedora Virtual Machine Manager application with the console open showing the SQL Server process:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/sql-linux-vagrant/vmm.png&#34; alt=&#34;vagrant vm opened in virt-manager showing the sql server process&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;the-wrap&#34;&gt;The Wrap&lt;/h2&gt;
+
+&lt;p&gt;I was slightly surprised that all this worked as well as it did; not so much the Vagrant part as the SQL Server on Linux part, which is certainly more complete than when I last looked at it. In particular, I wasn&amp;rsquo;t expecting to be able to install tSQLt on Linux - I did have to make a change to the &lt;code&gt;SetClrEnabled.sql&lt;/code&gt; script that is distributed with tSQLt to turn off &lt;code&gt;clr strict security&lt;/code&gt;, but apart from that it all went pretty smoothly. I have a &lt;a href=&#34;http://www.sqlsaturday.com/645/Sessions/Details.aspx?sid=63722&#34;&gt;presentation about tSQLt&lt;/a&gt; to do next month, which was one of the motivations for this exercise, and I&amp;rsquo;ll certainly be setting aside some time in the next day or two to see if everything else works the way I&amp;rsquo;d expect it do. If you want to try this out at home, and assuming your setup is roughly like mine (kvm rather than Virtualbox, vagrant already working, etc, etc):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;mkdir hereGoesNothing &lt;span style=&#34;color: #666666&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;cd&lt;/span&gt; hereGoesNothing&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+git clone https://github.com/gavincampbell/VagrantSqlServerCentosEtc .
+vagrant up
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If your setup is different in relevant ways, there will be some steps between 2 and 3 where you install things and hack away at the &lt;code&gt;Vagrantfile&lt;/code&gt;.&lt;/p&gt;
+</description>
+        </item>
+      
     
       
         <item>
