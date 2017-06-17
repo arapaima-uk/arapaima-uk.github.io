@@ -28,7 +28,7 @@
 
 &lt;p&gt;Anyway, with the advent of SQL Server on Linux, it struck me that &lt;a href=&#34;https://www.vagrantup.com/&#34;&gt;Vagrant&lt;/a&gt;, which I&amp;rsquo;d used for some other stuff in the &amp;ldquo;day job&amp;rdquo; might be a way out of this spiral of despair.&lt;/p&gt;
 
-&lt;p&gt;The promise is that having set up a couple of config files, we can stand up a new VM with everything configured and in the right place merely my typing &lt;code&gt;vagrant up&lt;/code&gt; at a command prompt, and remove it again by typing &lt;code&gt;vagrant destroy&lt;/code&gt;. If we want to keep it around for another day, &lt;code&gt;vagrant halt&lt;/code&gt; is at our disposal. We can even &lt;code&gt;ssh&lt;/code&gt; to our new VM by typing &lt;code&gt;vagrant ssh&lt;/code&gt;, without any fiddling around with keys or passwords.&lt;/p&gt;
+&lt;p&gt;The promise is that having set up a couple of config files, we can stand up a new VM with everything configured and in the right place, merely by typing &lt;code&gt;vagrant up&lt;/code&gt; at a command prompt, and remove it again by typing &lt;code&gt;vagrant destroy&lt;/code&gt;. If we want to keep it around for another day, &lt;code&gt;vagrant halt&lt;/code&gt; is at our disposal. We can even &lt;code&gt;ssh&lt;/code&gt; to our new VM by typing &lt;code&gt;vagrant ssh&lt;/code&gt;, without any fiddling around with keys or passwords.&lt;/p&gt;
 
 &lt;h2 id=&#34;preamble&#34;&gt;Preamble&lt;/h2&gt;
 
@@ -64,13 +64,13 @@
 
 &lt;p&gt;Not only are they separate packages, they require different mechanisms for accepting the terms of the EULA; one requires an environment variable &lt;code&gt;ACCEPT_EULA=y&lt;/code&gt;, and the other requires a parameter &lt;code&gt;accept-eula&lt;/code&gt;!&lt;/p&gt;
 
-&lt;p&gt;We also pass the top-secret sa password as an environment variable; this is required to run the installation silently.&lt;/p&gt;
+&lt;p&gt;We also pass the top-secret &lt;code&gt;sa&lt;/code&gt; password as an environment variable; this is required to run the installation silently.&lt;/p&gt;
 
 &lt;p&gt;Having done all that, we wait for the service to start before proceeding. This is why &lt;code&gt;tcping&lt;/code&gt; was required, it&amp;rsquo;s among the simplest ways to figure out if there&amp;rsquo;s anything listening on a given port.&lt;/p&gt;
 
 &lt;p&gt;Finally, we restore a database from a backup and run a script to install the tSQLt unit testing framework. By default, Vagrant will rsync the folder containing the &lt;code&gt;Vagrantfile&lt;/code&gt; to a &lt;code&gt;/Vagrant&lt;/code&gt; folder inside our VM, so we can simply put any files we need for provisioning (or for anything else) inside this folder. In this case, I&amp;rsquo;ve extracted the contents of the &lt;code&gt;tSQLt.zip&lt;/code&gt; from the &lt;a href=&#34;http://tsqlt.org/downloads/&#34;&gt;tSQLt downloads page&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Originally, I had the database backup copied from the &lt;a href=&#34;https://github.com/microsoft/sql-server-samples&#34;&gt;original repo&lt;/a&gt; here too, but had to replace this with a call to &lt;code&gt;curl&lt;/code&gt;; I&amp;rsquo;m glad to say I&amp;rsquo;d sever run into the Github file size limit before! Obviously this makes the re-provisioning process a bit slower, it&amp;rsquo;s best to have these large file dependencies somewhere local if you can manage it.&lt;/p&gt;
+&lt;p&gt;Originally, I had the database backup copied from the &lt;a href=&#34;https://github.com/microsoft/sql-server-samples&#34;&gt;original repo&lt;/a&gt; here too, but had to replace this with a call to &lt;code&gt;curl&lt;/code&gt;; I&amp;rsquo;m glad to say I&amp;rsquo;d never run into the Github file size limit before! Obviously this makes the re-provisioning process a bit slower, it&amp;rsquo;s best to have these large file dependencies somewhere local if you can manage it.&lt;/p&gt;
 
 &lt;h3 id=&#34;what-we-didn-t-do&#34;&gt;What we didn&amp;rsquo;t do&lt;/h3&gt;
 

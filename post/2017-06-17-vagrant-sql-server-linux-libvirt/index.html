@@ -179,7 +179,7 @@
 
 <p>Anyway, with the advent of SQL Server on Linux, it struck me that <a href="https://www.vagrantup.com/">Vagrant</a>, which I&rsquo;d used for some other stuff in the &ldquo;day job&rdquo; might be a way out of this spiral of despair.</p>
 
-<p>The promise is that having set up a couple of config files, we can stand up a new VM with everything configured and in the right place merely my typing <code>vagrant up</code> at a command prompt, and remove it again by typing <code>vagrant destroy</code>. If we want to keep it around for another day, <code>vagrant halt</code> is at our disposal. We can even <code>ssh</code> to our new VM by typing <code>vagrant ssh</code>, without any fiddling around with keys or passwords.</p>
+<p>The promise is that having set up a couple of config files, we can stand up a new VM with everything configured and in the right place, merely by typing <code>vagrant up</code> at a command prompt, and remove it again by typing <code>vagrant destroy</code>. If we want to keep it around for another day, <code>vagrant halt</code> is at our disposal. We can even <code>ssh</code> to our new VM by typing <code>vagrant ssh</code>, without any fiddling around with keys or passwords.</p>
 
 <h2 id="preamble">Preamble</h2>
 
@@ -215,13 +215,13 @@
 
 <p>Not only are they separate packages, they require different mechanisms for accepting the terms of the EULA; one requires an environment variable <code>ACCEPT_EULA=y</code>, and the other requires a parameter <code>accept-eula</code>!</p>
 
-<p>We also pass the top-secret sa password as an environment variable; this is required to run the installation silently.</p>
+<p>We also pass the top-secret <code>sa</code> password as an environment variable; this is required to run the installation silently.</p>
 
 <p>Having done all that, we wait for the service to start before proceeding. This is why <code>tcping</code> was required, it&rsquo;s among the simplest ways to figure out if there&rsquo;s anything listening on a given port.</p>
 
 <p>Finally, we restore a database from a backup and run a script to install the tSQLt unit testing framework. By default, Vagrant will rsync the folder containing the <code>Vagrantfile</code> to a <code>/Vagrant</code> folder inside our VM, so we can simply put any files we need for provisioning (or for anything else) inside this folder. In this case, I&rsquo;ve extracted the contents of the <code>tSQLt.zip</code> from the <a href="http://tsqlt.org/downloads/">tSQLt downloads page</a>.</p>
 
-<p>Originally, I had the database backup copied from the <a href="https://github.com/microsoft/sql-server-samples">original repo</a> here too, but had to replace this with a call to <code>curl</code>; I&rsquo;m glad to say I&rsquo;d sever run into the Github file size limit before! Obviously this makes the re-provisioning process a bit slower, it&rsquo;s best to have these large file dependencies somewhere local if you can manage it.</p>
+<p>Originally, I had the database backup copied from the <a href="https://github.com/microsoft/sql-server-samples">original repo</a> here too, but had to replace this with a call to <code>curl</code>; I&rsquo;m glad to say I&rsquo;d never run into the Github file size limit before! Obviously this makes the re-provisioning process a bit slower, it&rsquo;s best to have these large file dependencies somewhere local if you can manage it.</p>
 
 <h3 id="what-we-didn-t-do">What we didn&rsquo;t do</h3>
 
