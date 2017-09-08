@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>arapaima.uk </title>
+    <link>http://arapaima.uk/tags/azure/index.xml</link>
+    <language>en-us</language>
+    <author>Gavin Campbell</author>
+    <rights>(C) 2017</rights>
+    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+
+    
+      
+        <item>
+          <title>Automatically provisioning a brand new environment for every feature branch using VSTS and AzureRM</title>
+          <link>http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/</link>
+          <pubDate>Thu, 07 Sep 2017 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/</guid>
+          <description>
+
+&lt;p&gt;It&amp;rsquo;s fairly uncontentious to suggest that, all else being equal, providing each developer with an individual &amp;ldquo;sandbox&amp;rdquo;, or private development environment, is a &lt;a href=&#34;http://www.agiledata.org/essays/sandboxes.html&#34;&gt;worthwhile endeavour&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Often, these can be provisioned on the developers individual desktops, but when the application involves PaaS services such as databases, message queues, and other cloud-based services, things become more complicated. It&amp;rsquo;s generally possible to emulate &lt;em&gt;most&lt;/em&gt; things on the desktop, but there are often small gaps in this emulation, not least in the communication and authentication protocols that link the services together.&lt;/p&gt;
+
+&lt;p&gt;The rest of this article will discuss how to use &lt;a href=&#34;https://www.visualstudio.com/team-services/&#34;&gt;Visual Studio Team Services&lt;/a&gt; in conjunction with &lt;a href=&#34;https://azure.microsoft.com/en-gb/features/resource-manager/&#34;&gt;Azure Resource Manger&lt;/a&gt; (henceforward AzureRM) templates to automatically provision a new environment for every branch created in source control, and automatically destroy the environment using a service hook to &lt;a href=&#34;https://azure.microsoft.com/en-gb/services/automation/&#34;&gt;Azure Automation&lt;/a&gt; when the branch is merged to master and deleted.&lt;/p&gt;
+
+&lt;p&gt;I stumbled on this technique whilst working on a proof of concept involving the data-related Azure services, such as Data Factory, Data Lake, and Azure SQL Data Warehouse, but the present example consists of a serverless &lt;a href=&#34;https://azure.microsoft.com/en-gb/services/functions/&#34;&gt;Azure Function&lt;/a&gt; that writes to a &lt;a href=&#34;https://azure.microsoft.com/en-gb/services/cosmos-db/&#34;&gt;Cosmos DB&lt;/a&gt; PaaS Database.&lt;/p&gt;
+
+&lt;p&gt;This technique should generalise to most Azure PaaS services, and yes, I&amp;rsquo;m sure you can do similar things with AWS and friends but I haven&amp;rsquo;t had cause to think about them for the time being.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-application-code&#34;&gt;The application code&lt;/h3&gt;
+
+&lt;p&gt;The project I&amp;rsquo;m using for this example can be downloaded from &lt;a href=&#34;https://github.com/arapaima-uk/KebabAzureRmDemo&#34;&gt;this Github repo&lt;/a&gt;. The Github version of the code is mirrored from the version in VSTS using the &lt;a href=&#34;https://marketplace.visualstudio.com/items?itemName=nkdagility.gittasks&#34;&gt;Git Tasks&lt;/a&gt; extension for VSTS&lt;/p&gt;
+
+&lt;p&gt;The repo contains a Visual Studio (2017) solution with four projects:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;FavouriteKebab - this is the Azure Function App&lt;/li&gt;
+&lt;li&gt;KebabDbResourceGroup - this is the AzureRM template that defines our infrastructure&lt;/li&gt;
+&lt;li&gt;KebabTests - contains a single test written with the MSTest framework&lt;/li&gt;
+&lt;li&gt;HelperScripts - a Powershell Script project containing a single script used in the build pipeline&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/solutionexplorerview.PNG&#34; alt=&#34;Solution Explorer View&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;the-next-instagram&#34;&gt;The next Instagram?&lt;/h3&gt;
+
+&lt;p&gt;The details of what the app actually &lt;em&gt;does&lt;/em&gt; aren&amp;rsquo;t particularly important for this example, but in brief it is expecting a JSON structure:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Bill&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;favouriteKebab&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Adana&amp;quot;&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;in the body of a &lt;code&gt;POST&lt;/code&gt; message, which it will then store in the Cosmos DB database.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #388038&#34;&gt;[FunctionName(&amp;quot;KebabPost&amp;quot;)]&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;static&lt;/span&gt; HttpResponseMessage &lt;span style=&#34;color: #785840&#34;&gt;Run&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;
+&lt;span style=&#34;color: #388038&#34;&gt;[HttpTrigger(AuthorizationLevel.Anonymous, &amp;quot;post&amp;quot;)]&lt;/span&gt;
+HttpRequestMessage req&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+&lt;span style=&#34;color: #388038&#34;&gt;[DocumentDB(&amp;quot;kebabDb&amp;quot;, &amp;quot;kebabPreferences&amp;quot;,&lt;/span&gt;
+&lt;span style=&#34;color: #388038&#34;&gt;ConnectionStringSetting = &amp;quot;DB_CONNECTION&amp;quot;, CreateIfNotExists =true)]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;out&lt;/span&gt; &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;dynamic&lt;/span&gt; nameAndKebabType&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; 
+    TraceWriter log&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+
+    log&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Info&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;C# HTTP trigger function processed a request.&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+
+    &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;// Get request body&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;dynamic&lt;/span&gt; data &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; req&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Content&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;ReadAsAsync&lt;span style=&#34;color: #888888&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;object&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;&amp;gt;().&lt;/span&gt;Result&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+
+    &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;// Set name to query string or body data&lt;/span&gt;
+    nameAndKebabType &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+    name &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; data&lt;span style=&#34;color: #888888&#34;&gt;?.&lt;/span&gt;name&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+    favouriteKebab &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; data&lt;span style=&#34;color: #888888&#34;&gt;?.&lt;/span&gt;favouriteKebab
+&lt;span style=&#34;color: #888888&#34;&gt;};&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;data&lt;span style=&#34;color: #888888&#34;&gt;?.&lt;/span&gt;name &lt;span style=&#34;color: #888888&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;null&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;||&lt;/span&gt; data&lt;span style=&#34;color: #888888&#34;&gt;?.&lt;/span&gt;favouriteKebab &lt;span style=&#34;color: #888888&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;null&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+        &lt;span style=&#34;color: #2838b0&#34;&gt;return&lt;/span&gt; req&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CreateResponse&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;HttpStatusCode&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;BadRequest&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; 
+            &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Name and kebab are both required!&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+
+    &lt;span style=&#34;color: #2838b0&#34;&gt;else&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+        &lt;span style=&#34;color: #2838b0&#34;&gt;return&lt;/span&gt; req&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CreateResponse&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;HttpStatusCode&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;OK&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The name of the DocumentDB database and collection will be the same in every environment, so I&amp;rsquo;ve just hardcoded them in the file (&lt;code&gt;&amp;quot;kebabDB&amp;quot;&lt;/code&gt; and &lt;code&gt;&amp;quot;kebabPreferences&amp;quot;&lt;/code&gt;). The other thing to note is that I am passing &lt;code&gt;CreateIfNotExists=true&lt;/code&gt; in the binding options for the DocumentDB collection; it turns out to be non-trivial to create the database and the collection from an AzureRM template, so we let the app create them at runtime if required.&lt;/p&gt;
+
+&lt;p&gt;The test project contains a single test, which exercises the behaviour described above:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #388038&#34;&gt;[TestMethod]&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;KebabPost_ValidInput_StoresValuesInDb&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;string&lt;/span&gt; content &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;{ &amp;#39;name&amp;#39;:&amp;#39;Barry&amp;#39; , &amp;#39;favouriteKebab&amp;#39;:&amp;#39;Kofte&amp;#39; }&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;using&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; client &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; HttpClient&lt;span style=&#34;color: #888888&#34;&gt;())&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; response &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; client&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;PostAsync&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;functionUrl&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+        &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;StringContent&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;content&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; Encoding&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;UTF8&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;application/json&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)).&lt;/span&gt;Result&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+    
+&lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+
+&lt;span style=&#34;color: #2838b0&#34;&gt;using&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; client &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; DocumentClient&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;docDbUri&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; docDbKey&lt;span style=&#34;color: #888888&#34;&gt;))&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+    IQueryable&lt;span style=&#34;color: #888888&#34;&gt;&amp;lt;&lt;/span&gt;KebabPrefs&lt;span style=&#34;color: #888888&#34;&gt;&amp;gt;&lt;/span&gt; kebabPrefsQuery &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; client
+    &lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CreateDocumentQuery&lt;span style=&#34;color: #888888&#34;&gt;&amp;lt;&lt;/span&gt;KebabPrefs&lt;span style=&#34;color: #888888&#34;&gt;&amp;gt;(&lt;/span&gt;
+        UriFactory
+        &lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CreateDocumentCollectionUri&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;kebabDb&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;kebabPreferences&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;))&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Where&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;kp &lt;span style=&#34;color: #888888&#34;&gt;=&amp;gt;&lt;/span&gt; kp&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;name &lt;span style=&#34;color: #888888&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Barry&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+
+    Assert&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;AreEqual&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Kofte&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; kebabPrefsQuery&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;ToList&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;First&lt;span style=&#34;color: #888888&#34;&gt;().&lt;/span&gt;favouriteKebab&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+
+
+    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Unit Testing enthusiasts will have noticed that this isn&amp;rsquo;t really a Unit Test at all; there are no fakes or mocks, we are using the &amp;ldquo;real&amp;rdquo; dependencies for everything.&lt;/p&gt;
+
+&lt;p&gt;If our Azure function were a bit bigger, it would be worth splitting out the &amp;ldquo;core&amp;rdquo; functionality into a separate assembly that &lt;em&gt;could&lt;/em&gt; be meaningfully unit tested, but in the interests of brevity I&amp;rsquo;ve not done that here.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Integration&lt;/em&gt; tests of this kind are pretty common in PaaS projects, and a glance at the &lt;a href=&#34;https://github.com/arapaima-uk/KebabAzureRmDemo/blob/master/KebabTests/KebabTests.cs&#34;&gt;full source code of the test project &lt;/a&gt; will reveal many of the common &amp;ldquo;characteristics&amp;rdquo; of coded integration tests; acres of boilerplate code to read config files and set up the initial conditions, POCOs not present in the main application whose only purpose is to hold data for our test, etc. etc. Still, all of this fragility and maintenance difficulty is probably a price worth paying for increased confidence in our deployment pipeline.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-azurerm-template&#34;&gt;The AzureRM Template&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/arapaima-uk/KebabAzureRmDemo/blob/master/KebabDbResourceGroup/azuredeploy.json&#34;&gt;full template&lt;/a&gt; is a bit too long to reproduce here, so I&amp;rsquo;ll call out some edited highlights.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;  &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;parameters&amp;quot;&lt;/span&gt;&lt;span style=&#34;background-color: #a848a8&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;database_account_name&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;defaultValue&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[concat(&amp;#39;kebabdac&amp;#39;, uniqueString(resourceGroup().id))]&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;hostingPlanName&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;defaultValue&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[concat(&amp;#39;kebabhp&amp;#39;, uniqueString(resourceGroup().id))]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;functionAppName&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;defaultValue&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[concat(&amp;#39;kebabApp&amp;#39;, uniqueString(resourceGroup().id))]&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;storageAccountName&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;defaultValue&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[concat(&amp;#39;kebabstor&amp;#39;, uniqueString(resourceGroup().id))]&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+  &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The thing to note is that the template takes four parameters, each of which has a default value.&lt;/p&gt;
+
+&lt;p&gt;Each of the defaults consists of a prefix that identifies the resource type, combined with the result of the function &lt;code&gt;uniqueString(resourceGroup().id)&lt;/code&gt;. These unique strings are required as there are some objects in Azure (storage accounts or web apps for example) that require &lt;em&gt;globally&lt;/em&gt; unique names that can be incorporated into a url of the form &lt;code&gt;https://myapp.azurewebsites.net&lt;/code&gt; or similar. I can never remember which objects do require unique names and which ones don&amp;rsquo;t, so I tend to use &lt;code&gt;uniqueString()&lt;/code&gt; for everything.&lt;/p&gt;
+
+&lt;p&gt;The template goes on to create a storage account, a Cosmos DB account, a Function App, and all the supporting bits these require. These end up with some pretty funky names thanks to the use of &lt;code&gt;uniqueString()&lt;/code&gt;, but since you never really need to type these names anywhere this is more of an aesthetic consideration than a practical problem:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/resources.png&#34; alt=&#34;Azure resource names generated with uniqueString&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;At the end of the template is an &lt;code&gt;outputs&lt;/code&gt; section:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;  &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;outputs&amp;quot;&lt;/span&gt;&lt;span style=&#34;background-color: #a848a8&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;functionAppName&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;value&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[parameters(&amp;#39;functionAppName&amp;#39;)]&amp;quot;&lt;/span&gt;
+
+    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;docDbUri&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;value&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[Concat(&amp;#39;https://&amp;#39;,parameters(&amp;#39;database_account_name&amp;#39;),&amp;#39;.documents.azure.com:443&amp;#39;)]&amp;quot;&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;docDbKey&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
+      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;value&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[listKeys(resourceId(&amp;#39;Microsoft.DocumentDb/databaseAccounts&amp;#39;, parameters(&amp;#39;database_account_name&amp;#39;)), &amp;#39;2015-04-08&amp;#39;).primaryMasterKey]&amp;quot;&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+  &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This defines three outputs, the Function App name, the Cosmos DB uri, and the Cosmos DB key. This is necessary as we didn&amp;rsquo;t specify these values ourselves, so we need AzureRM to &lt;em&gt;tell us what it just created&lt;/em&gt; in order that we can use these names for other tasks in our build process.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-build-definition&#34;&gt;The Build Definition&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/builddefinition.png&#34; alt=&#34;The Build Steps in VSTS&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This is a fairly standard workflow, with a couple of things of note. We build the solution at the beginning and save the artifacts, but before we run our integration test(s?), we run the AzureRM template to &amp;ldquo;Create or Update&amp;rdquo; a resource group, and then deploy our Function App inside this resource group. This is so that we can run our integration tests with the real dependencies. The &amp;ldquo;trick&amp;rdquo;, such as it is, is in the AzureRM deployment step:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/AzureRMStep.png&#34; alt=&#34;AzureRM Deploy step showing parameters&#34; /&gt;.&lt;/p&gt;
+
+&lt;p&gt;By passing the &lt;em&gt;name of the branch we are building&lt;/em&gt; as the name of the resource group, this means that the first time we build any given branch we will get a brand new environment with a Cosmos DB, a Function App, etc. etc., exclusively for that build.&lt;/p&gt;
+
+&lt;p&gt;After the template is deployed, we need a bit of Powershell to retrieve the outputs from the template.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;param&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b85820&#34;&gt;[string]&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$resourceGroup&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+
+&lt;span style=&#34;color: #b04040&#34;&gt;$outputs&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #388038&#34;&gt;Get-AzureRmResourceGroupDeployment&lt;/span&gt; -ResourceGroupName &lt;span style=&#34;color: #b04040&#34;&gt;$resourceGroup&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;|&lt;/span&gt; Sort Timestamp -Descending &lt;span style=&#34;color: #888888&#34;&gt;|&lt;/span&gt; Select -First 1&lt;span style=&#34;color: #888888&#34;&gt;).&lt;/span&gt;Outputs
+
+&lt;span style=&#34;color: #b04040&#34;&gt;$outputs&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Keys &lt;span style=&#34;color: #888888&#34;&gt;|&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;%&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Write-Host&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;##vso[task.setvariable variable=&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$_&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;;]&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$outputs&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$_&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;].&lt;/span&gt;Value&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;What this does is to find the most recent deployment for the specified resource group - i.e. the one we just did - and map the &lt;em&gt;outputs&lt;/em&gt; of the template to &lt;em&gt;build variables&lt;/em&gt; in VSTS by name. This means that for every output in the template, we need to define a build variable with &lt;em&gt;exactly&lt;/em&gt; the same name, which indeed we have done:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/buildvars.png&#34; alt=&#34;Build variables view&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The values are all empty, as they will be assigned by the above script during each build.&lt;/p&gt;
+
+&lt;p&gt;We can then use these variables in the Function App deployment step to tell it where to deploy our Function:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/appServiceDeploy.png&#34; alt=&#34;FunctionAppDeployment&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;as well as in the Integration Testing step, where we use these variables to overwrite the values in the &lt;code&gt;runsettings&lt;/code&gt; file used by the &lt;code&gt;vstest&lt;/code&gt; test runner.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/runsettings.png&#34; alt=&#34;runsettings&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The final step is just to update the Github mirror of the VSTS repo; in most corporate environments this won&amp;rsquo;t be necessary!&lt;/p&gt;
+
+&lt;h3 id=&#34;the-build-trigger&#34;&gt;The Build Trigger&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/buildtrigger.png&#34; alt=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/buildtrigger.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This build will be run for every new commit on every branch. A moment&amp;rsquo;s reflection will reveal that if the branch is created through the UI on the server, the build will be triggered immediately, as there will be a new branch with a new (to that branch) commit. The first build will always be the slowest, as this is the one that will create the resource group from scratch.&lt;/p&gt;
+
+&lt;p&gt;Equally, a new build will be triggered every time the developer pushes new commits to the feature branch, following which the artifacts will be deployed and the integration tests run, &lt;em&gt;in the private environment dedicated to that branch&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Subsequent builds will be faster; the time penalty associated with creating the resource group from scratch is around two minutes in this particular case, using the hosted queue (2:32 to create from scratch, 0:38 to revalidate on subsequent builds). The overall build time is around 5 minutes the first time, and 3 minutes on subsequent runs. (since there&amp;rsquo;s only one integration test, the slowest part is the nuget restore!).&lt;/p&gt;
+
+&lt;h3 id=&#34;branch-policy&#34;&gt;Branch Policy&lt;/h3&gt;
+
+&lt;p&gt;In addition to enforcing a build on every commit, we can force another build at the point a pull request is made from our feature branch to master:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/masterbranchpolicy.png&#34; alt=&#34;Master branch policy in vsts&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This will &amp;ldquo;pre-merge&amp;rdquo; our feature branch into master, and trigger a new build. This will have the side effect of creating a new resource group called &amp;ldquo;merge&amp;rdquo;, in which the tests will be run again. However, since the same branch name is used for every pull-request build, the &amp;ldquo;merge&amp;rdquo; resource group will only be created once, and won&amp;rsquo;t be modified unless the AzureRM template changes.&lt;/p&gt;
+
+&lt;h3 id=&#34;merging-a-pull-request&#34;&gt;Merging a Pull Request&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/closingapr.png&#34; alt=&#34;Merging a PR&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This screenshot shows the &amp;ldquo;moment of truth&amp;rdquo; immediately prior to merging a pull request. The &amp;ldquo;pre-merged&amp;rdquo; branch has been built successfully, and when we click &amp;ldquo;Complete Merge&amp;rdquo; the source branch will be deleted. The resource group, however, will still be hanging around incurring charges, and this could become an expensive business if we are creating a new environment for every single feature and never tearing them down.&lt;/p&gt;
+
+&lt;h3 id=&#34;tearing-down-the-environment&#34;&gt;Tearing down the environment&lt;/h3&gt;
+
+&lt;p&gt;This is achieved by calling an Azure Automation runbook in a Service Hook from VSTS.&lt;/p&gt;
+
+&lt;p&gt;To create the hook, we first need to define our Automation runbook and give it a web endpoint. The integration of Azure Automation and source control is a &amp;ldquo;work in progress&amp;rdquo;, so I&amp;rsquo;ve stored the body of the runbook in a gist&lt;/p&gt;
+
+&lt;p&gt;&lt;script src=&#34;//gist.github.com/gavincampbell/a12a87477bd38402b310262040509a56.js&#34;&gt;&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;This script will parse the JSON payload from VSTS, find the source branch name (from the refspec), and delete the resource group with that name. This runbook is associated with an endpoint url, which we provide to VSTS in the Web hook configuration.&lt;/p&gt;
+
+&lt;p&gt;The runbook requires an Azure Automation Account.  I have created these in a separate resource group, not &amp;ldquo;managed&amp;rdquo; from VSTS.&lt;/p&gt;
+
+&lt;p&gt;We set the event to track to &amp;ldquo;Pull request merge commit created&amp;rdquo; - there&amp;rsquo;s no &amp;ldquo;branch deleted&amp;rdquo; event available here. Remember, the branch gets deleted when the PR is merged, assuming the box is ticked. Notably, we are only firing this event on merges &lt;em&gt;to&lt;/em&gt; master.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/servicehookp1.png&#34; alt=&#34;Service Hook p1&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;On the second page of the dialog, we just supply the endpoint url for our Automation runbook.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/servicehookp2.png&#34; alt=&#34;Service Hook p2&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;release-management&#34;&gt;Release Management&lt;/h2&gt;
+
+&lt;p&gt;Once the branch is merged to master and its environment torn down, then what? We release the feature, of course:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/releaseprocess.png&#34; alt=&#34;Release Management in VSTS&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This Release definition is triggered on every new build of the master branch. Since the branch is protected by a policy, these will only occur when a pull request has been created, successfully built, reviewed, and merged.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/releasetrigger.png&#34; alt=&#34;Release Trigger&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As soon as the release is triggered, we do a deployment to QA. The &amp;ldquo;little man with a clock&amp;rdquo; next to the &amp;ldquo;Production&amp;rdquo; environment indicated that there is a manual approval required before a release can be deployed to production.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/qatrigger.png&#34; alt=&#34;QA trigger&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;the-deployment-process&#34;&gt;The deployment process&lt;/h3&gt;
+
+&lt;p&gt;As is typical, the Release Definition is much simpler than the Build Definition. In this instance it consists of only two steps, deploying the Azure RM template and deploying the Function to our Function App.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/deploymenttasks.png&#34; alt=&#34;Release tasks in VSTS&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;What&amp;rsquo;s notable though, is that we are using the same Azure RM template for QA and Production as we used for the ephemeral development environments. The only difference is that instead of allowing the parameters to default to their &amp;ldquo;unique string&amp;rdquo; values, we explicitly set all these parameters to &amp;ldquo;well known&amp;rdquo; values in the step definition:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/overridetemplateparameters.png&#34; alt=&#34;Azure RM Release Step Definition&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;as well as in the step that deploys the function to our function app:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/overrideAppServicename.png&#34; alt=&#34;Azure Function Release Step Definition&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The Production environment definition is exactly the same as the QA one, except that the &amp;ldquo;well known&amp;rdquo; values for the resource names are different.&lt;/p&gt;
+
+&lt;p&gt;This means that it doesn&amp;rsquo;t matter if the QA and Prod environments are maintained by a different team, or if they are created in a different subscription or in a different tenant; as long as we know the values to plug into our template, we can override our defaults with the &amp;ldquo;permanent&amp;rdquo; names.&lt;/p&gt;
+
+&lt;p&gt;The &amp;ldquo;permanent&amp;rdquo; resource names still need to respect the rules for uniqueness though, so if these names are important it is probably wise to create these resources in advance to avoid disappointment at deployment time.&lt;/p&gt;
+
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;If you&amp;rsquo;re still reading, you&amp;rsquo;ll be aware that this has been a somewhat &amp;ldquo;epic&amp;rdquo; article. The scenario outlined above allows us to automatically create and tear down a new environment for every single feature. Under normal circumstances, there will be four &amp;ldquo;persistent&amp;rdquo; resource groups, namely &amp;ldquo;QA&amp;rdquo; and &amp;ldquo;Production&amp;rdquo;, as well as &amp;ldquo;merge&amp;rdquo; - used for building and testing &amp;ldquo;pre-merged&amp;rdquo; pull requests, and &amp;ldquo;master&amp;rdquo; - used to rebuild and retest &amp;ldquo;master&amp;rdquo; after every merge commit. The extra resource group for Azure Automation is also visible in this screenshot, as is the resource group for a feature branch, which will be automatically torn down when the branch is merged.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/ResourceGroups.png&#34; alt=&#34;resource groups in the Azure Portal&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This technique is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the &lt;a href=&#34;http://arapaima.uk/fixed/About/&#34;&gt;contact form&lt;/a&gt; on the site.&lt;/p&gt;
+</description>
+        </item>
+      
+    
+
+  </channel>
+</rss>

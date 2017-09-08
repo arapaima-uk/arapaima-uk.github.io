@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 
   <head>
+	<meta name="generator" content="Hugo 0.19" />
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
@@ -10,7 +11,7 @@
 
   <title>
     
-      A script to download and install the Pester testing framework for PowerShell &middot; arapaima.uk
+      arapaima.uk &middot; Data, Databases, Delivery
     
   </title>
 
@@ -68,7 +69,7 @@
   </div>
 
   <nav class="sidebar-nav">
-    <a class="sidebar-nav-item " href="/">Home</a>
+    <a class="sidebar-nav-item  active " href="/">Home</a>
     <a class="sidebar-nav-item " href="/post">Posts</a>
 
     
@@ -172,69 +173,30 @@
       <div class="container content">
 
 
-<div class="post">
-  <h1 class="post-title">A script to download and install the Pester testing framework for PowerShell</h1>
-  <span class="post-date">2017-02-28</span>
+
+
+
+<div class="posts">
   
+    <div class="post">
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2016-10-13-verschlimmbesserung/">Verschlimmbesserung</a></h1>
+        <span class="post-date">2016-10-13</span>
+        <p>Welcome to this, my new site. I&rsquo;ll be adding content about Continuous Integration, database systems including but not limited to Microsoft® SQL Server and development tools including but not limited to Microsoft® Visual Studio. The site itself is provisioned in a moderately interesting way, which you can read about <a href="/fixed/BlogSetup/">here</a>.</p>
 
-<p>I finally got around to looking into <a href="https://github.com/pester/Pester">Pester</a> for test-driven development with PowerShell. In case it&rsquo;s useful to anyone, and so that I don&rsquo;t lose it, I created a script to download the latest release version, store it in the user&rsquo;s PowerShell modules folder, and run a quick test to make sure everything is working. The script is stored in a <a href="https://gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a">GitHubGist</a> and is reproduced below. Some of the cmdlets require a fairly recent version of PowerShell, possibly even 5.0. The steps are roughly as follows:</p>
-
-<ul>
-<li>Figure out what the latest release number is.</li>
-<li>Assemble the correct url to download the zip file.</li>
-<li>Download and &ldquo;Unblock&rdquo; the zip file.</li>
-<li>Figure out where the user&rsquo;s modules folder is and create it if it doesn&rsquo;t exist. I had to exclude the <a href="https://code.visualstudio.com/">vscode</a> modules folder for this to work for me.</li>
-<li>Unzip the downloaded file to the right place.</li>
-<li>Import the newly installed modules.</li>
-<li>Scaffold a test with <code>New-Fixture</code>. The name is randomised to minimise the chance of overwriting something that&rsquo;s already there.</li>
-<li>Hack the generated files about a bit.</li>
-<li>Run the test.</li>
-<li>Clean up the generated files.</li>
-<li>Profit!</li>
-</ul>
-
-<h2 id="the-script">The script</h2>
-
-<script src="//gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a.js"></script>
-
-   
+    </div>
+  
 </div>
 
-<section class="post-comments">
-  <h3>Comments</h3>
-
+<div class="pagination">
   
-  
+  <span class="pagination-item older">Older</span>
   
 
   
-    
+  <a class="pagination-item newer" href="/">Newer</a>
   
-
-  
-    <p>Nothing yet.</p>
-  
-
-  <h3>Say something</h3>
-
-  <form class="post-new-comment" method="POST" action="https://api.staticman.net/v2/entry/arapaima-uk/source.arapaima-uk.github.io/master/comments">
-    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/#comment-submitted">
-     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/">
-    <input type="hidden" name="options[entryId]" value="18eb12df8afc4452c2332889f72ecab3">
-    <input name="fields[name]" type="text" class="post-comment-field" placeholder="Your name">
-    <input name="fields[email]" type="email" class="post-comment-field" placeholder="Your email address">
-    <textarea name="fields[body]" class="post-comment-field" placeholder="Your message. Feel free to use Markdown." rows="10"></textarea>
-    <input type="submit" class="post-comment-field btn" value="Submit">
-  </form>
-</section>
-
-<div id="comment-submitted" class="dialog">
-<h3>Thank you</h3>
-  <p>Your comment has been submitted and will be published once it has been approved.</p>
-  <p><a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/pulls">Click here</a> to see the pull request you generated.</p>
-  
-  <p><a href="#" class="btn">OK</a></p>
 </div>
+
       </div>
     </div>
 

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Automatically provisioning a brand new environment for every feature branch using VSTS and AzureRM &middot; arapaima.uk
+    
+  </title>
+
+  
+  <link rel="stylesheet" href="/css/poole.css">
+  <link rel="stylesheet" href="/css/syntax.css">
+  <link rel="stylesheet" href="/css/lanyon.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+  <link rel="stylesheet" href="/css/comments.css">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/assets/favicon.ico">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+ 
+
+<script type="text/javascript">
+  var _paq = _paq || [];
+  
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+   if (window.location.hostname == "localhost")
+     return;
+
+    var u="https://stats.arapaima.co.uk/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+
+
+
+
+<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
+
+
+
+</head>
+
+
+  <body class="theme-base-0d">
+
+    
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p>I'm Gavin Campbell, a database developer interested in Continuous Delivery, functional programming, and cricket.</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item " href="/">Home</a>
+    <a class="sidebar-nav-item " href="/post">Posts</a>
+
+    
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+      
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a class="sidebar-nav-item " href="/index.xml">RSS</a>
+    
+
+  </nav>
+  
+  <div class = "sidebar-item">
+  <p> <a href = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io">
+      <img src = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt = "Travis CI Build Status" title = "Travis CI Build Status">
+      </a>
+    </p>
+  </div>
+  <div class="sidebar-item">
+    <p><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Content on arapaima.uk</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://arapaima.uk" property="cc:attributionName" rel="cc:attributionURL">Gavin Campbell, Arapaima Ltd</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+  </div>
+</div>
+
+
+    
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <h3 class="masthead-title">
+            <a href="/" title="Home">arapaima.uk</a>
+            <small>Data, Databases, Delivery</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+
+
+<div class="post">
+  <h1 class="post-title">Automatically provisioning a brand new environment for every feature branch using VSTS and AzureRM</h1>
+  <span class="post-date">2017-09-07</span>
+  
+
+<p>It&rsquo;s fairly uncontentious to suggest that, all else being equal, providing each developer with an individual &ldquo;sandbox&rdquo;, or private development environment, is a <a href="http://www.agiledata.org/essays/sandboxes.html">worthwhile endeavour</a>.</p>
+
+<p>Often, these can be provisioned on the developers individual desktops, but when the application involves PaaS services such as databases, message queues, and other cloud-based services, things become more complicated. It&rsquo;s generally possible to emulate <em>most</em> things on the desktop, but there are often small gaps in this emulation, not least in the communication and authentication protocols that link the services together.</p>
+
+<p>The rest of this article will discuss how to use <a href="https://www.visualstudio.com/team-services/">Visual Studio Team Services</a> in conjunction with <a href="https://azure.microsoft.com/en-gb/features/resource-manager/">Azure Resource Manger</a> (henceforward AzureRM) templates to automatically provision a new environment for every branch created in source control, and automatically destroy the environment using a service hook to <a href="https://azure.microsoft.com/en-gb/services/automation/">Azure Automation</a> when the branch is merged to master and deleted.</p>
+
+<p>I stumbled on this technique whilst working on a proof of concept involving the data-related Azure services, such as Data Factory, Data Lake, and Azure SQL Data Warehouse, but the present example consists of a serverless <a href="https://azure.microsoft.com/en-gb/services/functions/">Azure Function</a> that writes to a <a href="https://azure.microsoft.com/en-gb/services/cosmos-db/">Cosmos DB</a> PaaS Database.</p>
+
+<p>This technique should generalise to most Azure PaaS services, and yes, I&rsquo;m sure you can do similar things with AWS and friends but I haven&rsquo;t had cause to think about them for the time being.</p>
+
+<h3 id="the-application-code">The application code</h3>
+
+<p>The project I&rsquo;m using for this example can be downloaded from <a href="https://github.com/arapaima-uk/KebabAzureRmDemo">this Github repo</a>. The Github version of the code is mirrored from the version in VSTS using the <a href="https://marketplace.visualstudio.com/items?itemName=nkdagility.gittasks">Git Tasks</a> extension for VSTS</p>
+
+<p>The repo contains a Visual Studio (2017) solution with four projects:</p>
+
+<ul>
+<li>FavouriteKebab - this is the Azure Function App</li>
+<li>KebabDbResourceGroup - this is the AzureRM template that defines our infrastructure</li>
+<li>KebabTests - contains a single test written with the MSTest framework</li>
+<li>HelperScripts - a Powershell Script project containing a single script used in the build pipeline</li>
+</ul>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/solutionexplorerview.PNG" alt="Solution Explorer View" /></p>
+
+<h3 id="the-next-instagram">The next Instagram?</h3>
+
+<p>The details of what the app actually <em>does</em> aren&rsquo;t particularly important for this example, but in brief it is expecting a JSON structure:</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888">{</span>
+<span style="color: #2838b0">&quot;name&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;Bill&quot;</span><span style="color: #888888">,</span>
+<span style="color: #2838b0">&quot;favouriteKebab&quot;</span><span style="color: #888888">:</span><span style="color: #b83838">&quot;Adana&quot;</span>
+<span style="color: #888888">}</span>
+</pre></div>
+
+<p>in the body of a <code>POST</code> message, which it will then store in the Cosmos DB database.</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #388038">[FunctionName(&quot;KebabPost&quot;)]</span>
+<span style="color: #2838b0">public</span> <span style="color: #2838b0">static</span> HttpResponseMessage <span style="color: #785840">Run</span><span style="color: #888888">(</span>
+<span style="color: #388038">[HttpTrigger(AuthorizationLevel.Anonymous, &quot;post&quot;)]</span>
+HttpRequestMessage req<span style="color: #888888">,</span>
+<span style="color: #388038">[DocumentDB(&quot;kebabDb&quot;, &quot;kebabPreferences&quot;,</span>
+<span style="color: #388038">ConnectionStringSetting = &quot;DB_CONNECTION&quot;, CreateIfNotExists =true)]</span> <span style="color: #2838b0">out</span> <span style="color: #2838b0; font-style: italic">dynamic</span> nameAndKebabType<span style="color: #888888">,</span> 
+    TraceWriter log<span style="color: #888888">)</span>
+<span style="color: #888888">{</span>
+
+    log<span style="color: #888888">.</span>Info<span style="color: #888888">(</span><span style="color: #b83838">&quot;C# HTTP trigger function processed a request.&quot;</span><span style="color: #888888">);</span>
+
+    <span style="color: #888888; font-style: italic">// Get request body</span>
+    <span style="color: #2838b0; font-style: italic">dynamic</span> data <span style="color: #888888">=</span> req<span style="color: #888888">.</span>Content<span style="color: #888888">.</span>ReadAsAsync<span style="color: #888888">&lt;</span><span style="color: #2838b0; font-style: italic">object</span><span style="color: #888888">&gt;().</span>Result<span style="color: #888888">;</span>
+
+    <span style="color: #888888; font-style: italic">// Set name to query string or body data</span>
+    nameAndKebabType <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> <span style="color: #888888">{</span>
+    name <span style="color: #888888">=</span> data<span style="color: #888888">?.</span>name<span style="color: #888888">,</span>
+    favouriteKebab <span style="color: #888888">=</span> data<span style="color: #888888">?.</span>favouriteKebab
+<span style="color: #888888">};</span>
+    <span style="color: #2838b0">if</span> <span style="color: #888888">(</span>data<span style="color: #888888">?.</span>name <span style="color: #888888">==</span> <span style="color: #2838b0">null</span> <span style="color: #888888">||</span> data<span style="color: #888888">?.</span>favouriteKebab <span style="color: #888888">==</span> <span style="color: #2838b0">null</span><span style="color: #888888">)</span>
+    <span style="color: #888888">{</span>
+        <span style="color: #2838b0">return</span> req<span style="color: #888888">.</span>CreateResponse<span style="color: #888888">(</span>HttpStatusCode<span style="color: #888888">.</span>BadRequest<span style="color: #888888">,</span> 
+            <span style="color: #b83838">&quot;Name and kebab are both required!&quot;</span><span style="color: #888888">);</span>
+    <span style="color: #888888">}</span>
+
+    <span style="color: #2838b0">else</span>
+    <span style="color: #888888">{</span>
+        <span style="color: #2838b0">return</span> req<span style="color: #888888">.</span>CreateResponse<span style="color: #888888">(</span>HttpStatusCode<span style="color: #888888">.</span>OK<span style="color: #888888">);</span>
+    <span style="color: #888888">}</span>
+<span style="color: #888888">}</span>
+</pre></div>
+
+<p>The name of the DocumentDB database and collection will be the same in every environment, so I&rsquo;ve just hardcoded them in the file (<code>&quot;kebabDB&quot;</code> and <code>&quot;kebabPreferences&quot;</code>). The other thing to note is that I am passing <code>CreateIfNotExists=true</code> in the binding options for the DocumentDB collection; it turns out to be non-trivial to create the database and the collection from an AzureRM template, so we let the app create them at runtime if required.</p>
+
+<p>The test project contains a single test, which exercises the behaviour described above:</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #388038">[TestMethod]</span>
+<span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">KebabPost_ValidInput_StoresValuesInDb</span><span style="color: #888888">()</span>
+<span style="color: #888888">{</span>
+<span style="color: #2838b0; font-style: italic">string</span> content <span style="color: #888888">=</span> <span style="color: #b83838">&quot;{ &#39;name&#39;:&#39;Barry&#39; , &#39;favouriteKebab&#39;:&#39;Kofte&#39; }&quot;</span><span style="color: #888888">;</span>
+
+<span style="color: #2838b0">using</span> <span style="color: #888888">(</span><span style="color: #2838b0; font-style: italic">var</span> client <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> HttpClient<span style="color: #888888">())</span>
+<span style="color: #888888">{</span>
+    <span style="color: #2838b0; font-style: italic">var</span> response <span style="color: #888888">=</span> client<span style="color: #888888">.</span>PostAsync<span style="color: #888888">(</span>functionUrl<span style="color: #888888">,</span>
+        <span style="color: #2838b0">new</span> <span style="color: #785840">StringContent</span><span style="color: #888888">(</span>content<span style="color: #888888">,</span> Encoding<span style="color: #888888">.</span>UTF8<span style="color: #888888">,</span> <span style="color: #b83838">&quot;application/json&quot;</span><span style="color: #888888">)).</span>Result<span style="color: #888888">;</span>
+    
+<span style="color: #888888">}</span>
+
+<span style="color: #2838b0">using</span> <span style="color: #888888">(</span><span style="color: #2838b0; font-style: italic">var</span> client <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> DocumentClient<span style="color: #888888">(</span>docDbUri<span style="color: #888888">,</span> docDbKey<span style="color: #888888">))</span>
+<span style="color: #888888">{</span>
+    IQueryable<span style="color: #888888">&lt;</span>KebabPrefs<span style="color: #888888">&gt;</span> kebabPrefsQuery <span style="color: #888888">=</span> client
+    <span style="color: #888888">.</span>CreateDocumentQuery<span style="color: #888888">&lt;</span>KebabPrefs<span style="color: #888888">&gt;(</span>
+        UriFactory
+        <span style="color: #888888">.</span>CreateDocumentCollectionUri<span style="color: #888888">(</span><span style="color: #b83838">&quot;kebabDb&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;kebabPreferences&quot;</span><span style="color: #888888">))</span>
+        <span style="color: #888888">.</span>Where<span style="color: #888888">(</span>kp <span style="color: #888888">=&gt;</span> kp<span style="color: #888888">.</span>name <span style="color: #888888">==</span> <span style="color: #b83838">&quot;Barry&quot;</span><span style="color: #888888">);</span>
+
+    Assert<span style="color: #888888">.</span>AreEqual<span style="color: #888888">(</span><span style="color: #b83838">&quot;Kofte&quot;</span><span style="color: #888888">,</span> kebabPrefsQuery<span style="color: #888888">.</span>ToList<span style="color: #888888">()</span>
+        <span style="color: #888888">.</span>First<span style="color: #888888">().</span>favouriteKebab<span style="color: #888888">);</span>
+
+
+    <span style="color: #888888">}</span>
+</pre></div>
+
+<p>Unit Testing enthusiasts will have noticed that this isn&rsquo;t really a Unit Test at all; there are no fakes or mocks, we are using the &ldquo;real&rdquo; dependencies for everything.</p>
+
+<p>If our Azure function were a bit bigger, it would be worth splitting out the &ldquo;core&rdquo; functionality into a separate assembly that <em>could</em> be meaningfully unit tested, but in the interests of brevity I&rsquo;ve not done that here.</p>
+
+<p><em>Integration</em> tests of this kind are pretty common in PaaS projects, and a glance at the <a href="https://github.com/arapaima-uk/KebabAzureRmDemo/blob/master/KebabTests/KebabTests.cs">full source code of the test project </a> will reveal many of the common &ldquo;characteristics&rdquo; of coded integration tests; acres of boilerplate code to read config files and set up the initial conditions, POCOs not present in the main application whose only purpose is to hold data for our test, etc. etc. Still, all of this fragility and maintenance difficulty is probably a price worth paying for increased confidence in our deployment pipeline.</p>
+
+<h2 id="the-azurerm-template">The AzureRM Template</h2>
+
+<p>The <a href="https://github.com/arapaima-uk/KebabAzureRmDemo/blob/master/KebabDbResourceGroup/azuredeploy.json">full template</a> is a bit too long to reproduce here, so I&rsquo;ll call out some edited highlights.</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  <span style="color: #b83838">&quot;parameters&quot;</span><span style="background-color: #a848a8">:</span> <span style="color: #888888">{</span>
+    <span style="color: #2838b0">&quot;database_account_name&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
+      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabdac&#39;, uniqueString(resourceGroup().id))]&quot;</span><span style="color: #888888">,</span>
+      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
+    <span style="color: #888888">},</span>
+    <span style="color: #2838b0">&quot;hostingPlanName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
+      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabhp&#39;, uniqueString(resourceGroup().id))]&quot;</span> <span style="color: #888888">,</span>
+      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
+    <span style="color: #888888">},</span>
+    <span style="color: #2838b0">&quot;functionAppName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
+      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabApp&#39;, uniqueString(resourceGroup().id))]&quot;</span><span style="color: #888888">,</span>
+      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
+    <span style="color: #888888">},</span>
+    <span style="color: #2838b0">&quot;storageAccountName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
+      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabstor&#39;, uniqueString(resourceGroup().id))]&quot;</span><span style="color: #888888">,</span>
+      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
+    <span style="color: #888888">}</span>
+  <span style="color: #888888">}</span>
+</pre></div>
+
+<p>The thing to note is that the template takes four parameters, each of which has a default value.</p>
+
+<p>Each of the defaults consists of a prefix that identifies the resource type, combined with the result of the function <code>uniqueString(resourceGroup().id)</code>. These unique strings are required as there are some objects in Azure (storage accounts or web apps for example) that require <em>globally</em> unique names that can be incorporated into a url of the form <code>https://myapp.azurewebsites.net</code> or similar. I can never remember which objects do require unique names and which ones don&rsquo;t, so I tend to use <code>uniqueString()</code> for everything.</p>
+
+<p>The template goes on to create a storage account, a Cosmos DB account, a Function App, and all the supporting bits these require. These end up with some pretty funky names thanks to the use of <code>uniqueString()</code>, but since you never really need to type these names anywhere this is more of an aesthetic consideration than a practical problem:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/resources.png" alt="Azure resource names generated with uniqueString" /></p>
+
+<p>At the end of the template is an <code>outputs</code> section:</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  <span style="color: #b83838">&quot;outputs&quot;</span><span style="background-color: #a848a8">:</span> <span style="color: #888888">{</span>
+    <span style="color: #2838b0">&quot;functionAppName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
+      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span><span style="color: #888888">,</span>
+      <span style="color: #2838b0">&quot;value&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[parameters(&#39;functionAppName&#39;)]&quot;</span>
+
+    <span style="color: #888888">},</span>
+    <span style="color: #2838b0">&quot;docDbUri&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
+      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span><span style="color: #888888">,</span>
+      <span style="color: #2838b0">&quot;value&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[Concat(&#39;https://&#39;,parameters(&#39;database_account_name&#39;),&#39;.documents.azure.com:443&#39;)]&quot;</span>
+    <span style="color: #888888">},</span>
+    <span style="color: #2838b0">&quot;docDbKey&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
+      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span><span style="color: #888888">,</span>
+      <span style="color: #2838b0">&quot;value&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[listKeys(resourceId(&#39;Microsoft.DocumentDb/databaseAccounts&#39;, parameters(&#39;database_account_name&#39;)), &#39;2015-04-08&#39;).primaryMasterKey]&quot;</span>
+    <span style="color: #888888">}</span>
+  <span style="color: #888888">}</span>
+</pre></div>
+
+<p>This defines three outputs, the Function App name, the Cosmos DB uri, and the Cosmos DB key. This is necessary as we didn&rsquo;t specify these values ourselves, so we need AzureRM to <em>tell us what it just created</em> in order that we can use these names for other tasks in our build process.</p>
+
+<h3 id="the-build-definition">The Build Definition</h3>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/builddefinition.png" alt="The Build Steps in VSTS" /></p>
+
+<p>This is a fairly standard workflow, with a couple of things of note. We build the solution at the beginning and save the artifacts, but before we run our integration test(s?), we run the AzureRM template to &ldquo;Create or Update&rdquo; a resource group, and then deploy our Function App inside this resource group. This is so that we can run our integration tests with the real dependencies. The &ldquo;trick&rdquo;, such as it is, is in the AzureRM deployment step:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/AzureRMStep.png" alt="AzureRM Deploy step showing parameters" />.</p>
+
+<p>By passing the <em>name of the branch we are building</em> as the name of the resource group, this means that the first time we build any given branch we will get a brand new environment with a Cosmos DB, a Function App, etc. etc., exclusively for that build.</p>
+
+<p>After the template is deployed, we need a bit of Powershell to retrieve the outputs from the template.</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">param</span> <span style="color: #888888">(</span><span style="color: #b85820">[string]</span><span style="color: #b04040">$resourceGroup</span><span style="color: #888888">)</span>
+
+<span style="color: #b04040">$outputs</span> <span style="color: #888888">=</span> <span style="color: #888888">(</span><span style="color: #388038">Get-AzureRmResourceGroupDeployment</span> -ResourceGroupName <span style="color: #b04040">$resourceGroup</span> <span style="color: #888888">|</span> Sort Timestamp -Descending <span style="color: #888888">|</span> Select -First 1<span style="color: #888888">).</span>Outputs
+
+<span style="color: #b04040">$outputs</span><span style="color: #888888">.</span>Keys <span style="color: #888888">|</span> <span style="color: #888888">%</span> <span style="color: #888888">{</span> <span style="color: #388038">Write-Host</span> <span style="color: #888888">(</span><span style="color: #b83838">&quot;##vso[task.setvariable variable=&quot;</span><span style="color: #888888">+</span><span style="color: #b04040">$_</span><span style="color: #888888">+</span><span style="color: #b83838">&quot;;]&quot;</span><span style="color: #888888">+</span><span style="color: #b04040">$outputs</span><span style="color: #888888">[</span><span style="color: #b04040">$_</span><span style="color: #888888">].</span>Value<span style="color: #888888">)</span> <span style="color: #888888">}</span>
+</pre></div>
+
+<p>What this does is to find the most recent deployment for the specified resource group - i.e. the one we just did - and map the <em>outputs</em> of the template to <em>build variables</em> in VSTS by name. This means that for every output in the template, we need to define a build variable with <em>exactly</em> the same name, which indeed we have done:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/buildvars.png" alt="Build variables view" /></p>
+
+<p>The values are all empty, as they will be assigned by the above script during each build.</p>
+
+<p>We can then use these variables in the Function App deployment step to tell it where to deploy our Function:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/appServiceDeploy.png" alt="FunctionAppDeployment" /></p>
+
+<p>as well as in the Integration Testing step, where we use these variables to overwrite the values in the <code>runsettings</code> file used by the <code>vstest</code> test runner.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/runsettings.png" alt="runsettings" /></p>
+
+<p>The final step is just to update the Github mirror of the VSTS repo; in most corporate environments this won&rsquo;t be necessary!</p>
+
+<h3 id="the-build-trigger">The Build Trigger</h3>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/buildtrigger.png" alt="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/buildtrigger.png" /></p>
+
+<p>This build will be run for every new commit on every branch. A moment&rsquo;s reflection will reveal that if the branch is created through the UI on the server, the build will be triggered immediately, as there will be a new branch with a new (to that branch) commit. The first build will always be the slowest, as this is the one that will create the resource group from scratch.</p>
+
+<p>Equally, a new build will be triggered every time the developer pushes new commits to the feature branch, following which the artifacts will be deployed and the integration tests run, <em>in the private environment dedicated to that branch</em>.</p>
+
+<p>Subsequent builds will be faster; the time penalty associated with creating the resource group from scratch is around two minutes in this particular case, using the hosted queue (2:32 to create from scratch, 0:38 to revalidate on subsequent builds). The overall build time is around 5 minutes the first time, and 3 minutes on subsequent runs. (since there&rsquo;s only one integration test, the slowest part is the nuget restore!).</p>
+
+<h3 id="branch-policy">Branch Policy</h3>
+
+<p>In addition to enforcing a build on every commit, we can force another build at the point a pull request is made from our feature branch to master:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/masterbranchpolicy.png" alt="Master branch policy in vsts" /></p>
+
+<p>This will &ldquo;pre-merge&rdquo; our feature branch into master, and trigger a new build. This will have the side effect of creating a new resource group called &ldquo;merge&rdquo;, in which the tests will be run again. However, since the same branch name is used for every pull-request build, the &ldquo;merge&rdquo; resource group will only be created once, and won&rsquo;t be modified unless the AzureRM template changes.</p>
+
+<h3 id="merging-a-pull-request">Merging a Pull Request</h3>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/closingapr.png" alt="Merging a PR" /></p>
+
+<p>This screenshot shows the &ldquo;moment of truth&rdquo; immediately prior to merging a pull request. The &ldquo;pre-merged&rdquo; branch has been built successfully, and when we click &ldquo;Complete Merge&rdquo; the source branch will be deleted. The resource group, however, will still be hanging around incurring charges, and this could become an expensive business if we are creating a new environment for every single feature and never tearing them down.</p>
+
+<h3 id="tearing-down-the-environment">Tearing down the environment</h3>
+
+<p>This is achieved by calling an Azure Automation runbook in a Service Hook from VSTS.</p>
+
+<p>To create the hook, we first need to define our Automation runbook and give it a web endpoint. The integration of Azure Automation and source control is a &ldquo;work in progress&rdquo;, so I&rsquo;ve stored the body of the runbook in a gist</p>
+
+<p><script src="//gist.github.com/gavincampbell/a12a87477bd38402b310262040509a56.js"></script>.</p>
+
+<p>This script will parse the JSON payload from VSTS, find the source branch name (from the refspec), and delete the resource group with that name. This runbook is associated with an endpoint url, which we provide to VSTS in the Web hook configuration.</p>
+
+<p>The runbook requires an Azure Automation Account.  I have created these in a separate resource group, not &ldquo;managed&rdquo; from VSTS.</p>
+
+<p>We set the event to track to &ldquo;Pull request merge commit created&rdquo; - there&rsquo;s no &ldquo;branch deleted&rdquo; event available here. Remember, the branch gets deleted when the PR is merged, assuming the box is ticked. Notably, we are only firing this event on merges <em>to</em> master.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/servicehookp1.png" alt="Service Hook p1" /></p>
+
+<p>On the second page of the dialog, we just supply the endpoint url for our Automation runbook.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/servicehookp2.png" alt="Service Hook p2" /></p>
+
+<h2 id="release-management">Release Management</h2>
+
+<p>Once the branch is merged to master and its environment torn down, then what? We release the feature, of course:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/releaseprocess.png" alt="Release Management in VSTS" /></p>
+
+<p>This Release definition is triggered on every new build of the master branch. Since the branch is protected by a policy, these will only occur when a pull request has been created, successfully built, reviewed, and merged.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/releasetrigger.png" alt="Release Trigger" /></p>
+
+<p>As soon as the release is triggered, we do a deployment to QA. The &ldquo;little man with a clock&rdquo; next to the &ldquo;Production&rdquo; environment indicated that there is a manual approval required before a release can be deployed to production.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/qatrigger.png" alt="QA trigger" /></p>
+
+<h3 id="the-deployment-process">The deployment process</h3>
+
+<p>As is typical, the Release Definition is much simpler than the Build Definition. In this instance it consists of only two steps, deploying the Azure RM template and deploying the Function to our Function App.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/deploymenttasks.png" alt="Release tasks in VSTS" /></p>
+
+<p>What&rsquo;s notable though, is that we are using the same Azure RM template for QA and Production as we used for the ephemeral development environments. The only difference is that instead of allowing the parameters to default to their &ldquo;unique string&rdquo; values, we explicitly set all these parameters to &ldquo;well known&rdquo; values in the step definition:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/overridetemplateparameters.png" alt="Azure RM Release Step Definition" /></p>
+
+<p>as well as in the step that deploys the function to our function app:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/overrideAppServicename.png" alt="Azure Function Release Step Definition" /></p>
+
+<p>The Production environment definition is exactly the same as the QA one, except that the &ldquo;well known&rdquo; values for the resource names are different.</p>
+
+<p>This means that it doesn&rsquo;t matter if the QA and Prod environments are maintained by a different team, or if they are created in a different subscription or in a different tenant; as long as we know the values to plug into our template, we can override our defaults with the &ldquo;permanent&rdquo; names.</p>
+
+<p>The &ldquo;permanent&rdquo; resource names still need to respect the rules for uniqueness though, so if these names are important it is probably wise to create these resources in advance to avoid disappointment at deployment time.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>If you&rsquo;re still reading, you&rsquo;ll be aware that this has been a somewhat &ldquo;epic&rdquo; article. The scenario outlined above allows us to automatically create and tear down a new environment for every single feature. Under normal circumstances, there will be four &ldquo;persistent&rdquo; resource groups, namely &ldquo;QA&rdquo; and &ldquo;Production&rdquo;, as well as &ldquo;merge&rdquo; - used for building and testing &ldquo;pre-merged&rdquo; pull requests, and &ldquo;master&rdquo; - used to rebuild and retest &ldquo;master&rdquo; after every merge commit. The extra resource group for Azure Automation is also visible in this screenshot, as is the resource group for a feature branch, which will be automatically torn down when the branch is merged.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/ResourceGroups.png" alt="resource groups in the Azure Portal" /></p>
+
+<p>This technique is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the <a href="/fixed/About/">contact form</a> on the site.</p>
+
+   
+</div>
+
+<section class="post-comments">
+  <h3>Comments</h3>
+
+  
+  
+  
+
+  
+    
+  
+
+  
+    <p>Nothing yet.</p>
+  
+
+  <h3>Say something</h3>
+
+  <form class="post-new-comment" method="POST" action="https://api.staticman.net/v2/entry/arapaima-uk/source.arapaima-uk.github.io/master/comments">
+    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/#comment-submitted">
+     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/">
+    <input type="hidden" name="options[entryId]" value="a67e0146d75266aa0f74d155295c3650">
+    <input name="fields[name]" type="text" class="post-comment-field" placeholder="Your name">
+    <input name="fields[email]" type="email" class="post-comment-field" placeholder="Your email address">
+    <textarea name="fields[body]" class="post-comment-field" placeholder="Your message. Feel free to use Markdown." rows="10"></textarea>
+    <input type="submit" class="post-comment-field btn" value="Submit">
+  </form>
+</section>
+
+<div id="comment-submitted" class="dialog">
+<h3>Thank you</h3>
+  <p>Your comment has been submitted and will be published once it has been approved.</p>
+  <p><a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/pulls">Click here</a> to see the pull request you generated.</p>
+  
+  <p><a href="#" class="btn">OK</a></p>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+  </body>
+</html>
+
