@@ -141,6 +141,12 @@
     
       
     
+      
+    
+      
+    
+      
+    
     <a class="sidebar-nav-item " href="/index.xml">RSS</a>
     
 
@@ -445,11 +451,13 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 
 <h2 id="summary">Summary</h2>
 
-<p>If you&rsquo;re still reading, you&rsquo;ll be aware that this has been a somewhat &ldquo;epic&rdquo; article. The scenario outlined above allows us to automatically create and tear down a new environment for every single feature. Under normal circumstances, there will be four &ldquo;persistent&rdquo; resource groups, namely &ldquo;QA&rdquo; and &ldquo;Production&rdquo;, as well as &ldquo;merge&rdquo; - used for building and testing &ldquo;pre-merged&rdquo; pull requests, and &ldquo;master&rdquo; - used to rebuild and retest &ldquo;master&rdquo; after every merge commit. The extra resource group for Azure Automation is also visible in this screenshot, as is the resource group for a feature branch, which will be automatically torn down when the branch is merged.</p>
+<p>If you&rsquo;re still reading, you&rsquo;ll be aware that this has been a somewhat &ldquo;epic&rdquo; article. The scenario outlined above allows us to automatically create and tear down a new environment for every single feature. Under normal circumstances, there will be four &ldquo;persistent&rdquo; resource groups, namely &ldquo;QA&rdquo; and &ldquo;Production&rdquo;, as well as &ldquo;merge&rdquo; - used for building and testing &ldquo;pre-merged&rdquo; pull requests, and &ldquo;master&rdquo; - used to rebuild and retest &ldquo;master&rdquo; after every merge commit.</p>
+
+<p>The extra resource group for Azure Automation is also visible in this screenshot, as is the resource group for a feature branch, which will be automatically torn down when the branch is merged.</p>
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/ResourceGroups.png" alt="resource groups in the Azure Portal" /></p>
 
-<p>This technique is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the <a href="/fixed/About/">contact form</a> on the site.</p>
+<p>All of the above is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the <a href="/fixed/About/">contact form</a> on the site.</p>
 
    
 </div>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Combining tSQLt mocks with Visual Studio SQL Server Unit Tests &middot; arapaima.uk
+    
+  </title>
+
+  
+  <link rel="stylesheet" href="/css/poole.css">
+  <link rel="stylesheet" href="/css/syntax.css">
+  <link rel="stylesheet" href="/css/lanyon.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+  <link rel="stylesheet" href="/css/comments.css">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/assets/favicon.ico">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+ 
+
+<script type="text/javascript">
+  var _paq = _paq || [];
+  
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+   if (window.location.hostname == "localhost")
+     return;
+
+    var u="https://stats.arapaima.co.uk/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+
+
+
+
+<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
+
+
+
+</head>
+
+
+  <body class="theme-base-0d">
+
+    
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p>I'm Gavin Campbell, a database developer interested in Continuous Delivery, functional programming, and cricket.</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item " href="/">Home</a>
+    <a class="sidebar-nav-item " href="/post">Posts</a>
+
+    
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+      
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a class="sidebar-nav-item " href="/index.xml">RSS</a>
+    
+
+  </nav>
+  
+  <div class = "sidebar-item">
+  <p> <a href = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io">
+      <img src = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt = "Travis CI Build Status" title = "Travis CI Build Status">
+      </a>
+    </p>
+  </div>
+  <div class="sidebar-item">
+    <p><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Content on arapaima.uk</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://arapaima.uk" property="cc:attributionName" rel="cc:attributionURL">Gavin Campbell, Arapaima Ltd</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+  </div>
+</div>
+
+
+    
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <h3 class="masthead-title">
+            <a href="/" title="Home">arapaima.uk</a>
+            <small>Data, Databases, Delivery</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+
+
+<div class="post">
+  <h1 class="post-title">Combining tSQLt mocks with Visual Studio SQL Server Unit Tests</h1>
+  <span class="post-date">2017-09-13</span>
+  
+
+<p>This came up in a question after a recent talk about database unit testing; I&rsquo;ve done this in the past on a client project and it was in my &ldquo;old&rdquo; talk about testing so I thought I&rsquo;d write it down here in case it&rsquo;s useful to anyone, not least the person who was asking the question.</p>
+
+<p>A <code>.zip</code> file of the complete solution can be downloaded from <a href="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/KebabTestDemo.zip">here</a>.</p>
+
+<p>For many years, Visual Studio Database Projects - in SSDT as well as in its predecessors - have included an additional template for generating SQL Server Unit Tests.</p>
+
+<h2 id="sql-server-unit-tests">SQL Server Unit Tests</h2>
+
+<p>SQL Server Unit Tests live in a SQL Server Unit Test <em>Class</em>, which is contained in an ordinary (.NET) Unit Test Project.</p>
+
+<p>There is some additional configuration scoped to the Test <em>Project</em>, namely the connection string(s) that will be used to execute the tests, and optionally the name of a database project to deploy before every test run.</p>
+
+<p>The Test Class is an ordinary test class with some boilerplate code supplied as well as a designer for creating SQL Server Unit Tests.</p>
+
+<p>The advantages of using Visual Studio to create our SQL Server Unit Tests are that the ouputs of the test are produced in <code>.trx</code> format, which is well understood by many CI tools, not least the ones from Microsoft, and that the tests can be run by the test runner built into Visual Studio.</p>
+
+<h3 id="the-sql-server-unit-test-designer">The SQL Server Unit Test Designer</h3>
+
+<p>The test designer supports up to three Transact SQL scripts per test, called Pre-Test, Test, and Post-Test, which are run in the order you would expect. There is also the option to create class-scoped scripts for Test Initialize and Test Cleanup, which are run before and after every individual test in the class.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/unitTestDesigner.png" alt="The SQL Server Unit Test Designer" /></p>
+
+<p>For each of these scripts, there is the option to add test assertions, which are referred to  &ldquo;Test Conditions&rdquo; in this framework. The built-in test conditions are not particularly flexible, but writing custom test conditions is a topic for another day.</p>
+
+<p>At the time of writing, it is almost exactly ten years since the inventor of NUnit (and of other things) decided that common SetUp and TearDown methods <a href="http://jamesnewkirk.typepad.com/posts/2007/09/why-you-should-.html">probably weren&rsquo;t such a good idea after all</a>, mainly as they make it difficult to see what a test is actually <em>doing</em>.</p>
+
+<p>This is complicated further in SQL Server Unit Tests, as the Pre-Test and Post-Test scripts don&rsquo;t use the same connection as the main Test script, which can lead to even more unexpected results.</p>
+
+<p>So, this example won&rsquo;t make use of the Pre-Test and Post-Test scripts, or of their class-scoped equivalents.</p>
+
+<p>Finally, there is no support for mocks or fakes of any kind in the Visual Studio SQL Server unit testing framework.</p>
+
+<p>Fortunately, there is another testing framework that provides just such support, namely <a href="http://tsqlt.org/">tSQLt</a>.</p>
+
+<h3 id="tsqlt">tSQLt</h3>
+
+<p>In the .NET/Java/whatever worlds, after deciding on a Unit Test Framework to use - NUnit, xUnit, MSTest, etc. - we are still faced with a further decision regarding what mocking framework to use, for instance Moq, NSub, Rhino, the Microsoft one that nobody&rsquo;s heard of because it&rsquo;s only in VS Enterprise, etc. etc.</p>
+
+<p>In the case of tSQLt, the Unit Test framework and the mocking framework are bundled together into a single package.</p>
+
+<p>However, this doesn&rsquo;t mean that these components can&rsquo;t be <em>used</em> in isolation from one another.</p>
+
+<h2 id="crossing-the-streams">Crossing the streams</h2>
+
+<p>The present example will demonstrate the use of the mocking facilities of tSQLt in conjunction with the test designer and test runner built into Visual Studio.</p>
+
+<p>There are a few ways of getting the tSQLt objects deployed to where they are needed for testing, the way I use most often is basically <a href="https://the.agilesql.club/Blog/Ed-Elliott/AdventureWorksCI-Step5-Adding-tSQLt-Dacpac-To-The-Solution">this one</a>, whereby we create a <code>.dacpac</code> of just the tSQLt objects (or use one we made earlier!), and create a second database project with a Database Reference of type &ldquo;Same Database&rdquo; to the project we are trying to test, and a reference to our tSQLt <code>.dacpac</code>. The <code>.dacpac</code> file needs to be somewhere in our source folders, as it will be added by path. We also need a reference to the master database, as this is required to build the tSQLt project.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/SolutionExplorerView.png" alt="Solution Explorer View showing tsqlt projects" /></p>
+
+<p>In the above illustration, KebabTestDemo is the application we are testing, KebabTestDemo.tSQLt is the database project that contains <em>only</em> the references to our tSQLt dacpac and to master, and KebabTestDemo.Tests is the Unit Test project that contains our SQL Server Unit Test.</p>
+
+<p>In the &ldquo;SQL Server Test Configuration&rdquo; dialog, we specify the connection string to use for runnng our tests. This information is stored in the <code>app.config</code> for the test assembly, meaning it is scoped to the <em>project</em> rather than to the individual test <em>classes</em>.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/SQLServerTestConfiguration.png" alt="The SQL Server Test Configuration dialog" /></p>
+
+<p>This dialog also allows us to specify that we want to deploy a database project at the start of every test run, so that all of our latest changes get included. The keen-eyed will notice, however, that we can only specify <em>one</em> project here, whereas we have <em>two</em> database projects in our solution. Normally I&rsquo;d just leave this blank and try to remember to deploy my updated project before every test run in Visual Studio, and hope that the CI Server &ldquo;remembers&rdquo; to deploy its projects before its own test runs.</p>
+
+<p>However, there is a solution, outlined in an <a href="https://blogs.msdn.microsoft.com/bahill/2009/07/31/deploying-composite-projects-through-a-database-unit-test-run/">MSDN blog post from 2009</a> that allows us to take advantage of this &ldquo;automatic deployment&rdquo; feature from Visual Studio.</p>
+
+<p>In short, we subclass the <code>SqlDatabaseTestService</code> class used in <code>SqlDatabaseSetup.cs</code> to allow us to deploy not one, but two projects from the <code>InitializeAssembly</code> method.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">class</span> <span style="color: #287088">KebabDbTestService</span> <span style="color: #888888">:</span> SqlDatabaseTestService
+<span style="color: #888888">{</span>
+    <span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">DeployCompositeProject</span><span style="color: #888888">()</span>
+    <span style="color: #888888">{</span>
+        DeployDatabaseProject<span style="color: #888888">(</span><span style="color: #b83838">@&quot;..\..\..\KebabTestDemo\KebabTestDemo.sqlproj&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;Release&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;System.Data.SqlClient&quot;</span><span style="color: #888888">,</span> GetConnectionString<span style="color: #888888">());</span>
+        DeployDatabaseProject<span style="color: #888888">(</span><span style="color: #b83838">@&quot;..\..\..\KebabTestDemo.tSQLt\KebabTestDemo.tSQLt.sqlproj&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;Release&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;System.Data.SqlClient&quot;</span><span style="color: #888888">,</span> GetConnectionString<span style="color: #888888">());</span>
+
+    <span style="color: #888888">}</span>
+
+    <span style="color: #2838b0">private</span> <span style="color: #2838b0">static</span> <span style="color: #2838b0; font-style: italic">string</span> <span style="color: #785840">GetConnectionString</span><span style="color: #888888">()</span>
+    <span style="color: #888888">{</span>
+        <span style="color: #2838b0; font-style: italic">var</span> config <span style="color: #888888">=</span> <span style="color: #888888">(</span>SqlUnitTestingSection<span style="color: #888888">)</span> ConfigurationManager<span style="color: #888888">.</span>GetSection<span style="color: #888888">(</span><span style="color: #b83838">&quot;SqlUnitTesting&quot;</span><span style="color: #888888">);</span>
+
+        <span style="color: #2838b0">return</span> config<span style="color: #888888">.</span>ExecutionContext<span style="color: #888888">.</span>ConnectionString<span style="color: #888888">;</span>
+    <span style="color: #888888">}</span>
+<span style="color: #888888">}</span>
+</pre></div>
+
+
+<p>Note that this pays no attention to the <code>app.config</code> setting that tells us what projects to deploy, so caution is advised!</p>
+
+<p>We then call our new code from the <code>InitializeAssembly</code> method in <code>SqlDatabaseSetup</code>:</p>
+
+<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888; font-style: italic">// Setup the test database based on setting in the</span>
+<span style="color: #888888; font-style: italic">// configuration file</span>
+<span style="color: #888888; font-style: italic">//SqlDatabaseTestClass.TestService.DeployDatabaseProject();</span>
+<span style="color: #888888; font-style: italic">//SqlDatabaseTestClass.TestService.GenerateData();</span>
+
+<span style="color: #2838b0; font-style: italic">var</span> service <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> KebabDbTestService<span style="color: #888888">();</span>
+
+service<span style="color: #888888">.</span>DeployCompositeProject<span style="color: #888888">();</span>
+</pre></div>
+
+(the commented out code is the previous contents of this method)</p>
+
+<h3 id="transactions">Transactions</h3>
+
+<p>One of the features of tSQLt is that all the procedures for running unit tests wrap every individual test in a transaction which is rolled back at the end of the test, meaning that the database is in the same state at the end of the test as at the beginning. This is unquestionably a <em>good thing</em>, as it means that the tests are all independent of one another, and that we don&rsquo;t need to think about test &ldquo;teardown&rdquo; actions.</p>
+
+<p>In the case of Visual Studio unit tests, we need to add this support manually. There are a few ways of doing this <a href="https://msdn.microsoft.com/en-US/library/jj851217.aspx">documented on MSDN</a>, of which I&rsquo;ll consider two.</p>
+
+<p>The first is to insert <code>BEGIN TRANSACTION</code> and <code>ROLLBACK TRANSACTION</code> at the beginning and end of every test script. Whilst this is effective, you need to remember to do it every time. My preferred method requires <a href="https://msdn.microsoft.com/en-us/library/jj851217.aspx#Anchor_2">further doctoring of the C# code behind the designer</a> so that every test is wrapped in a <a href="https://msdn.microsoft.com/en-us/library/system.transactions.transactionscope.aspx"><code>TransactionScope</code></a>. The only thing to remember here is that the Distributed Transaction Co-ordinator, better known as MSDTC, must be running on the machine where the test is executed, whether this is on your desktop or on a build server.</p>
+
+<p>The only changes we make are the ones highlighted below; we add a reference to <code>System.Transactions</code> and a member variable of type <code>System.Transactions.TransactionScope</code>. We then initialise this variable in <code>TestInitialize()</code> and call its <code>Dispose()</code> method in <code>TestCleanup()</code>, which will throw away the transaction without committing it.</p>
+
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="background-color: #ffffcc"><span style="color: #2838b0">using</span> <span style="color: #289870">System.Transactions</span><span style="color: #888888">;</span>
+</span>
+<span style="color: #2838b0">namespace</span> <span style="color: #289870">KebabTestDemo.Tests</span>
+<span style="color: #888888">{</span>
+<span style="color: #388038">    [TestClass()]</span>
+    <span style="color: #2838b0">public</span> <span style="color: #2838b0">class</span> <span style="color: #287088">KebabOrderLineTests</span> <span style="color: #888888">:</span> SqlDatabaseTestClass
+    <span style="color: #888888">{</span>
+<span style="background-color: #ffffcc">        TransactionScope _t<span style="color: #888888">;</span>
+</span>        <span style="color: #2838b0">public</span> <span style="color: #785840">KebabOrderLineTests</span><span style="color: #888888">()</span>
+        <span style="color: #888888">{</span>
+            InitializeComponent<span style="color: #888888">();</span>
+        <span style="color: #888888">}</span>
+
+<span style="color: #388038">        [TestInitialize()]</span>
+        <span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">TestInitialize</span><span style="color: #888888">()</span>
+        <span style="color: #888888">{</span>
+<span style="background-color: #ffffcc">            _t <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> TransactionScope<span style="color: #888888">();</span>
+</span>            <span style="color: #2838b0">base</span><span style="color: #888888">.</span>InitializeTest<span style="color: #888888">();</span>
+        <span style="color: #888888">}</span>
+<span style="color: #388038">        [TestCleanup()]</span>
+        <span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">TestCleanup</span><span style="color: #888888">()</span>
+        <span style="color: #888888">{</span>
+            <span style="color: #2838b0">base</span><span style="color: #888888">.</span>CleanupTest<span style="color: #888888">();</span>
+<span style="background-color: #ffffcc">            _t<span style="color: #888888">.</span>Dispose<span style="color: #888888">();</span>
+</span>        <span style="color: #888888">}</span>
+</pre></div>
+
+
+<p>Now when we run our tests, each individual test will be wrapped in a transaction, which will be disposed of (i.e. rolled back) at the end of the test.</p>
+
+<h3 id="the-test-script">The Test Script</h3>
+
+<p>The test script now consists of only three lines; <a href="http://tsqlt.org/user-guide/isolating-dependencies/faketable/">faking the table</a> used in the test, calling the procedure, and selecting the results.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/VSUnitTestWithTsqltMocks.png" alt="The completed Visual Studio Unit Test with tSQLt Mocks" /></p>
+
+<p>The results will be processed by the &ldquo;Test Condition&rdquo; at the bottom of the picture, this is a &ldquo;Data Checksum&rdquo; condition, which is the only way to validate a multi-column, multi-row result using the built-in test conditions.</p>
+
+<p>The checksum is configured using the following dialog; we have to select a database connection to use (in this case, it doesn&rsquo;t really matter what that connection is), followed by a query that will return the same result set (including column names) as we expect the result set of the test to return. We then click &ldquo;Retrieve&rdquo; to execute the query, retrieve the results, and populate the checksum value (in this case <code>-1371852473</code>, visible in the screenshot above)</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/DataChecksumConfiguration.png" alt="The Data Checksum Test Configuration Dialog" /></p>
+
+<h2 id="running-the-test">Running the Test</h2>
+
+<p>Having got to here, we are ready to run our test from the Visual Studio Test Explorer. This will re-deploy our project(s) and run the test, wrapped in a <code>TransactionScope</code>.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/PassingTest.png" alt="ScreenShot of passing test" /></p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>This is a bit fiddly to set up, and even more fiddly to set up on a CI Server. However if you have some reason why you want or need to use the built-in testing facilities in Visual Studio, then hopefully this article has demonstrated a way to take advantage of the tSQLt mocking framework.</p>
+
+<p>If you <a href="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/KebabTestDemo.zip">download the sample project</a>, then the test should build and run the first time, once you set the connection string in the &ldquo;SQL Server Test Configuration&rdquo; dialog.</p>
+
+   
+</div>
+
+<section class="post-comments">
+  <h3>Comments</h3>
+
+  
+  
+  
+
+  
+    
+  
+
+  
+    <p>Nothing yet.</p>
+  
+
+  <h3>Say something</h3>
+
+  <form class="post-new-comment" method="POST" action="https://api.staticman.net/v2/entry/arapaima-uk/source.arapaima-uk.github.io/master/comments">
+    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2017-09-13-visual-studio-database-unit-tests-tsqlt/#comment-submitted">
+     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2017-09-13-visual-studio-database-unit-tests-tsqlt/">
+    <input type="hidden" name="options[entryId]" value="c6c30a9e232c996b7dbbbd4aeb28639d">
+    <input name="fields[name]" type="text" class="post-comment-field" placeholder="Your name">
+    <input name="fields[email]" type="email" class="post-comment-field" placeholder="Your email address">
+    <textarea name="fields[body]" class="post-comment-field" placeholder="Your message. Feel free to use Markdown." rows="10"></textarea>
+    <input type="submit" class="post-comment-field btn" value="Submit">
+  </form>
+</section>
+
+<div id="comment-submitted" class="dialog">
+<h3>Thank you</h3>
+  <p>Your comment has been submitted and will be published once it has been approved.</p>
+  <p><a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/pulls">Click here</a> to see the pull request you generated.</p>
+  
+  <p><a href="#" class="btn">OK</a></p>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+  </body>
+</html>
+

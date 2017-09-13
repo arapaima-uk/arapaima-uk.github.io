@@ -286,11 +286,13 @@ HttpRequestMessage req&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
 
 &lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
 
-&lt;p&gt;If you&amp;rsquo;re still reading, you&amp;rsquo;ll be aware that this has been a somewhat &amp;ldquo;epic&amp;rdquo; article. The scenario outlined above allows us to automatically create and tear down a new environment for every single feature. Under normal circumstances, there will be four &amp;ldquo;persistent&amp;rdquo; resource groups, namely &amp;ldquo;QA&amp;rdquo; and &amp;ldquo;Production&amp;rdquo;, as well as &amp;ldquo;merge&amp;rdquo; - used for building and testing &amp;ldquo;pre-merged&amp;rdquo; pull requests, and &amp;ldquo;master&amp;rdquo; - used to rebuild and retest &amp;ldquo;master&amp;rdquo; after every merge commit. The extra resource group for Azure Automation is also visible in this screenshot, as is the resource group for a feature branch, which will be automatically torn down when the branch is merged.&lt;/p&gt;
+&lt;p&gt;If you&amp;rsquo;re still reading, you&amp;rsquo;ll be aware that this has been a somewhat &amp;ldquo;epic&amp;rdquo; article. The scenario outlined above allows us to automatically create and tear down a new environment for every single feature. Under normal circumstances, there will be four &amp;ldquo;persistent&amp;rdquo; resource groups, namely &amp;ldquo;QA&amp;rdquo; and &amp;ldquo;Production&amp;rdquo;, as well as &amp;ldquo;merge&amp;rdquo; - used for building and testing &amp;ldquo;pre-merged&amp;rdquo; pull requests, and &amp;ldquo;master&amp;rdquo; - used to rebuild and retest &amp;ldquo;master&amp;rdquo; after every merge commit.&lt;/p&gt;
+
+&lt;p&gt;The extra resource group for Azure Automation is also visible in this screenshot, as is the resource group for a feature branch, which will be automatically torn down when the branch is merged.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/ResourceGroups.png&#34; alt=&#34;resource groups in the Azure Portal&#34; /&gt;&lt;/p&gt;
 
-&lt;p&gt;This technique is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the &lt;a href=&#34;http://arapaima.uk/fixed/About/&#34;&gt;contact form&lt;/a&gt; on the site.&lt;/p&gt;
+&lt;p&gt;All of the above is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the &lt;a href=&#34;http://arapaima.uk/fixed/About/&#34;&gt;contact form&lt;/a&gt; on the site.&lt;/p&gt;
 </description>
         </item>
       

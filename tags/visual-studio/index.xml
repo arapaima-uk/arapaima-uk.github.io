@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>arapaima.uk </title>
+    <link>http://arapaima.uk/tags/visual-studio/index.xml</link>
+    <language>en-us</language>
+    <author>Gavin Campbell</author>
+    <rights>(C) 2017</rights>
+    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+
+    
+      
+        <item>
+          <title>Combining tSQLt mocks with Visual Studio SQL Server Unit Tests</title>
+          <link>http://arapaima.uk/post/2017-09-13-visual-studio-database-unit-tests-tsqlt/</link>
+          <pubDate>Wed, 13 Sep 2017 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2017-09-13-visual-studio-database-unit-tests-tsqlt/</guid>
+          <description>
+
+&lt;p&gt;This came up in a question after a recent talk about database unit testing; I&amp;rsquo;ve done this in the past on a client project and it was in my &amp;ldquo;old&amp;rdquo; talk about testing so I thought I&amp;rsquo;d write it down here in case it&amp;rsquo;s useful to anyone, not least the person who was asking the question.&lt;/p&gt;
+
+&lt;p&gt;A &lt;code&gt;.zip&lt;/code&gt; file of the complete solution can be downloaded from &lt;a href=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/KebabTestDemo.zip&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For many years, Visual Studio Database Projects - in SSDT as well as in its predecessors - have included an additional template for generating SQL Server Unit Tests.&lt;/p&gt;
+
+&lt;h2 id=&#34;sql-server-unit-tests&#34;&gt;SQL Server Unit Tests&lt;/h2&gt;
+
+&lt;p&gt;SQL Server Unit Tests live in a SQL Server Unit Test &lt;em&gt;Class&lt;/em&gt;, which is contained in an ordinary (.NET) Unit Test Project.&lt;/p&gt;
+
+&lt;p&gt;There is some additional configuration scoped to the Test &lt;em&gt;Project&lt;/em&gt;, namely the connection string(s) that will be used to execute the tests, and optionally the name of a database project to deploy before every test run.&lt;/p&gt;
+
+&lt;p&gt;The Test Class is an ordinary test class with some boilerplate code supplied as well as a designer for creating SQL Server Unit Tests.&lt;/p&gt;
+
+&lt;p&gt;The advantages of using Visual Studio to create our SQL Server Unit Tests are that the ouputs of the test are produced in &lt;code&gt;.trx&lt;/code&gt; format, which is well understood by many CI tools, not least the ones from Microsoft, and that the tests can be run by the test runner built into Visual Studio.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-sql-server-unit-test-designer&#34;&gt;The SQL Server Unit Test Designer&lt;/h3&gt;
+
+&lt;p&gt;The test designer supports up to three Transact SQL scripts per test, called Pre-Test, Test, and Post-Test, which are run in the order you would expect. There is also the option to create class-scoped scripts for Test Initialize and Test Cleanup, which are run before and after every individual test in the class.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/unitTestDesigner.png&#34; alt=&#34;The SQL Server Unit Test Designer&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;For each of these scripts, there is the option to add test assertions, which are referred to  &amp;ldquo;Test Conditions&amp;rdquo; in this framework. The built-in test conditions are not particularly flexible, but writing custom test conditions is a topic for another day.&lt;/p&gt;
+
+&lt;p&gt;At the time of writing, it is almost exactly ten years since the inventor of NUnit (and of other things) decided that common SetUp and TearDown methods &lt;a href=&#34;http://jamesnewkirk.typepad.com/posts/2007/09/why-you-should-.html&#34;&gt;probably weren&amp;rsquo;t such a good idea after all&lt;/a&gt;, mainly as they make it difficult to see what a test is actually &lt;em&gt;doing&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;This is complicated further in SQL Server Unit Tests, as the Pre-Test and Post-Test scripts don&amp;rsquo;t use the same connection as the main Test script, which can lead to even more unexpected results.&lt;/p&gt;
+
+&lt;p&gt;So, this example won&amp;rsquo;t make use of the Pre-Test and Post-Test scripts, or of their class-scoped equivalents.&lt;/p&gt;
+
+&lt;p&gt;Finally, there is no support for mocks or fakes of any kind in the Visual Studio SQL Server unit testing framework.&lt;/p&gt;
+
+&lt;p&gt;Fortunately, there is another testing framework that provides just such support, namely &lt;a href=&#34;http://tsqlt.org/&#34;&gt;tSQLt&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;tsqlt&#34;&gt;tSQLt&lt;/h3&gt;
+
+&lt;p&gt;In the .NET/Java/whatever worlds, after deciding on a Unit Test Framework to use - NUnit, xUnit, MSTest, etc. - we are still faced with a further decision regarding what mocking framework to use, for instance Moq, NSub, Rhino, the Microsoft one that nobody&amp;rsquo;s heard of because it&amp;rsquo;s only in VS Enterprise, etc. etc.&lt;/p&gt;
+
+&lt;p&gt;In the case of tSQLt, the Unit Test framework and the mocking framework are bundled together into a single package.&lt;/p&gt;
+
+&lt;p&gt;However, this doesn&amp;rsquo;t mean that these components can&amp;rsquo;t be &lt;em&gt;used&lt;/em&gt; in isolation from one another.&lt;/p&gt;
+
+&lt;h2 id=&#34;crossing-the-streams&#34;&gt;Crossing the streams&lt;/h2&gt;
+
+&lt;p&gt;The present example will demonstrate the use of the mocking facilities of tSQLt in conjunction with the test designer and test runner built into Visual Studio.&lt;/p&gt;
+
+&lt;p&gt;There are a few ways of getting the tSQLt objects deployed to where they are needed for testing, the way I use most often is basically &lt;a href=&#34;https://the.agilesql.club/Blog/Ed-Elliott/AdventureWorksCI-Step5-Adding-tSQLt-Dacpac-To-The-Solution&#34;&gt;this one&lt;/a&gt;, whereby we create a &lt;code&gt;.dacpac&lt;/code&gt; of just the tSQLt objects (or use one we made earlier!), and create a second database project with a Database Reference of type &amp;ldquo;Same Database&amp;rdquo; to the project we are trying to test, and a reference to our tSQLt &lt;code&gt;.dacpac&lt;/code&gt;. The &lt;code&gt;.dacpac&lt;/code&gt; file needs to be somewhere in our source folders, as it will be added by path. We also need a reference to the master database, as this is required to build the tSQLt project.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/SolutionExplorerView.png&#34; alt=&#34;Solution Explorer View showing tsqlt projects&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In the above illustration, KebabTestDemo is the application we are testing, KebabTestDemo.tSQLt is the database project that contains &lt;em&gt;only&lt;/em&gt; the references to our tSQLt dacpac and to master, and KebabTestDemo.Tests is the Unit Test project that contains our SQL Server Unit Test.&lt;/p&gt;
+
+&lt;p&gt;In the &amp;ldquo;SQL Server Test Configuration&amp;rdquo; dialog, we specify the connection string to use for runnng our tests. This information is stored in the &lt;code&gt;app.config&lt;/code&gt; for the test assembly, meaning it is scoped to the &lt;em&gt;project&lt;/em&gt; rather than to the individual test &lt;em&gt;classes&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/SQLServerTestConfiguration.png&#34; alt=&#34;The SQL Server Test Configuration dialog&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This dialog also allows us to specify that we want to deploy a database project at the start of every test run, so that all of our latest changes get included. The keen-eyed will notice, however, that we can only specify &lt;em&gt;one&lt;/em&gt; project here, whereas we have &lt;em&gt;two&lt;/em&gt; database projects in our solution. Normally I&amp;rsquo;d just leave this blank and try to remember to deploy my updated project before every test run in Visual Studio, and hope that the CI Server &amp;ldquo;remembers&amp;rdquo; to deploy its projects before its own test runs.&lt;/p&gt;
+
+&lt;p&gt;However, there is a solution, outlined in an &lt;a href=&#34;https://blogs.msdn.microsoft.com/bahill/2009/07/31/deploying-composite-projects-through-a-database-unit-test-run/&#34;&gt;MSDN blog post from 2009&lt;/a&gt; that allows us to take advantage of this &amp;ldquo;automatic deployment&amp;rdquo; feature from Visual Studio.&lt;/p&gt;
+
+&lt;p&gt;In short, we subclass the &lt;code&gt;SqlDatabaseTestService&lt;/code&gt; class used in &lt;code&gt;SqlDatabaseSetup.cs&lt;/code&gt; to allow us to deploy not one, but two projects from the &lt;code&gt;InitializeAssembly&lt;/code&gt; method.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color: #287088&#34;&gt;KebabDbTestService&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; SqlDatabaseTestService
+&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;DeployCompositeProject&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+        DeployDatabaseProject&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;@&amp;quot;..\..\..\KebabTestDemo\KebabTestDemo.sqlproj&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Release&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;System.Data.SqlClient&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; GetConnectionString&lt;span style=&#34;color: #888888&#34;&gt;());&lt;/span&gt;
+        DeployDatabaseProject&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;@&amp;quot;..\..\..\KebabTestDemo.tSQLt\KebabTestDemo.tSQLt.sqlproj&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Release&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;System.Data.SqlClient&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; GetConnectionString&lt;span style=&#34;color: #888888&#34;&gt;());&lt;/span&gt;
+
+    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+
+    &lt;span style=&#34;color: #2838b0&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;string&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;GetConnectionString&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+        &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; config &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;SqlUnitTestingSection&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; ConfigurationManager&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;GetSection&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;SqlUnitTesting&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+
+        &lt;span style=&#34;color: #2838b0&#34;&gt;return&lt;/span&gt; config&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;ExecutionContext&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;ConnectionString&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Note that this pays no attention to the &lt;code&gt;app.config&lt;/code&gt; setting that tells us what projects to deploy, so caution is advised!&lt;/p&gt;
+
+&lt;p&gt;We then call our new code from the &lt;code&gt;InitializeAssembly&lt;/code&gt; method in &lt;code&gt;SqlDatabaseSetup&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;// Setup the test database based on setting in the&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;// configuration file&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;//SqlDatabaseTestClass.TestService.DeployDatabaseProject();&lt;/span&gt;
+&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;//SqlDatabaseTestClass.TestService.GenerateData();&lt;/span&gt;
+
+&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; service &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; KebabDbTestService&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
+
+service&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;DeployCompositeProject&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+(the commented out code is the previous contents of this method)&lt;/p&gt;
+
+&lt;h3 id=&#34;transactions&#34;&gt;Transactions&lt;/h3&gt;
+
+&lt;p&gt;One of the features of tSQLt is that all the procedures for running unit tests wrap every individual test in a transaction which is rolled back at the end of the test, meaning that the database is in the same state at the end of the test as at the beginning. This is unquestionably a &lt;em&gt;good thing&lt;/em&gt;, as it means that the tests are all independent of one another, and that we don&amp;rsquo;t need to think about test &amp;ldquo;teardown&amp;rdquo; actions.&lt;/p&gt;
+
+&lt;p&gt;In the case of Visual Studio unit tests, we need to add this support manually. There are a few ways of doing this &lt;a href=&#34;https://msdn.microsoft.com/en-US/library/jj851217.aspx&#34;&gt;documented on MSDN&lt;/a&gt;, of which I&amp;rsquo;ll consider two.&lt;/p&gt;
+
+&lt;p&gt;The first is to insert &lt;code&gt;BEGIN TRANSACTION&lt;/code&gt; and &lt;code&gt;ROLLBACK TRANSACTION&lt;/code&gt; at the beginning and end of every test script. Whilst this is effective, you need to remember to do it every time. My preferred method requires &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/jj851217.aspx#Anchor_2&#34;&gt;further doctoring of the C# code behind the designer&lt;/a&gt; so that every test is wrapped in a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.transactions.transactionscope.aspx&#34;&gt;&lt;code&gt;TransactionScope&lt;/code&gt;&lt;/a&gt;. The only thing to remember here is that the Distributed Transaction Co-ordinator, better known as MSDTC, must be running on the machine where the test is executed, whether this is on your desktop or on a build server.&lt;/p&gt;
+
+&lt;p&gt;The only changes we make are the ones highlighted below; we add a reference to &lt;code&gt;System.Transactions&lt;/code&gt; and a member variable of type &lt;code&gt;System.Transactions.TransactionScope&lt;/code&gt;. We then initialise this variable in &lt;code&gt;TestInitialize()&lt;/code&gt; and call its &lt;code&gt;Dispose()&lt;/code&gt; method in &lt;code&gt;TestCleanup()&lt;/code&gt;, which will throw away the transaction without committing it.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;background-color: #ffffcc&#34;&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;using&lt;/span&gt; &lt;span style=&#34;color: #289870&#34;&gt;System.Transactions&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;
+&lt;span style=&#34;color: #2838b0&#34;&gt;namespace&lt;/span&gt; &lt;span style=&#34;color: #289870&#34;&gt;KebabTestDemo.Tests&lt;/span&gt;
+&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+&lt;span style=&#34;color: #388038&#34;&gt;    [TestClass()]&lt;/span&gt;
+    &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color: #287088&#34;&gt;KebabOrderLineTests&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; SqlDatabaseTestClass
+    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+&lt;span style=&#34;background-color: #ffffcc&#34;&gt;        TransactionScope _t&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;        &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;KebabOrderLineTests&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+            InitializeComponent&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+
+&lt;span style=&#34;color: #388038&#34;&gt;        [TestInitialize()]&lt;/span&gt;
+        &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;TestInitialize&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+&lt;span style=&#34;background-color: #ffffcc&#34;&gt;            _t &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; TransactionScope&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
+&lt;/span&gt;            &lt;span style=&#34;color: #2838b0&#34;&gt;base&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;InitializeTest&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;span style=&#34;color: #388038&#34;&gt;        [TestCleanup()]&lt;/span&gt;
+        &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;TestCleanup&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
+        &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+            &lt;span style=&#34;color: #2838b0&#34;&gt;base&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CleanupTest&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
+&lt;span style=&#34;background-color: #ffffcc&#34;&gt;            _t&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Dispose&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
+&lt;/span&gt;        &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now when we run our tests, each individual test will be wrapped in a transaction, which will be disposed of (i.e. rolled back) at the end of the test.&lt;/p&gt;
+
+&lt;h3 id=&#34;the-test-script&#34;&gt;The Test Script&lt;/h3&gt;
+
+&lt;p&gt;The test script now consists of only three lines; &lt;a href=&#34;http://tsqlt.org/user-guide/isolating-dependencies/faketable/&#34;&gt;faking the table&lt;/a&gt; used in the test, calling the procedure, and selecting the results.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/VSUnitTestWithTsqltMocks.png&#34; alt=&#34;The completed Visual Studio Unit Test with tSQLt Mocks&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The results will be processed by the &amp;ldquo;Test Condition&amp;rdquo; at the bottom of the picture, this is a &amp;ldquo;Data Checksum&amp;rdquo; condition, which is the only way to validate a multi-column, multi-row result using the built-in test conditions.&lt;/p&gt;
+
+&lt;p&gt;The checksum is configured using the following dialog; we have to select a database connection to use (in this case, it doesn&amp;rsquo;t really matter what that connection is), followed by a query that will return the same result set (including column names) as we expect the result set of the test to return. We then click &amp;ldquo;Retrieve&amp;rdquo; to execute the query, retrieve the results, and populate the checksum value (in this case &lt;code&gt;-1371852473&lt;/code&gt;, visible in the screenshot above)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/DataChecksumConfiguration.png&#34; alt=&#34;The Data Checksum Test Configuration Dialog&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;running-the-test&#34;&gt;Running the Test&lt;/h2&gt;
+
+&lt;p&gt;Having got to here, we are ready to run our test from the Visual Studio Test Explorer. This will re-deploy our project(s) and run the test, wrapped in a &lt;code&gt;TransactionScope&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/PassingTest.png&#34; alt=&#34;ScreenShot of passing test&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;This is a bit fiddly to set up, and even more fiddly to set up on a CI Server. However if you have some reason why you want or need to use the built-in testing facilities in Visual Studio, then hopefully this article has demonstrated a way to take advantage of the tSQLt mocking framework.&lt;/p&gt;
+
+&lt;p&gt;If you &lt;a href=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/KebabTestDemo.zip&#34;&gt;download the sample project&lt;/a&gt;, then the test should build and run the first time, once you set the connection string in the &amp;ldquo;SQL Server Test Configuration&amp;rdquo; dialog.&lt;/p&gt;
+</description>
+        </item>
+      
+    
+
+  </channel>
+</rss>
