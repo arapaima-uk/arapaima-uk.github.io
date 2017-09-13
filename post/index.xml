@@ -18,7 +18,7 @@
           <guid>http://arapaima.uk/post/2017-09-13-visual-studio-database-unit-tests-tsqlt/</guid>
           <description>
 
-&lt;p&gt;This came up in a question after a recent talk about database unit testing; I&amp;rsquo;ve done this in the past on a client project and it was in my &amp;ldquo;old&amp;rdquo; talk about testing so I thought I&amp;rsquo;d write it down here in case it&amp;rsquo;s useful to anyone, not least the person who was asking the question.&lt;/p&gt;
+&lt;p&gt;This came up in a question after a recent talk about database unit testing; I&amp;rsquo;ve done something similar on a client project in the past, and it was in my &amp;ldquo;old&amp;rdquo; talk about testing. So, I thought I&amp;rsquo;d write it down here in case it&amp;rsquo;s useful to anyone, not least the person who was asking the question.&lt;/p&gt;
 
 &lt;p&gt;A &lt;code&gt;.zip&lt;/code&gt; file of the complete solution can be downloaded from &lt;a href=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/tSQlt-VsTest/KebabTestDemo.zip&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
