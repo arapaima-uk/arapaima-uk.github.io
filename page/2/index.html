@@ -148,6 +148,8 @@
     
       
     
+      
+    
     <a class="sidebar-nav-item " href="/index.xml">RSS</a>
     
 
@@ -183,6 +185,128 @@
 
 
 <div class="posts">
+  
+    <div class="post">
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/">Database Pruning</a></h1>
+        <span class="post-date">2016-10-25</span>
+        
+
+<p>After a period of time in use, most databases, like many systems that have grown in an organic matter, can benefit from some judicious pruning. This can take the form of removing columns or even tables no longer required to support the application, or that store redundant - and hence possibly erroneous - copies of information stored elsewhere. Equally there may be stored procedures, functions, and even triggers that contain out-of-date versions of application logic.</p>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/7/70/The_gardener%27s_assistant%3B_a_practical_and_scientific_exposition_of_the_art_of_gardening_in_all_its_branches_%281910%29_%2814761716416%29.jpg" alt="The gardener's assistant; a practical and scientific exposition of the art of gardening in all its branches (1910) (14761716416).jpg" title="[By Internet Archive Book Images [No restrictions], via Wikimedia Commons]" /></p>
+
+<h2 id="dropping-a-column">Dropping a column</h2>
+
+<blockquote>
+<p>Refactoring Databases, p 72</p>
+</blockquote>
+
+<p>Since SSDT operates in a declarative manner, each table is defined in a <code>CREATE TABLE</code> script, and deleting a column is as simple as deleting the relevant line from the script. However, there are a couple of features of SSDT that are relevant here. If the column is referenced by any other database objects such as views, functions, or stored procedures, SSDT will display an error:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/DropColumnReferencedByProcedure.PNG" alt="SSDT Broken Reference Error" title="SSDT Broken Reference Error" /></p>
+
+<p>The full text of the error message reads <code>SQL71501: Procedure [dbo.UpdateInvoiceBillingAddress] has an unresolved reference to object [dbo].[Invoice].[BillingPostalCode]</code>, and the offending reference in the stored procedure<sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup> has acquired a &ldquo;red squiggly&rdquo;. There&rsquo;s no &ldquo;builtin&rdquo; refactoring action defined in the right-click context menu for deletions, presumably as it&rsquo;s difficult to programmatically determine the &ldquo;intent&rdquo; of a deleting a column.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/Refactoring+Menu.PNG" alt="Refactoring Context Menu" title="Refactoring Context Menu" /></p>
+
+<p>What is possible, however, is to use the &ldquo;find all references&rdquo; tool <em>before</em> deleting the column to enable us to take appropriate action.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/findAllReferences.PNG" alt="Find All References" title="Find All References" /></p>
+
+<h2 id="dropping-a-table">Dropping a table</h2>
+
+<blockquote>
+<p>Refactoring Databases, p 77</p>
+</blockquote>
+
+<p>This is where things get more serious. The same technique of using the &ldquo;Find All References&rdquo; tool to assess the damage we&rsquo;re about to do applies here, but there is a subtle difference in what happens when we actually brandish the pruning shears. It turns out that removing an entire table referenced by a stored procedure is only worthy of a warning or five rather than an error. This is due to an oddity of <a href="https://technet.microsoft.com/en-us/library/ms190686.aspx">deferred name resolution</a> for stored procedures, namely that it is permitted to reference a non-existent table in the text of a stored procedure, but not permitted to reference a non-existent column in a table that <em>does</em> exist.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/RemovingATableIsOnlyAWarning.PNG" alt="Removing a table is only a warning" title="Removing a table is only a warning" /></p>
+
+<p>Interestingly, if we convert our stored procedure to a user-defined function <sup class="footnote-ref" id="fnref:2"><a rel="footnote" href="#fn:2">2</a></sup> the warnings turn into errors. It turns out deferred name resolution doesn&rsquo;t work at all for functions, presumably as being &ldquo;purely functional&rdquo; and not side-effecting it is less likely that there will be objects that exist at runtime but not at creation time.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/FunctionsDontSupportDeferredNameResolution.PNG" alt="Functions don't support deferred name resolution" title="Functions don't support deferred name resolution" /></p>
+
+<h2 id="dropping-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules-https-msdn-microsoft-com-en-us-library-ms175081-aspx">Dropping Programmable Objects (Views, Functions, Stored Procedures, other miscellany in <a href="https://msdn.microsoft.com/en-us/library/ms175081.aspx"><code>sys.sql_modules</code></a>)</h2>
+
+<blockquote>
+<p>Refactoring Databases, p 79</p>
+</blockquote>
+
+<p>On the face of it this is simpler, as there is no data being thrown out with the bathwater.</p>
+
+<h3 id="dropping-triggers">Dropping Triggers</h3>
+
+<p>You should do this without hesitation. It&rsquo;s 2016.</p>
+
+<h3 id="dropping-views-and-functions">Dropping views and functions</h3>
+
+<p>Generally, this is unproblematic. Since these don&rsquo;t support deferred name resolution, you can get error checking in SSDT.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/ssdt-refactoring-part-1/NameCheckingInViews.PNG" alt="Name checking in views" title="Name checking in views" /></p>
+
+<h2 id="pulling-the-trigger-3">Pulling the trigger<sup class="footnote-ref" id="fnref:3"><a rel="footnote" href="#fn:3">3</a></sup></h2>
+
+<p>There&rsquo;s one more thing to consider, which is what happens when we come to deploy our changes. Whether we do this by publishing from Visual Studio or at the command line using <code>sqlpackage.exe</code>, if we are dropping a table or a column that contains data we will get an error along the lines of</p>
+
+<pre><code>(48,1): SQL72014: .Net SqlClient Data Provider: Msg 50000, Level 16, State 127, Line 6 Rows were detected. The schema update is terminating because data loss might occur.
+(43,0): SQL72045: Script execution error.  The executed script:
+IF EXISTS (SELECT TOP 1 1
+           FROM   [dbo].[PlaylistTrack])
+    RAISERROR (N'Rows were detected. The schema update is terminating because data loss might occur.', 16, 127)
+        WITH NOWAIT;
+</code></pre>
+
+<p>The <code>IF EXISTS</code> check gets inserted into the deployment script for every table, and every table containing a column, that is being dropped. It is worth noting that since the check is for <code>EXISTS (SELECT TOP 1 1)</code>, this check will fail and the deployment will be blocked even if we are dropping a column that only contains <code>NULL</code> values - I have found this to be mildly irritating in the past, particularly for &ldquo;inadvertently&rdquo; created columns.</p>
+
+<p>To inhibit this behaviour and allow our potentially destructive change to proceed, we need to specify this at deploy time, the mechanism for which depends on the method we are using to deploy our project.</p>
+
+<ul>
+<li><p>For projects deployed using the Visual Studio &ldquo;Publish&rdquo; dialog, uncheck &ldquo;Block Incremental Deployment if Data Loss might Occur&rdquo; in the &ldquo;Advanced Publish Settings&rdquo; dialog available by clicking &ldquo;Advanced&rdquo; in the &ldquo;Publish&rdquo; dialog.</p></li>
+
+<li><p>For projects deployed using <code>sqlpackage.exe</code>, we need to specify the parameter <code>/p:BlockOnPossibleDataLoss=False</code></p></li>
+
+<li><p>For projects that use a publish profile to specify deployment options, we need to add the element <code>&lt;BlockOnPossibleDataLoss&gt;False&lt;/BlockOnPossibleDataLoss&gt;</code> to the <code>.publish.xml</code> file.</p></li>
+</ul>
+
+<p>In each case, the default is &ldquo;true&rdquo;, meaning potentially destructive changes are blocked by default. This is for the benefit of those &ldquo;enterprise&rdquo; customers that deploy direct to production with no testing - remember that these people aren&rsquo;t our problem but they are the SSDT development team&rsquo;s problem, since they are paying to keep the lights on at SSDT HQ!</p>
+
+<p>In general, this should always be set to false, meaning &ldquo;allow potentially destructive changes&rdquo;. This is unproblematic as long as production isn&rsquo;t the <em>first</em> environment where you deploy your changes.</p>
+
+<p>Similarly, the default behaviour of SSDT is <em>not</em> to drop objects that are in the target (i.e. the database) but not in the source (i.e. the database project). To allow these changes to be applied, we need to do one of the following.</p>
+
+<ul>
+<li><p>For projects deployed using the Visual Studio &ldquo;Publish&rdquo; dialog, check &ldquo;Drop objects in target but not in source&rdquo; in the &ldquo;Advanced Publish Settings&rdquo; dialog available by clicking &ldquo;Advanced&rdquo; in the &ldquo;Publish&rdquo; dialog.</p></li>
+
+<li><p>For projects deployed using <code>sqlpackage.exe</code>, we need to specify the parameter <code>/p:DropObjectsNotInSource=True</code></p></li>
+
+<li><p>For projects that use a publish profile to specify deployment options, we need to add the element <code>&lt;DropObjectsNotInSource&gt;True&lt;/DropObjectsNotInSource&gt;</code> to the <code>.publish.xml</code> file.</p></li>
+</ul>
+
+<h3 id="a-note-on-drop-objects-not-in-source">A note on &ldquo;Drop objects not in source&rdquo;</h3>
+
+<p>If this option is selected, SSDT will drop <em>all</em> objects from the target database that are not defined in the project. Rather inconveniently, this includes users, permissions - including, cruciallly, the <code>CONNECT</code> permission - and all the other things we need to be present for our application (or us!) to be able to connect to the database. Rather than specify all these items as part of the project, it is often simpler to ignore these at deployment time using the publish profile. The most important ones are probably users, permissions, roles, and role memberships, but anyone with a more obscure security model (Application Roles??) might want to investigate some of the other options.</p>
+
+<p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-1/Options-for-drop-objects.PNG" alt="Advanced Publish Settings showing drop objects" title="Advanced Publish Settings showing drop objects" /></p>
+
+<p>The difference between the &ldquo;Drop&rdquo; and &ldquo;Ignore&rdquo; settings is that the former apply <em>only</em> to the target - so selecting object types here prevents objects of that type from being dropped. The &ldquo;ignore&rdquo; settings allow us to specify that objects of the selected types are not dropped in the target if they are absent from the source, but also not created or modified in the target even if they are present in the source.</p>
+
+<p>As above, these settings can also be specified as command-line arguments to <code>sqlpackage.exe</code> or as xml in a publish profile.</p>
+<div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1">This procedure isn&rsquo;t in the original Chinook database, I added it for the purpose of this example.
+ <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+<li id="fn:2">which it should have been in the first place, as it doesn&rsquo;t modify any data!
+ <a class="footnote-return" href="#fnref:2"><sup>[return]</sup></a></li>
+<li id="fn:3">No, not that kind of trigger, this refers to the metaphorical kind.
+ <a class="footnote-return" href="#fnref:3"><sup>[return]</sup></a></li>
+</ol>
+</div>
+
+    </div>
   
     <div class="post">
         <h1 class="post-title"><a href="http://arapaima.uk/post/2016-10-21-database-refactoring-part-0/">Refactoring Databases with SSDT</a></h1>

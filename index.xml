@@ -6,11 +6,159 @@
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2017</rights>
-    <updated>2017-09-13 00:00:00 &#43;0000 UTC</updated>
+    <updated>2017-10-23 00:00:00 &#43;0000 UTC</updated>
 
     
       
     
+      
+    
+      
+        <item>
+          <title>Expose VSTS secrets as environment variables with this one weird trick...</title>
+          <link>http://arapaima.uk/post/2017-10-23-VSTS-secret-environment-variables/</link>
+          <pubDate>Mon, 23 Oct 2017 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2017-10-23-VSTS-secret-environment-variables/</guid>
+          <description>
+
+&lt;h2 id=&#34;config-as-environment-variables&#34;&gt;Config as environment variables&lt;/h2&gt;
+
+&lt;p&gt;I&amp;rsquo;m a big fan of the &lt;a href=&#34;https://12factor.net/&#34;&gt;Twelve-Factor App&lt;/a&gt; &amp;ldquo;methodology&amp;rdquo;&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; for building and deploying applications, and whilst much of it is geared towards web apps in Heroku-esque environments, I think the principles - or &amp;ldquo;factors&amp;rdquo; - are well worth bearing in mind when considering the delivery of other types of application.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://12factor.net/config&#34;&gt;Factor 3 of the 12&lt;/a&gt; reads as follows&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;An app’s config is everything that is likely to vary between deploys (staging, production, developer environments, etc). This includes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Resource handles to the database, Memcached, and other backing services&lt;/li&gt;
+&lt;li&gt;Credentials to external services such as Amazon S3 or Twitter&lt;/li&gt;
+&lt;li&gt;Per-deploy values such as the canonical hostname for the deploy&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;There are a number of benefits to this approach, the main ones I can think of are:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The obvious one about not having credentials stored in source control. Nobody does this anymore, right?&lt;/li&gt;
+&lt;li&gt;If environment specific information such as server names are stored with the source control, then changes in the infrastructure will result in new commits in the source repo, meaning that the commit history will no longer merely &amp;ldquo;tell the story&amp;rdquo; of the application, but will also contain numerous sub-plots regarding the infrastructure.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;the-downside&#34;&gt;The downside&lt;/h3&gt;
+
+&lt;p&gt;There is some debate over whether environment variables are really the best place for secret information, and there are definitely customers for whom this approach would be considered too high risk. However, I wouldn&amp;rsquo;t have thought these included the customers where the credentials are currently stored with the application source code!&lt;/p&gt;
+
+&lt;p&gt;The main alternatives generally revolve around storing credentials somewhere where the infrastructure automation tools - Ansible, etc. - can see them and using these tools to deploy a file which the applications can read.&lt;/p&gt;
+
+&lt;h2 id=&#34;never-mind-the-downside-on-with-the-weird-trick&#34;&gt;Never mind the downside, on with the weird trick&amp;hellip;&lt;/h2&gt;
+
+&lt;p&gt;I used the following example of the &amp;ldquo;config as environment variables&amp;rdquo; approach in a recent talk about SSDT and VSTS, using a Powershell Script to read config values from environment variables and deploy a dacpac to a SQL Azure database using SQL Authentication.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$serverName&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$env:Chinook_ServerName&lt;/span&gt;
+&lt;span style=&#34;color: #b04040&#34;&gt;$dbName&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b04040&#34;&gt;$env:Chinook_DatabaseName&lt;/span&gt;
+&lt;span style=&#34;color: #b04040&#34;&gt;$dbUser&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b04040&#34;&gt;$env:Chinook_DbUser&lt;/span&gt;
+&lt;span style=&#34;color: #b04040&#34;&gt;$dbPassword&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b04040&#34;&gt;$env:Chinook_DbPassword&lt;/span&gt;
+
+&lt;span style=&#34;color: #b04040&#34;&gt;$dacFxDll&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;C:\Program Files (x86)\Microsoft SQL Server\140\DAC\bin\Microsoft.SqlServer.Dac.dll&amp;#39;&lt;/span&gt;
+
+&lt;span style=&#34;color: #388038&#34;&gt;Add-Type&lt;/span&gt; -Path &lt;span style=&#34;color: #b04040&#34;&gt;$dacFxDll&lt;/span&gt;
+&lt;span style=&#34;color: #b04040&#34;&gt;$dacServices&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;New-Object&lt;/span&gt; Microsoft&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;SqlServer&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Dac&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;DacServices &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;server=$serverName;User ID=$dbUser;Password=$dbPassword;&amp;quot;&lt;/span&gt;
+
+&lt;span style=&#34;color: #b04040&#34;&gt;$dacpacPath&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color: #388038&#34;&gt;Join-Path&lt;/span&gt; -Path &lt;span style=&#34;color: #b04040&#34;&gt;$PSScriptRoot&lt;/span&gt; -ChildPath &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;\bin\Debug\ChinookDb.dacpac&amp;quot;&lt;/span&gt;
+&lt;span style=&#34;color: #b04040&#34;&gt;$publishProfilePath&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Join-Path&lt;/span&gt; -Path &lt;span style=&#34;color: #b04040&#34;&gt;$PSScriptRoot&lt;/span&gt; -ChildPath &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;CommonSettings.publish.xml&amp;quot;&lt;/span&gt;
+
+&lt;span style=&#34;color: #b04040&#34;&gt;$dacpac&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b85820&#34;&gt;[Microsoft.SqlServer.Dac.DacPackage]&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;::&lt;/span&gt;Load&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$dacpacPath&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;color: #b04040&#34;&gt;$dacProfile&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b85820&#34;&gt;[Microsoft.SqlServer.Dac.DacProfile]&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;::&lt;/span&gt;Load&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$publishProfilePath&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+
+&lt;span style=&#34;color: #b04040&#34;&gt;$dacServices&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Deploy&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$dacpac&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b04040&#34;&gt;$dbName&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b04040&#34;&gt;$true&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b04040&#34;&gt;$dacProfile&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;DeployOptions &lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;What this script does, in brief, is load the server name, database name, and credentials from environment variables, and then deploy a &lt;code&gt;.dacpac&lt;/code&gt; using this information in addition to a publish profile(&lt;code&gt;CommonSettings.publish.xml&lt;/code&gt;) that defines some common - to &lt;em&gt;all&lt;/em&gt; environments - deployment configuration.&lt;/p&gt;
+
+&lt;p&gt;The main advantage of this approach is that the &lt;em&gt;same&lt;/em&gt; deployment script can be used without modification in &lt;em&gt;all&lt;/em&gt; environments, from the developer&amp;rsquo;s desktop through the various testing environments and on to UAT and Production.&lt;/p&gt;
+
+&lt;p&gt;So, for deployments from the desktop or other unmanaged environments, it is easy to specify these values by setting environment variables.&lt;/p&gt;
+
+&lt;p&gt;However, in VSTS, things are a little more complicated. It&amp;rsquo;s possible to use &lt;a href=&#34;https://docs.microsoft.com/en-us/vsts/build-release/concepts/agents/pools-queues#creating-agent-pools-and-queues&#34;&gt;private agent queues&lt;/a&gt; to allocate specific build agents - which could have these variables set in advance -  to specific environments, but what if we just want to use the &lt;a href=&#34;https://docs.microsoft.com/en-us/vsts/build-release/concepts/agents/hosted#use-a-hosted-agent&#34;&gt;hosted queue&lt;/a&gt;?&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://docs.microsoft.com/en-us/vsts/build-release/concepts/releases/&#34;&gt;VSTS Release Management&lt;/a&gt; allows us to specify variables for each environment in our &lt;a href=&#34;https://docs.microsoft.com/en-us/vsts/build-release/concepts/definitions/release/&#34;&gt;Release Definition&lt;/a&gt;. It&amp;rsquo;s fairly common to see these used as parameters to deployment tasks, but what is possibly less obvious from this interface is that these values are surfaced as &lt;em&gt;environment variables&lt;/em&gt; in the build process.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-secret-vars/variablesinreleasedefinition.png&#34; alt=&#34;Variables pane in VSTS Release Management&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This means that our Powershell script above can still work unmodified - except, that is, for the password. This is masked in the screenshot  as it is defined as a &amp;ldquo;secret&amp;rdquo; variable. Secret variables are &lt;a href=&#34;https://docs.microsoft.com/en-us/vsts/build-release/concepts/definitions/build/variables?tabs=batch#secret-variables&#34;&gt;not exposed as environment variables&lt;/a&gt;, but can only be passed as arguments to our build steps. What muddies the water slightly is that within living memory &lt;a href=&#34;https://github.com/Microsoft/vsts-agent/issues/145&#34;&gt;secret variables &lt;em&gt;were&lt;/em&gt; exposed as environment variables&lt;/a&gt;, but this behaviour was &amp;ldquo;fixed&amp;rdquo; some time in 2016.&lt;/p&gt;
+
+&lt;h3 id=&#34;finally-the-weird-trick&#34;&gt;Finally, the weird trick&lt;/h3&gt;
+
+&lt;p&gt;In the above example, there is an empty environment variable &lt;code&gt;Chinook_DbPassword&lt;/code&gt; for each environment, and a corresponding &lt;em&gt;secret&lt;/em&gt; variable that contains the actual password.&lt;/p&gt;
+
+&lt;p&gt;We need to add an additional task to our release definition to read the secret variable and surface it as an environment variable. This can be done through the &lt;a href=&#34;https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md&#34;&gt;VSTS logging commands&lt;/a&gt;&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:2&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:2&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;, which are worth checking out as they enable a number of &amp;ldquo;weird tricks&amp;rdquo; in addition to this particular one.&lt;/p&gt;
+
+&lt;p&gt;As per the documentation, Logging Commands are invoked by writing the command to standard output, which in the case of PowerShell is done via &lt;code&gt;Write-Host&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-secret-vars/PowerShellStepToReadSecretVariable.png&#34; alt=&#34;Release Definition showing PowerShell step to decrypt secret variable&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In accordance with the &amp;ldquo;rules&amp;rdquo;, we pass the secret variable as an argument to the script, then use the &lt;code&gt;##vso[task.setvariable]&lt;/code&gt; command to set the value of the non-secret environment variable to the value of the argument.&lt;/p&gt;
+
+&lt;p&gt;In the logs for the release, we can see the non-secret variables being set, with &lt;code&gt;Chinook_dbPassword&lt;/code&gt; set to blank (&lt;code&gt;[]&lt;/code&gt;).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;2017-10-13T12:00:12.1607197Z Environment variables available are below.  
+...
+...
+    [AGENT_HOMEDIRECTORY] --&amp;gt; [C:\LR\mms\Services\Mms\Provisioner\TaskAgent\agents\2.123.0]
+...    
+...
+    [CHINOOK_DATABASENAME] --&amp;gt; [Chinook]
+    [CHINOOK_DBPASSWORD] --&amp;gt; []
+    [CHINOOK_DBUSER] --&amp;gt; [arapaima]
+    [CHINOOK_SERVERNAME] --&amp;gt; [vstsdemochinook.database.windows.net]
+...
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When we get to the logs for the &amp;ldquo;Read Env Var&amp;rdquo; step:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;2017-10-13T12:00:14.5784670Z ##[section]Starting: Read Env Var
+2017-10-13T12:00:14.5954676Z ==============================================================================
+2017-10-13T12:00:14.5954676Z Task         : PowerShell
+2017-10-13T12:00:14.5954676Z Description  : Run a PowerShell script
+2017-10-13T12:00:14.5954676Z Version      : 1.2.3
+2017-10-13T12:00:14.5954676Z Author       : Microsoft Corporation
+2017-10-13T12:00:14.5954676Z Help         : [More Information]
+2017-10-13T12:00:14.5954676Z ==============================================================================
+2017-10-13T12:00:14.6704451Z ##[command]. &#39;d:\a\_temp\2fa5955a-1363-464a-bed7-aed0cbea2c96.ps1&#39; ********
+2017-10-13T12:00:15.5054467Z ##[section]Finishing: Read Env Var
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;we can see that the secret variable is passed as a parameter to the inline script, but masked with asterisks in the release logs.&lt;/p&gt;
+
+&lt;p&gt;The &amp;ldquo;Deploy Dacpac&amp;rdquo; step contains a single action, namely running the same Powershell script as was used in every other environment:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;2017-10-13T12:01:30.0026563Z ##[section]Starting: Deploy Dacpac
+2017-10-13T12:01:30.0036563Z ==============================================================================
+2017-10-13T12:01:30.0036563Z Task         : PowerShell
+2017-10-13T12:01:30.0036563Z Description  : Run a PowerShell script
+2017-10-13T12:01:30.0036563Z Version      : 1.2.3
+2017-10-13T12:01:30.0036563Z Author       : Microsoft Corporation
+2017-10-13T12:01:30.0036563Z Help         : [More Information]
+2017-10-13T12:01:30.0036563Z ==============================================================================
+2017-10-13T12:01:30.0076572Z ##[command]. &#39;d:\a\r1\a\ChinookDb-CI\BuildOutput\Deploy.ps1&#39; 
+2017-10-13T12:02:10.3410313Z ##[section]Finishing: Deploy Dacpac
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This isn&amp;rsquo;t restricted to Release Definitions, the same technique will work in Build Definitions too. This is possibly a less common scenario - as &lt;em&gt;builds&lt;/em&gt; shouldn&amp;rsquo;t normally contain environment-specific information - except in cases like database deployment where it&amp;rsquo;s generally necessary to deploy the database &lt;a href=&#34;https://stackoverflow.com/questions/39443317/can-you-run-sql-unit-tests-tsqlt-during-build-process-in-vsts&#34;&gt;&lt;em&gt;somewhere&lt;/em&gt;&lt;/a&gt; before we can do any automated testing.&lt;/p&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+
+&lt;hr /&gt;
+
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;Their words, not mine!
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;I can&amp;rsquo;t find this page on docs.microsoft.com, so the link is to the &lt;a href=&#34;https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md&#34;&gt;Github source&lt;/a&gt;.
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:2&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
+        </item>
       
     
       
@@ -1853,8 +2001,6 @@ IF EXISTS (SELECT TOP 1 1
           <description>&lt;p&gt;Welcome to this, my new site. I&amp;rsquo;ll be adding content about Continuous Integration, database systems including but not limited to Microsoft® SQL Server and development tools including but not limited to Microsoft® Visual Studio. The site itself is provisioned in a moderately interesting way, which you can read about &lt;a href=&#34;http://arapaima.uk/fixed/BlogSetup/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 </description>
         </item>
-      
-    
       
     
 

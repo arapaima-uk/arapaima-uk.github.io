@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Expose VSTS secrets as environment variables with this one weird trick... &middot; arapaima.uk
+    
+  </title>
+
+  
+  <link rel="stylesheet" href="/css/poole.css">
+  <link rel="stylesheet" href="/css/syntax.css">
+  <link rel="stylesheet" href="/css/lanyon.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+  <link rel="stylesheet" href="/css/comments.css">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/assets/favicon.ico">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+ 
+
+<script type="text/javascript">
+  var _paq = _paq || [];
+  
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+   if (window.location.hostname == "localhost")
+     return;
+
+    var u="https://stats.arapaima.co.uk/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+
+
+
+
+<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
+
+
+
+</head>
+
+
+  <body class="theme-base-0d">
+
+    
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p>I'm Gavin Campbell, a database developer interested in Continuous Delivery, functional programming, and cricket.</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item " href="/">Home</a>
+    <a class="sidebar-nav-item " href="/post">Posts</a>
+
+    
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+      
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a class="sidebar-nav-item " href="/index.xml">RSS</a>
+    
+
+  </nav>
+  
+  <div class = "sidebar-item">
+  <p> <a href = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io">
+      <img src = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt = "Travis CI Build Status" title = "Travis CI Build Status">
+      </a>
+    </p>
+  </div>
+  <div class="sidebar-item">
+    <p><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Content on arapaima.uk</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://arapaima.uk" property="cc:attributionName" rel="cc:attributionURL">Gavin Campbell, Arapaima Ltd</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+  </div>
+</div>
+
+
+    
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <h3 class="masthead-title">
+            <a href="/" title="Home">arapaima.uk</a>
+            <small>Data, Databases, Delivery</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+
+
+<div class="post">
+  <h1 class="post-title">Expose VSTS secrets as environment variables with this one weird trick...</h1>
+  <span class="post-date">2017-10-23</span>
+  
+
+<h2 id="config-as-environment-variables">Config as environment variables</h2>
+
+<p>I&rsquo;m a big fan of the <a href="https://12factor.net/">Twelve-Factor App</a> &ldquo;methodology&rdquo;<sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup> for building and deploying applications, and whilst much of it is geared towards web apps in Heroku-esque environments, I think the principles - or &ldquo;factors&rdquo; - are well worth bearing in mind when considering the delivery of other types of application.</p>
+
+<p><a href="https://12factor.net/config">Factor 3 of the 12</a> reads as follows</p>
+
+<blockquote>
+<p>An app’s config is everything that is likely to vary between deploys (staging, production, developer environments, etc). This includes:</p>
+
+<ul>
+<li>Resource handles to the database, Memcached, and other backing services</li>
+<li>Credentials to external services such as Amazon S3 or Twitter</li>
+<li>Per-deploy values such as the canonical hostname for the deploy</li>
+</ul>
+</blockquote>
+
+<p>There are a number of benefits to this approach, the main ones I can think of are:</p>
+
+<ul>
+<li>The obvious one about not having credentials stored in source control. Nobody does this anymore, right?</li>
+<li>If environment specific information such as server names are stored with the source control, then changes in the infrastructure will result in new commits in the source repo, meaning that the commit history will no longer merely &ldquo;tell the story&rdquo; of the application, but will also contain numerous sub-plots regarding the infrastructure.</li>
+</ul>
+
+<h3 id="the-downside">The downside</h3>
+
+<p>There is some debate over whether environment variables are really the best place for secret information, and there are definitely customers for whom this approach would be considered too high risk. However, I wouldn&rsquo;t have thought these included the customers where the credentials are currently stored with the application source code!</p>
+
+<p>The main alternatives generally revolve around storing credentials somewhere where the infrastructure automation tools - Ansible, etc. - can see them and using these tools to deploy a file which the applications can read.</p>
+
+<h2 id="never-mind-the-downside-on-with-the-weird-trick">Never mind the downside, on with the weird trick&hellip;</h2>
+
+<p>I used the following example of the &ldquo;config as environment variables&rdquo; approach in a recent talk about SSDT and VSTS, using a Powershell Script to read config values from environment variables and deploy a dacpac to a SQL Azure database using SQL Authentication.</p>
+<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #b04040">$serverName</span><span style="color: #888888">=</span><span style="color: #b04040">$env:Chinook_ServerName</span>
+<span style="color: #b04040">$dbName</span> <span style="color: #888888">=</span> <span style="color: #b04040">$env:Chinook_DatabaseName</span>
+<span style="color: #b04040">$dbUser</span> <span style="color: #888888">=</span> <span style="color: #b04040">$env:Chinook_DbUser</span>
+<span style="color: #b04040">$dbPassword</span> <span style="color: #888888">=</span> <span style="color: #b04040">$env:Chinook_DbPassword</span>
+
+<span style="color: #b04040">$dacFxDll</span><span style="color: #888888">=</span><span style="color: #b83838">&#39;C:\Program Files (x86)\Microsoft SQL Server\140\DAC\bin\Microsoft.SqlServer.Dac.dll&#39;</span>
+
+<span style="color: #388038">Add-Type</span> -Path <span style="color: #b04040">$dacFxDll</span>
+<span style="color: #b04040">$dacServices</span> <span style="color: #888888">=</span> <span style="color: #388038">New-Object</span> Microsoft<span style="color: #888888">.</span>SqlServer<span style="color: #888888">.</span>Dac<span style="color: #888888">.</span>DacServices <span style="color: #b83838">&quot;server=$serverName;User ID=$dbUser;Password=$dbPassword;&quot;</span>
+
+<span style="color: #b04040">$dacpacPath</span><span style="color: #888888">=</span><span style="color: #388038">Join-Path</span> -Path <span style="color: #b04040">$PSScriptRoot</span> -ChildPath <span style="color: #b83838">&quot;\bin\Debug\ChinookDb.dacpac&quot;</span>
+<span style="color: #b04040">$publishProfilePath</span> <span style="color: #888888">=</span> <span style="color: #388038">Join-Path</span> -Path <span style="color: #b04040">$PSScriptRoot</span> -ChildPath <span style="color: #b83838">&quot;CommonSettings.publish.xml&quot;</span>
+
+<span style="color: #b04040">$dacpac</span> <span style="color: #888888">=</span> <span style="color: #b85820">[Microsoft.SqlServer.Dac.DacPackage]</span><span style="color: #888888">::</span>Load<span style="color: #888888">(</span><span style="color: #b04040">$dacpacPath</span><span style="color: #888888">)</span>
+<span style="color: #b04040">$dacProfile</span> <span style="color: #888888">=</span> <span style="color: #b85820">[Microsoft.SqlServer.Dac.DacProfile]</span><span style="color: #888888">::</span>Load<span style="color: #888888">(</span><span style="color: #b04040">$publishProfilePath</span><span style="color: #888888">)</span>
+
+<span style="color: #b04040">$dacServices</span><span style="color: #888888">.</span>Deploy<span style="color: #888888">(</span><span style="color: #b04040">$dacpac</span><span style="color: #888888">,</span> <span style="color: #b04040">$dbName</span><span style="color: #888888">,</span> <span style="color: #b04040">$true</span><span style="color: #888888">,</span> <span style="color: #b04040">$dacProfile</span><span style="color: #888888">.</span>DeployOptions <span style="color: #888888">)</span>
+</pre></div>
+
+<p>What this script does, in brief, is load the server name, database name, and credentials from environment variables, and then deploy a <code>.dacpac</code> using this information in addition to a publish profile(<code>CommonSettings.publish.xml</code>) that defines some common - to <em>all</em> environments - deployment configuration.</p>
+
+<p>The main advantage of this approach is that the <em>same</em> deployment script can be used without modification in <em>all</em> environments, from the developer&rsquo;s desktop through the various testing environments and on to UAT and Production.</p>
+
+<p>So, for deployments from the desktop or other unmanaged environments, it is easy to specify these values by setting environment variables.</p>
+
+<p>However, in VSTS, things are a little more complicated. It&rsquo;s possible to use <a href="https://docs.microsoft.com/en-us/vsts/build-release/concepts/agents/pools-queues#creating-agent-pools-and-queues">private agent queues</a> to allocate specific build agents - which could have these variables set in advance -  to specific environments, but what if we just want to use the <a href="https://docs.microsoft.com/en-us/vsts/build-release/concepts/agents/hosted#use-a-hosted-agent">hosted queue</a>?</p>
+
+<p><a href="https://docs.microsoft.com/en-us/vsts/build-release/concepts/releases/">VSTS Release Management</a> allows us to specify variables for each environment in our <a href="https://docs.microsoft.com/en-us/vsts/build-release/concepts/definitions/release/">Release Definition</a>. It&rsquo;s fairly common to see these used as parameters to deployment tasks, but what is possibly less obvious from this interface is that these values are surfaced as <em>environment variables</em> in the build process.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-secret-vars/variablesinreleasedefinition.png" alt="Variables pane in VSTS Release Management" /></p>
+
+<p>This means that our Powershell script above can still work unmodified - except, that is, for the password. This is masked in the screenshot  as it is defined as a &ldquo;secret&rdquo; variable. Secret variables are <a href="https://docs.microsoft.com/en-us/vsts/build-release/concepts/definitions/build/variables?tabs=batch#secret-variables">not exposed as environment variables</a>, but can only be passed as arguments to our build steps. What muddies the water slightly is that within living memory <a href="https://github.com/Microsoft/vsts-agent/issues/145">secret variables <em>were</em> exposed as environment variables</a>, but this behaviour was &ldquo;fixed&rdquo; some time in 2016.</p>
+
+<h3 id="finally-the-weird-trick">Finally, the weird trick</h3>
+
+<p>In the above example, there is an empty environment variable <code>Chinook_DbPassword</code> for each environment, and a corresponding <em>secret</em> variable that contains the actual password.</p>
+
+<p>We need to add an additional task to our release definition to read the secret variable and surface it as an environment variable. This can be done through the <a href="https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md">VSTS logging commands</a><sup class="footnote-ref" id="fnref:2"><a rel="footnote" href="#fn:2">2</a></sup>, which are worth checking out as they enable a number of &ldquo;weird tricks&rdquo; in addition to this particular one.</p>
+
+<p>As per the documentation, Logging Commands are invoked by writing the command to standard output, which in the case of PowerShell is done via <code>Write-Host</code>.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-secret-vars/PowerShellStepToReadSecretVariable.png" alt="Release Definition showing PowerShell step to decrypt secret variable" /></p>
+
+<p>In accordance with the &ldquo;rules&rdquo;, we pass the secret variable as an argument to the script, then use the <code>##vso[task.setvariable]</code> command to set the value of the non-secret environment variable to the value of the argument.</p>
+
+<p>In the logs for the release, we can see the non-secret variables being set, with <code>Chinook_dbPassword</code> set to blank (<code>[]</code>).</p>
+
+<pre><code>2017-10-13T12:00:12.1607197Z Environment variables available are below.  
+...
+...
+    [AGENT_HOMEDIRECTORY] --&gt; [C:\LR\mms\Services\Mms\Provisioner\TaskAgent\agents\2.123.0]
+...    
+...
+    [CHINOOK_DATABASENAME] --&gt; [Chinook]
+    [CHINOOK_DBPASSWORD] --&gt; []
+    [CHINOOK_DBUSER] --&gt; [arapaima]
+    [CHINOOK_SERVERNAME] --&gt; [vstsdemochinook.database.windows.net]
+...
+...
+</code></pre>
+
+<p>When we get to the logs for the &ldquo;Read Env Var&rdquo; step:</p>
+
+<pre><code>2017-10-13T12:00:14.5784670Z ##[section]Starting: Read Env Var
+2017-10-13T12:00:14.5954676Z ==============================================================================
+2017-10-13T12:00:14.5954676Z Task         : PowerShell
+2017-10-13T12:00:14.5954676Z Description  : Run a PowerShell script
+2017-10-13T12:00:14.5954676Z Version      : 1.2.3
+2017-10-13T12:00:14.5954676Z Author       : Microsoft Corporation
+2017-10-13T12:00:14.5954676Z Help         : [More Information]
+2017-10-13T12:00:14.5954676Z ==============================================================================
+2017-10-13T12:00:14.6704451Z ##[command]. 'd:\a\_temp\2fa5955a-1363-464a-bed7-aed0cbea2c96.ps1' ********
+2017-10-13T12:00:15.5054467Z ##[section]Finishing: Read Env Var
+</code></pre>
+
+<p>we can see that the secret variable is passed as a parameter to the inline script, but masked with asterisks in the release logs.</p>
+
+<p>The &ldquo;Deploy Dacpac&rdquo; step contains a single action, namely running the same Powershell script as was used in every other environment:</p>
+
+<pre><code>2017-10-13T12:01:30.0026563Z ##[section]Starting: Deploy Dacpac
+2017-10-13T12:01:30.0036563Z ==============================================================================
+2017-10-13T12:01:30.0036563Z Task         : PowerShell
+2017-10-13T12:01:30.0036563Z Description  : Run a PowerShell script
+2017-10-13T12:01:30.0036563Z Version      : 1.2.3
+2017-10-13T12:01:30.0036563Z Author       : Microsoft Corporation
+2017-10-13T12:01:30.0036563Z Help         : [More Information]
+2017-10-13T12:01:30.0036563Z ==============================================================================
+2017-10-13T12:01:30.0076572Z ##[command]. 'd:\a\r1\a\ChinookDb-CI\BuildOutput\Deploy.ps1' 
+2017-10-13T12:02:10.3410313Z ##[section]Finishing: Deploy Dacpac
+</code></pre>
+
+<p>This isn&rsquo;t restricted to Release Definitions, the same technique will work in Build Definitions too. This is possibly a less common scenario - as <em>builds</em> shouldn&rsquo;t normally contain environment-specific information - except in cases like database deployment where it&rsquo;s generally necessary to deploy the database <a href="https://stackoverflow.com/questions/39443317/can-you-run-sql-unit-tests-tsqlt-during-build-process-in-vsts"><em>somewhere</em></a> before we can do any automated testing.</p>
+<div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1">Their words, not mine!
+ <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+<li id="fn:2">I can&rsquo;t find this page on docs.microsoft.com, so the link is to the <a href="https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md">Github source</a>.
+ <a class="footnote-return" href="#fnref:2"><sup>[return]</sup></a></li>
+</ol>
+</div>
+
+   
+</div>
+
+<section class="post-comments">
+  <h3>Comments</h3>
+
+  
+  
+  
+
+  
+    
+  
+    
+  
+
+  
+    <p>Nothing yet.</p>
+  
+
+  <h3>Say something</h3>
+
+  <form class="post-new-comment" method="POST" action="https://api.staticman.net/v2/entry/arapaima-uk/source.arapaima-uk.github.io/master/comments">
+    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2017-10-23-VSTS-secret-environment-variables/#comment-submitted">
+     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2017-10-23-VSTS-secret-environment-variables/">
+    <input type="hidden" name="options[entryId]" value="72b82447387128222a2e9dc7e10f2096">
+    <input name="fields[name]" type="text" class="post-comment-field" placeholder="Your name">
+    <input name="fields[email]" type="email" class="post-comment-field" placeholder="Your email address">
+    <textarea name="fields[body]" class="post-comment-field" placeholder="Your message. Feel free to use Markdown." rows="10"></textarea>
+    <input type="submit" class="post-comment-field btn" value="Submit">
+  </form>
+</section>
+
+<div id="comment-submitted" class="dialog">
+<h3>Thank you</h3>
+  <p>Your comment has been submitted and will be published once it has been approved.</p>
+  <p><a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/pulls">Click here</a> to see the pull request you generated.</p>
+  
+  <p><a href="#" class="btn">OK</a></p>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+  </body>
+</html>
+

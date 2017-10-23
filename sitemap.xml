@@ -10,6 +10,11 @@
   </url>
   
   <url>
+    <loc>http://arapaima.uk/post/2017-10-23-VSTS-secret-environment-variables/</loc>
+    <lastmod>2017-10-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://arapaima.uk/post/2017-09-13-visual-studio-database-unit-tests-tsqlt/</loc>
     <lastmod>2017-09-13T00:00:00+00:00</lastmod>
   </url>
@@ -106,7 +111,7 @@
   
   <url>
     <loc>http://arapaima.uk/post/</loc>
-    <lastmod>2017-09-13T00:00:00+00:00</lastmod>
+    <lastmod>2017-10-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -180,13 +185,13 @@
   
   <url>
     <loc>http://arapaima.uk/tags/vsts/</loc>
-    <lastmod>2017-09-07T00:00:00+00:00</lastmod>
+    <lastmod>2017-10-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>http://arapaima.uk/</loc>
-    <lastmod>2017-09-13T00:00:00+00:00</lastmod>
+    <lastmod>2017-10-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
