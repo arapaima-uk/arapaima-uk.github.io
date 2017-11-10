@@ -29,28 +29,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -74,11 +52,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -226,47 +204,41 @@
 <h3 id="creating-a-new-branch">Creating a new branch</h3>
 
 <p>As noted above, there&rsquo;s nothing in the gist UI to support creating new branches. However, if we clone the gist repo to a local folder we can create the branch and push it back to the origin. You can substitute the url to your own fork of the gist in place of mine (there&rsquo;s only one branch in mine, and you don&rsquo;t have permission to create more!). The downside of this approach of using a gist rather than a &ldquo;proper&rdquo; repo is that by default you get a long guid instead of a readable folder name.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #444444">$</span> mkdir j <span style="color: #666666">&amp;&amp;</span> <span style="color: #388038">cd</span> j<span style="color: #888888">;</span>
-<span style="color: #444444">$</span> git clone https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
-<span style="color: #666666">Cloning into &#39;480843552e43efa84c60f9bb4840d6c1&#39;...</span>
-<span style="color: #666666">remote: Counting objects: 32, done.</span>
-<span style="color: #666666">remote: Compressing objects: 100% (32/32), done.</span>
-<span style="color: #666666">remote: Total 32 (delta 7), reused 0 (delta 0), pack-reused 0</span>
-<span style="color: #666666">Unpacking objects: 100% (32/32), done.</span>
-<span style="color: #666666">Checking connectivity... done.</span>
-<span style="color: #444444">$</span> <span style="color: #388038">cd</span> 480843552e43efa84c60f9bb4840d6c1/
-<span style="color: #444444">$</span> git status
-<span style="color: #666666">On branch master</span>
-<span style="color: #666666">Your branch is up-to-date with &#39;origin/master&#39;.</span>
-<span style="color: #666666">nothing to commit, working tree clean</span>
-<span style="color: #444444">$</span> git checkout -b fancyFeature
-<span style="color: #666666">Switched to a new branch &#39;fancyFeature&#39;</span>
-<span style="color: #444444">$</span> git push --set-upstream origin fancyFeature
+<div class="highlight"><pre class="chroma"><code class="language-console" data-lang="console">$ mkdir j &amp;&amp; cd j;
+$ git clone https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+Cloning into &#39;480843552e43efa84c60f9bb4840d6c1&#39;...
+remote: Counting objects: 32, done.
+remote: Compressing objects: 100% (32/32), done.
+remote: Total 32 (delta 7), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (32/32), done.
+Checking connectivity... done.
+$ cd 480843552e43efa84c60f9bb4840d6c1/
+$ git status
+On branch master
+Your branch is up-to-date with &#39;origin/master&#39;.
+nothing to commit, working tree clean
+$ git checkout -b fancyFeature
+Switched to a new branch &#39;fancyFeature&#39;
+$ git push --set-upstream origin fancyFeature
 
-<span style="color: #666666">Total 0 (delta 0), reused 0 (delta 0)</span>
-<span style="color: #666666">To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1</span>
-<span style="color: #666666"> * [new branch]      fancyFeature -&gt; fancyFeature</span>
-<span style="color: #666666">Branch fancyFeature set up to track remote branch fancyFeature from origin.</span>
-</pre></div>
-
+Total 0 (delta 0), reused 0 (delta 0)
+To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+ * [new branch]      fancyFeature -&gt; fancyFeature
+Branch fancyFeature set up to track remote branch fancyFeature from origin.</code></pre></div>
 <p>The next time the repo is scanned,  the new job will be created in Jenkins:</p>
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-multibranch-gist/job-created-for-new-branch.png" alt="job created for new branch" /></p>
 
 <p>When the branch is deleted, the job wil disappear too:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #444444">$</span> git push origin --delete fancyFeature
+<div class="highlight"><pre class="chroma"><code class="language-console" data-lang="console">$ git push origin --delete fancyFeature
 
-<span style="color: #666666">To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1</span>
-<span style="color: #666666"> - [deleted]         fancyFeature</span>
-</pre></div>
-
+To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+ - [deleted]         fancyFeature</code></pre></div>
 <p>Looking in the &ldquo;Multibranch Pipeline Log&rdquo; confirms this:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #666666">[Thu May 25 22:40:36 UTC 2017] Finished branch indexing. Indexing took 1.7 sec</span>
-<span style="color: #666666">Evaluating orphaned items in jenkins-branch-conditions</span>
-<span style="color: #666666">Will remove fancyFeature as it is #1 in the list</span>
-<span style="color: #666666">Finished: SUCCESS</span>
-</pre></div>
-<div class="footnotes">
+<div class="highlight"><pre class="chroma"><code class="language-console" data-lang="console">[Thu May 25 22:40:36 UTC 2017] Finished branch indexing. Indexing took 1.7 sec
+Evaluating orphaned items in jenkins-branch-conditions
+Will remove fancyFeature as it is #1 in the list
+Finished: SUCCESS</code></pre></div><div class="footnotes">
 
 <hr />
 

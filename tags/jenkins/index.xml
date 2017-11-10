@@ -2,11 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>arapaima.uk </title>
-    <link>http://arapaima.uk/tags/jenkins/index.xml</link>
+    <link>http://arapaima.uk/tags/jenkins/</link>
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2017</rights>
-    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+    <updated>2017-05-25 00:00:00 &#43;0000 UTC</updated>
 
     
       
@@ -59,47 +59,41 @@
 &lt;h3 id=&#34;creating-a-new-branch&#34;&gt;Creating a new branch&lt;/h3&gt;
 
 &lt;p&gt;As noted above, there&amp;rsquo;s nothing in the gist UI to support creating new branches. However, if we clone the gist repo to a local folder we can create the branch and push it back to the origin. You can substitute the url to your own fork of the gist in place of mine (there&amp;rsquo;s only one branch in mine, and you don&amp;rsquo;t have permission to create more!). The downside of this approach of using a gist rather than a &amp;ldquo;proper&amp;rdquo; repo is that by default you get a long guid instead of a readable folder name.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #444444&#34;&gt;$&lt;/span&gt; mkdir j &lt;span style=&#34;color: #666666&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;cd&lt;/span&gt; j&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
-&lt;span style=&#34;color: #444444&#34;&gt;$&lt;/span&gt; git clone https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
-&lt;span style=&#34;color: #666666&#34;&gt;Cloning into &amp;#39;480843552e43efa84c60f9bb4840d6c1&amp;#39;...&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;remote: Counting objects: 32, done.&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;remote: Compressing objects: 100% (32/32), done.&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;remote: Total 32 (delta 7), reused 0 (delta 0), pack-reused 0&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;Unpacking objects: 100% (32/32), done.&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;Checking connectivity... done.&lt;/span&gt;
-&lt;span style=&#34;color: #444444&#34;&gt;$&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;cd&lt;/span&gt; 480843552e43efa84c60f9bb4840d6c1/
-&lt;span style=&#34;color: #444444&#34;&gt;$&lt;/span&gt; git status
-&lt;span style=&#34;color: #666666&#34;&gt;On branch master&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;Your branch is up-to-date with &amp;#39;origin/master&amp;#39;.&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;nothing to commit, working tree clean&lt;/span&gt;
-&lt;span style=&#34;color: #444444&#34;&gt;$&lt;/span&gt; git checkout -b fancyFeature
-&lt;span style=&#34;color: #666666&#34;&gt;Switched to a new branch &amp;#39;fancyFeature&amp;#39;&lt;/span&gt;
-&lt;span style=&#34;color: #444444&#34;&gt;$&lt;/span&gt; git push --set-upstream origin fancyFeature
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ mkdir j &amp;amp;&amp;amp; cd j;
+$ git clone https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+Cloning into &amp;#39;480843552e43efa84c60f9bb4840d6c1&amp;#39;...
+remote: Counting objects: 32, done.
+remote: Compressing objects: 100% (32/32), done.
+remote: Total 32 (delta 7), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (32/32), done.
+Checking connectivity... done.
+$ cd 480843552e43efa84c60f9bb4840d6c1/
+$ git status
+On branch master
+Your branch is up-to-date with &amp;#39;origin/master&amp;#39;.
+nothing to commit, working tree clean
+$ git checkout -b fancyFeature
+Switched to a new branch &amp;#39;fancyFeature&amp;#39;
+$ git push --set-upstream origin fancyFeature
 
-&lt;span style=&#34;color: #666666&#34;&gt;Total 0 (delta 0), reused 0 (delta 0)&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt; * [new branch]      fancyFeature -&amp;gt; fancyFeature&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;Branch fancyFeature set up to track remote branch fancyFeature from origin.&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+Total 0 (delta 0), reused 0 (delta 0)
+To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+ * [new branch]      fancyFeature -&amp;gt; fancyFeature
+Branch fancyFeature set up to track remote branch fancyFeature from origin.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The next time the repo is scanned,  the new job will be created in Jenkins:&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-multibranch-gist/job-created-for-new-branch.png&#34; alt=&#34;job created for new branch&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;When the branch is deleted, the job wil disappear too:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #444444&#34;&gt;$&lt;/span&gt; git push origin --delete fancyFeature
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ git push origin --delete fancyFeature
 
-&lt;span style=&#34;color: #666666&#34;&gt;To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt; - [deleted]         fancyFeature&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+ - [deleted]         fancyFeature&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Looking in the &amp;ldquo;Multibranch Pipeline Log&amp;rdquo; confirms this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;[Thu May 25 22:40:36 UTC 2017] Finished branch indexing. Indexing took 1.7 sec&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;Evaluating orphaned items in jenkins-branch-conditions&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;Will remove fancyFeature as it is #1 in the list&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;Finished: SUCCESS&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;div class=&#34;footnotes&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;[Thu May 25 22:40:36 UTC 2017] Finished branch indexing. Indexing took 1.7 sec
+Evaluating orphaned items in jenkins-branch-conditions
+Will remove fancyFeature as it is #1 in the list
+Finished: SUCCESS&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;footnotes&#34;&gt;
 
 &lt;hr /&gt;
 
@@ -138,52 +132,42 @@
 &lt;h3 id=&#34;further-jenkins-twiddling&#34;&gt;Further Jenkins twiddling&lt;/h3&gt;
 
 &lt;p&gt;The MSBuild plugin needs to be installed separately (as it isn&amp;rsquo;t &amp;ldquo;&lt;em&gt;recommended&lt;/em&gt;&amp;rdquo;!), which can be done from &lt;a href=&#34;http://localhost:8080/pluginManager/available&#34;&gt;http://localhost:8080/pluginManager/available&lt;/a&gt; or by clicking through &lt;em&gt;Jenkins -&amp;gt; Manage Jenkins -&amp;gt; Manage Plugins -&amp;gt; Available&lt;/em&gt;. We need to tell Jenkins where it can find &lt;code&gt;MSBuild.exe&lt;/code&gt;, this is done on &lt;a href=&#34;http://localhost:8080/configureTools/&#34;&gt;http://localhost:8080/configureTools/&lt;/a&gt; (&lt;em&gt;Jenkins -&amp;gt; Manage Jenkins -&amp;gt; Global Tool Configuration&lt;/em&gt;). You can find out where &lt;code&gt;MSBuild&lt;/code&gt; is installled by opening the &amp;ldquo;Developer Command Prompt for Visual Studio&amp;rdquo; and typing&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Program&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Files (x86)\Microsoft Visual Studio 14.0&amp;gt;where msbuild&lt;/span&gt;
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Program&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Files (x86)\MSBuild\14.0\Bin\MSBuild.exe&lt;/span&gt;
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bat&#34; data-lang=&#34;bat&#34;&gt;C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Program&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt; Files (x86)\Microsoft Visual Studio 14.0&amp;gt;where msbuild&lt;/span&gt;
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Program&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt; Files (x86)\MSBuild\14.0\Bin\MSBuild.exe&lt;/span&gt;
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;I used the first of these, as this is the one installed by Visual Studio&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; 2015, and should avoid having to re-read the somewhat convoluted StackOverflow thread &lt;a href=&#34;http://stackoverflow.com/questions/22968561/msbuild-errors-for-database-project-on-tfs-server-with-vs-2013-shell&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;I already had git installed and in the path, so there was no need to configure this separately in Jenkins.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;$ git --version
-git version &lt;span style=&#34;color: #444444&#34;&gt;2&lt;/span&gt;.11.0.windows.3
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ git --version
+git version &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;.11.0.windows.3&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;h3 id=&#34;compromising-your-sql-server-2&#34;&gt;Compromising your SQL Server &lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:2&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:2&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/h3&gt;
 
 &lt;p&gt;By default, the Jenkins service will run as &amp;ldquo;Local System&amp;rdquo; on Windows. In order to allow this account - which will authenticate to SQL Server as the machine account - to deploy the database, I made &amp;ldquo;Local System&amp;rdquo; an &lt;code&gt;sa&lt;/code&gt; of the SQL Server:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;EXEC&lt;/span&gt; sp_addsrvrolemember &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;NT AUTHORITY\SYSTEM&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;sysadmin&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span class=&#34;k&#34;&gt;EXEC&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sp_addsrvrolemember&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;NT AUTHORITY\SYSTEM&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;sysadmin&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;There are many circumstances in which this wouldn&amp;rsquo;t be a good idea, if any of them apply in your scenario you should make appropriate adjustments to the scripts that follow.&lt;/p&gt;
 
 &lt;h3 id=&#34;find-something-to-build&#34;&gt;Find something to build&lt;/h3&gt;
 
 &lt;p&gt;I started by cloning a repo I had prepared earlier, containing a copy of the Chinook database.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;git clone https://github.com/arapaima-uk/Chinook.JenkinsDemo.git&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bat&#34; data-lang=&#34;bat&#34;&gt;C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;git clone https://github.com/arapaima-uk/Chinook.JenkinsDemo.git&lt;/span&gt;
 Cloning into &amp;#39;Chinook.JenkinsDemo&amp;#39;...
 remote: Counting objects: 26, done.
 remote: Compressing objects: 100% (20/20), done.
 remote: Total 26 (delta 5), reused 26 (delta 5), pack-reused 0
 Unpacking objects: 100% (26/26), done.
 
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;tree&lt;/span&gt;
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;tree&lt;/span&gt;
 Folder PATH listing
-Volume serial number is 000000B7 806E:E890
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;.&lt;/span&gt;
+Volume serial number is 000000B7 806E&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;E890&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
 └───Chinook.JenkinsDemo
     └───Chinook.JenkinsDemo
         └───dbo
             └───Tables
 
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;having done that, I then removed the reference to the GitHub remote with&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects\Chinook.JenkinsDemo&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;git remote rm origin&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bat&#34; data-lang=&#34;bat&#34;&gt;C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects\Chinook.JenkinsDemo&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;git remote rm origin&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;From here on, everything is local (&lt;em&gt;geddit?&lt;/em&gt;).&lt;/p&gt;
 
 &lt;h2 id=&#34;creating-the-jenkins-job&#34;&gt;Creating the Jenkins job&lt;/h2&gt;
@@ -311,11 +295,9 @@ Finished: SUCCESS
 &lt;p&gt;Notably, even though we&amp;rsquo;re on Windows in this example, hooks are executed by the &lt;code&gt;msysgit&lt;/code&gt; subsystem so much of the usual UNIX shell stuff will work.&lt;/p&gt;
 
 &lt;p&gt;Hooks are stored in the &lt;code&gt;.git&lt;/code&gt; folder in our repo (this is usually hidden on Windows) in files that match the name of the hook. So, our file is called &lt;code&gt;post-commit&lt;/code&gt; (no extension) and contains the &lt;code&gt;#!/bin/sh&lt;/code&gt; &amp;ldquo;shebang&amp;rdquo; plus a single line that uses &lt;code&gt;curl&lt;/code&gt; to hit a specific URL in the Jenkins server that will cause our Jenkins job to poll its source repo as defined in the build pipeline (i.e. &lt;code&gt;file:///C:/Projects/Chinook.JenkinsDemo&lt;/code&gt; )&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects\Chinook.JenkinsDemo\.git\hooks&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;type post-commit&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bat&#34; data-lang=&#34;bat&#34;&gt;C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects\Chinook.JenkinsDemo\.git\hooks&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;type post-commit&lt;/span&gt;
 #!/bin/sh
-curl http://localhost:8080/git/notifyCommit?url=file:///C:/Projects/Chinook.JenkinsDemo
-&lt;/pre&gt;&lt;/div&gt;
-
+curl http://localhost:8080/git/notifyCommit?url=file:///C:/Projects/Chinook.JenkinsDemo&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Note for &lt;code&gt;git&lt;/code&gt; beginners: this file isn&amp;rsquo;t in the repo when you download it, you&amp;rsquo;ll need to add it yourself!&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -374,158 +356,148 @@ No Git consumers using SCM API plugin for: file:///C:/Projects/Chinook.JenkinsDe
 &lt;h2 id=&#34;preliminaries&#34;&gt;Preliminaries&lt;/h2&gt;
 
 &lt;p&gt;For simplicity, I&amp;rsquo;m creating a local repo I can point my Jenkins job at, right inside the &lt;code&gt;JENKINS_HOME&lt;/code&gt; folder.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;jenkins@d99f4f77acdb:/$ &lt;span style=&#34;color: #388038&#34;&gt;cd&lt;/span&gt; &lt;span style=&#34;color: #b04040&#34;&gt;$JENKINS_HOME&lt;/span&gt;
-jenkins@d99f4f77acdb:~$ mkdir testBranch &lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;cd&lt;/span&gt; testBranch
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;jenkins@d99f4f77acdb:/$ &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$JENKINS_HOME&lt;/span&gt;
+jenkins@d99f4f77acdb:~$ mkdir testBranch &lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; testBranch
 jenkins@d99f4f77acdb:~/testBranch$ git init
 Initialized empty Git repository in /var/jenkins_home/testBranch/.git/
-jenkins@d99f4f77acdb:~/testBranch$ &lt;span style=&#34;color: #388038&#34;&gt;echo&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Half a league, half a league, Half a league onward.&amp;quot;&lt;/span&gt; &amp;gt; myFile.txt
+jenkins@d99f4f77acdb:~/testBranch$ &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;Half a league, half a league, Half a league onward.&amp;#34;&lt;/span&gt; &amp;gt; myFile.txt
 jenkins@d99f4f77acdb:~/testBranch$ git add .
-jenkins@d99f4f77acdb:~/testBranch$ git commit -m &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Initial Commit&amp;quot;&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;master &lt;span style=&#34;color: #666666&#34;&gt;(&lt;/span&gt;root-commit&lt;span style=&#34;color: #666666&#34;&gt;)&lt;/span&gt; 7ef4b3b&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; Initial Commit
- &lt;span style=&#34;color: #444444&#34;&gt;1&lt;/span&gt; file changed, &lt;span style=&#34;color: #444444&#34;&gt;1&lt;/span&gt; insertion&lt;span style=&#34;color: #666666&#34;&gt;(&lt;/span&gt;+&lt;span style=&#34;color: #666666&#34;&gt;)&lt;/span&gt;
- create mode &lt;span style=&#34;color: #444444&#34;&gt;100644&lt;/span&gt; myFile.txt
+jenkins@d99f4f77acdb:~/testBranch$ git commit -m &lt;span class=&#34;s2&#34;&gt;&amp;#34;Initial Commit&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;master &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;root-commit&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; 7ef4b3b&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; Initial Commit
+ &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; file changed, &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; insertion&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;+&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+ create mode &lt;span class=&#34;m&#34;&gt;100644&lt;/span&gt; myFile.txt
 jenkins@d99f4f77acdb:~/testBranch$ git checkout -b thisBranchExists
-Switched to a new branch &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;thisBranchExists&amp;#39;&lt;/span&gt;
-jenkins@d99f4f77acdb:~/testBranch$ &lt;span style=&#34;color: #388038&#34;&gt;echo&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;All in the valley of Death Rode the six hundred&amp;quot;&lt;/span&gt; &amp;gt;&amp;gt; myFile.txt
-jenkins@d99f4f77acdb:~/testBranch$ git commit -am &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;a change&amp;quot;&lt;/span&gt;
+Switched to a new branch &lt;span class=&#34;s1&#34;&gt;&amp;#39;thisBranchExists&amp;#39;&lt;/span&gt;
+jenkins@d99f4f77acdb:~/testBranch$ &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;All in the valley of Death Rode the six hundred&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; myFile.txt
+jenkins@d99f4f77acdb:~/testBranch$ git commit -am &lt;span class=&#34;s2&#34;&gt;&amp;#34;a change&amp;#34;&lt;/span&gt;
 jenkins@d99f4f77acdb:~/testBranch$ git checkout master
-Switched to branch &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;master&amp;#39;&lt;/span&gt;
+Switched to branch &lt;span class=&#34;s1&#34;&gt;&amp;#39;master&amp;#39;&lt;/span&gt;
 jenkins@d99f4f77acdb:~/testBranch$ git log --oneline --decorate --all --graph
-* 550587f &lt;span style=&#34;color: #666666&#34;&gt;(&lt;/span&gt;thisBranchExists&lt;span style=&#34;color: #666666&#34;&gt;)&lt;/span&gt; a change
-* 7ef4b3b &lt;span style=&#34;color: #666666&#34;&gt;(&lt;/span&gt;HEAD, master&lt;span style=&#34;color: #666666&#34;&gt;)&lt;/span&gt; Initial Commit
-&lt;/pre&gt;&lt;/div&gt;
-
+* 550587f &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;thisBranchExists&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; a change
+* 7ef4b3b &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;HEAD, master&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; Initial Commit&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;With that out of the way, we have a repo with two branches, one of which is a single commit ahead of the other. Our goal, in the pipeline script, is to checkout the &lt;code&gt;thisBranchExists&lt;/code&gt; branch, if it exists, or to fall back to &lt;code&gt;master&lt;/code&gt; if it doesn&amp;rsquo;t.&lt;/p&gt;
 
 &lt;h2 id=&#34;the-pipeline-script&#34;&gt;The Pipeline script&lt;/h2&gt;
 
 &lt;p&gt;I&amp;rsquo;ve created a simple script in the Pipeline UI to demonstrate the use of &lt;a href=&#34;https://jenkins.io/doc/pipeline/steps/workflow-multibranch/#resolvescm-resolves-an-scm-from-an-scm-source-and-a-list-of-candidate-target-branch-names&#34;&gt;&lt;code&gt;resolveScm&lt;/code&gt;&lt;/a&gt; to figure out whether the branch we want exists. &lt;code&gt;resolveScm&lt;/code&gt; will go through the contents of &lt;code&gt;targets&lt;/code&gt; in order, and return the first one that matches a branch name in the repo. We then checkout the branch and print the contents of the file to the console with &lt;code&gt;cat&lt;/code&gt;.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;node&lt;span style=&#34;color: #666666&#34;&gt;{&lt;/span&gt;
-&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;def&lt;/span&gt; b &lt;span style=&#34;color: #666666&#34;&gt;=&lt;/span&gt; resolveScm &lt;span style=&#34;color: #289870&#34;&gt;source:&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;$class&lt;span style=&#34;color: #666666&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;GitSCMSource&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #289870&#34;&gt;credentialsId:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;,&lt;/span&gt; 
-    &lt;span style=&#34;color: #289870&#34;&gt;excludes:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #289870&#34;&gt;id:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;_&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #289870&#34;&gt;ignoreOnPushNotifications:&lt;/span&gt; &lt;span style=&#34;color: #444444; font-style: italic&#34;&gt;false&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #289870&#34;&gt;includes:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;*&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;,&lt;/span&gt; 
-    &lt;span style=&#34;color: #289870&#34;&gt;remote:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;file://$JENKINS_HOME/testBranch&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;],&lt;/span&gt; &lt;span style=&#34;color: #289870&#34;&gt;targets:&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;thisBranchExists&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;master&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt;
-checkout b
-sh &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;cat myFile.txt&amp;#39;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-groovy&#34; data-lang=&#34;groovy&#34;&gt;&lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;resolveScm&lt;/span&gt; &lt;span class=&#34;nl&#34;&gt;source:&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;$class&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;GitSCMSource&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nl&#34;&gt;credentialsId:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; 
+    &lt;span class=&#34;nl&#34;&gt;excludes:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nl&#34;&gt;id:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;_&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nl&#34;&gt;ignoreOnPushNotifications:&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nl&#34;&gt;includes:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;*&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; 
+    &lt;span class=&#34;nl&#34;&gt;remote:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;file://$JENKINS_HOME/testBranch&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;],&lt;/span&gt; &lt;span class=&#34;nl&#34;&gt;targets:&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;thisBranchExists&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;master&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;checkout&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;sh&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;cat myFile.txt&amp;#39;&lt;/span&gt;
    
-&lt;span style=&#34;color: #666666&#34;&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;h2 id=&#34;the-happy-path&#34;&gt;The Happy path&lt;/h2&gt;
 
 &lt;p&gt;When we run this job we get the following output, indicating that our branch was located successfully. The contents of the file after the second commit are printed to the console.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;{&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; resolveScm
-Checking &lt;span style=&#34;color: #2838b0&#34;&gt;for&lt;/span&gt; first existing branch from &lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;thisBranchExists, master&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt;...
- &amp;gt; git rev-parse --is-inside-work-tree &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Setting origin to file://&lt;span style=&#34;color: #b04040&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch
- &amp;gt; git config remote.origin.url file://&lt;span style=&#34;color: #b04040&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Fetching &lt;span style=&#34;color: #888888&#34;&gt;&amp;amp;&lt;/span&gt; pruning origin...
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; resolveScm
+Checking &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; first existing branch from &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;thisBranchExists, master&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;...
+ &amp;gt; git rev-parse --is-inside-work-tree &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Setting origin to file://&lt;span class=&#34;nv&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch
+ &amp;gt; git config remote.origin.url file://&lt;span class=&#34;nv&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Fetching &lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt; pruning origin...
 Fetching upstream changes from origin
- &amp;gt; git --version &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
- &amp;gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
+ &amp;gt; git --version &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt; &amp;gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
 Getting remote branches...
 Seen branch in repository origin/master
 Seen branch in repository origin/thisBranchExists
-Seen &lt;span style=&#34;color: #444444&#34;&gt;2&lt;/span&gt; remote branches
+Seen &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; remote branches
 Checking branch master
 Checking branch thisBranchExists
 Found thisBranchExists at revision 550587fa43778989f50ca314feea38fdee50b21c
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; checkout
- &amp;gt; git rev-parse --is-inside-work-tree &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Fetching changes from the remote Git repository
- &amp;gt; git config remote.origin.url file:///var/jenkins_home/testBranch &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Fetching upstream changes from file:///var/jenkins_home/testBranch
- &amp;gt; git --version &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
- &amp;gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
-Checking out Revision 550587fa43778989f50ca314feea38fdee50b21c &lt;span style=&#34;color: #666666&#34;&gt;(&lt;/span&gt;thisBranchExists&lt;span style=&#34;color: #666666&#34;&gt;)&lt;/span&gt;
- &amp;gt; git config core.sparsecheckout &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
- &amp;gt; git checkout -f 550587fa43778989f50ca314feea38fdee50b21c
- &amp;gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; sh
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;checkout_branch_if_exists&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; Running shell script
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; checkout
+ &amp;gt; git rev-parse --is-inside-work-tree &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Fetching changes from the remote Git repository
+ &amp;gt; git config remote.origin.url file:///var/jenkins_home/testBranch &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Fetching upstream changes from file:///var/jenkins_home/testBranch
+ &amp;gt; git --version &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt; &amp;gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
+Checking out Revision 550587fa43778989f50ca314feea38fdee50b21c &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;thisBranchExists&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+ &amp;gt; git config core.sparsecheckout &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt; &amp;gt; git checkout -f 550587fa43778989f50ca314feea38fdee50b21c
+ &amp;gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; sh
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;checkout_branch_if_exists&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; Running shell script
 + cat myFile.txt
 Half a league, half a league, Half a league onward.
 All in the valley of Death Rode the six hundred
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;}&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; // node
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; End of Pipeline
-Finished: SUCCESS
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; // node
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; End of Pipeline
+Finished: SUCCESS&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;h2 id=&#34;the-less-happy-path&#34;&gt;The &amp;ldquo;less-happy&amp;rdquo; path&lt;/h2&gt;
 
 &lt;p&gt;Lets see what happens if we change our list of &lt;code&gt;targets&lt;/code&gt; to &lt;code&gt;[&#39;thisBranchDoesNotExist&#39;, &#39;master&#39;]&lt;/code&gt;. This time we don&amp;rsquo;t find our &amp;ldquo;preferred&amp;rdquo; branch, so we fall back to &lt;code&gt;master&lt;/code&gt; and print the contents of the file as it was after the first commit.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; node
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; node
 Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;{&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; resolveScm
-Checking &lt;span style=&#34;color: #2838b0&#34;&gt;for&lt;/span&gt; first existing branch from &lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;thisBranchDoesNotExist, master&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt;...
- &amp;gt; git rev-parse --is-inside-work-tree &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Setting origin to file://&lt;span style=&#34;color: #b04040&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch
- &amp;gt; git config remote.origin.url file://&lt;span style=&#34;color: #b04040&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Fetching &lt;span style=&#34;color: #888888&#34;&gt;&amp;amp;&lt;/span&gt; pruning origin...
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; resolveScm
+Checking &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; first existing branch from &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;thisBranchDoesNotExist, master&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;...
+ &amp;gt; git rev-parse --is-inside-work-tree &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Setting origin to file://&lt;span class=&#34;nv&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch
+ &amp;gt; git config remote.origin.url file://&lt;span class=&#34;nv&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Fetching &lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt; pruning origin...
 Fetching upstream changes from origin
- &amp;gt; git --version &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
- &amp;gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
+ &amp;gt; git --version &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt; &amp;gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
 Getting remote branches...
 Seen branch in repository origin/master
 Seen branch in repository origin/thisBranchExists
-Seen &lt;span style=&#34;color: #444444&#34;&gt;2&lt;/span&gt; remote branches
+Seen &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; remote branches
 Checking branch thisBranchExists
 Checking branch master
 Done.
 Found master at revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; checkout
- &amp;gt; git rev-parse --is-inside-work-tree &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Fetching changes from the remote Git repository
- &amp;gt; git config remote.origin.url file:///var/jenkins_home/testBranch &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Fetching upstream changes from file:///var/jenkins_home/testBranch
- &amp;gt; git --version &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
- &amp;gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
-Checking out Revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95 &lt;span style=&#34;color: #666666&#34;&gt;(&lt;/span&gt;master&lt;span style=&#34;color: #666666&#34;&gt;)&lt;/span&gt;
- &amp;gt; git config core.sparsecheckout &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
- &amp;gt; git checkout -f 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
- &amp;gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; sh
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;checkout_branch_if_exists&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; Running shell script
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; checkout
+ &amp;gt; git rev-parse --is-inside-work-tree &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Fetching changes from the remote Git repository
+ &amp;gt; git config remote.origin.url file:///var/jenkins_home/testBranch &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Fetching upstream changes from file:///var/jenkins_home/testBranch
+ &amp;gt; git --version &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt; &amp;gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
+Checking out Revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;master&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+ &amp;gt; git config core.sparsecheckout &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt; &amp;gt; git checkout -f 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
+ &amp;gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; sh
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;checkout_branch_if_exists&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; Running shell script
 + cat myFile.txt
 Half a league, half a league, Half a league onward.
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;}&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; // node
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; End of Pipeline
-Finished: SUCCESS
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; // node
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; End of Pipeline
+Finished: SUCCESS&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;h2 id=&#34;the-unhappy-path&#34;&gt;The Unhappy path&lt;/h2&gt;
 
 &lt;p&gt;Finally, let&amp;rsquo;s see what happens if none of the branches we specify in &lt;code&gt;targets&lt;/code&gt; exist in the repo. Regrettably, the output is rather shorter, as the step fails if no matching branches are found.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;{&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; resolveScm
-Checking &lt;span style=&#34;color: #2838b0&#34;&gt;for&lt;/span&gt; first existing branch from &lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;thisBranchDoesNotExist, thisBranchDoesNotExistEither&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt;...
- &amp;gt; git rev-parse --is-inside-work-tree &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Setting origin to file://&lt;span style=&#34;color: #b04040&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch
- &amp;gt; git config remote.origin.url file://&lt;span style=&#34;color: #b04040&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
-Fetching &lt;span style=&#34;color: #888888&#34;&gt;&amp;amp;&lt;/span&gt; pruning origin...
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; resolveScm
+Checking &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; first existing branch from &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;thisBranchDoesNotExist, thisBranchDoesNotExistEither&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;...
+ &amp;gt; git rev-parse --is-inside-work-tree &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Setting origin to file://&lt;span class=&#34;nv&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch
+ &amp;gt; git config remote.origin.url file://&lt;span class=&#34;nv&#34;&gt;$JENKINS_HOME&lt;/span&gt;/testBranch &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;Fetching &lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt; pruning origin...
 Fetching upstream changes from origin
- &amp;gt; git --version &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;# timeout=10&lt;/span&gt;
- &amp;gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
+ &amp;gt; git --version &lt;span class=&#34;c1&#34;&gt;# timeout=10
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt; &amp;gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
 Getting remote branches...
 Seen branch in repository origin/master
 Seen branch in repository origin/thisBranchExists
-Seen &lt;span style=&#34;color: #444444&#34;&gt;2&lt;/span&gt; remote branches
+Seen &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; remote branches
 Checking branch master
 Checking branch thisBranchExists
 Done.
 Could not find any matching branch%n
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;}&lt;/span&gt;
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; // node
-&lt;span style=&#34;color: #666666&#34;&gt;[&lt;/span&gt;Pipeline&lt;span style=&#34;color: #666666&#34;&gt;]&lt;/span&gt; End of Pipeline
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; // node
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;Pipeline&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; End of Pipeline
 ERROR: Could not find any matching branch
-Finished: FAILURE
-&lt;/pre&gt;&lt;/div&gt;
-</description>
+Finished: FAILURE&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
         </item>
       
     

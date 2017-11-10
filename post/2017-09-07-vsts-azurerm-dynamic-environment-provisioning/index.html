@@ -29,28 +29,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -74,11 +52,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -213,75 +191,69 @@
 <h3 id="the-next-instagram">The next Instagram?</h3>
 
 <p>The details of what the app actually <em>does</em> aren&rsquo;t particularly important for this example, but in brief it is expecting a JSON structure:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888">{</span>
-<span style="color: #2838b0">&quot;name&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;Bill&quot;</span><span style="color: #888888">,</span>
-<span style="color: #2838b0">&quot;favouriteKebab&quot;</span><span style="color: #888888">:</span><span style="color: #b83838">&quot;Adana&quot;</span>
-<span style="color: #888888">}</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+<span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;Bill&#34;</span><span class="p">,</span>
+<span class="nt">&#34;favouriteKebab&#34;</span><span class="p">:</span><span class="s2">&#34;Adana&#34;</span>
+<span class="p">}</span></code></pre></div>
 <p>in the body of a <code>POST</code> message, which it will then store in the Cosmos DB database.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #388038">[FunctionName(&quot;KebabPost&quot;)]</span>
-<span style="color: #2838b0">public</span> <span style="color: #2838b0">static</span> HttpResponseMessage <span style="color: #785840">Run</span><span style="color: #888888">(</span>
-<span style="color: #388038">[HttpTrigger(AuthorizationLevel.Anonymous, &quot;post&quot;)]</span>
-HttpRequestMessage req<span style="color: #888888">,</span>
-<span style="color: #388038">[DocumentDB(&quot;kebabDb&quot;, &quot;kebabPreferences&quot;,</span>
-<span style="color: #388038">ConnectionStringSetting = &quot;DB_CONNECTION&quot;, CreateIfNotExists =true)]</span> <span style="color: #2838b0">out</span> <span style="color: #2838b0; font-style: italic">dynamic</span> nameAndKebabType<span style="color: #888888">,</span> 
-    TraceWriter log<span style="color: #888888">)</span>
-<span style="color: #888888">{</span>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="na">[FunctionName(&#34;KebabPost&#34;)]</span>
+<span class="k">public</span> <span class="k">static</span> <span class="n">HttpResponseMessage</span> <span class="n">Run</span><span class="p">(</span><span class="na">
+</span><span class="na">[HttpTrigger(AuthorizationLevel.Anonymous, &#34;post&#34;)]</span>
+<span class="n">HttpRequestMessage</span> <span class="n">req</span><span class="p">,</span><span class="na">
+</span><span class="na">[DocumentDB(&#34;kebabDb&#34;, &#34;kebabPreferences&#34;,
+</span><span class="na">ConnectionStringSetting = &#34;DB_CONNECTION&#34;, CreateIfNotExists =true)]</span> <span class="k">out</span> <span class="kt">dynamic</span> <span class="n">nameAndKebabType</span><span class="p">,</span> 
+    <span class="n">TraceWriter</span> <span class="n">log</span><span class="p">)</span>
+<span class="p">{</span>
 
-    log<span style="color: #888888">.</span>Info<span style="color: #888888">(</span><span style="color: #b83838">&quot;C# HTTP trigger function processed a request.&quot;</span><span style="color: #888888">);</span>
+    <span class="n">log</span><span class="p">.</span><span class="n">Info</span><span class="p">(</span><span class="s">&#34;C# HTTP trigger function processed a request.&#34;</span><span class="p">);</span>
 
-    <span style="color: #888888; font-style: italic">// Get request body</span>
-    <span style="color: #2838b0; font-style: italic">dynamic</span> data <span style="color: #888888">=</span> req<span style="color: #888888">.</span>Content<span style="color: #888888">.</span>ReadAsAsync<span style="color: #888888">&lt;</span><span style="color: #2838b0; font-style: italic">object</span><span style="color: #888888">&gt;().</span>Result<span style="color: #888888">;</span>
+    <span class="c1">// Get request body
+</span><span class="c1"></span>    <span class="kt">dynamic</span> <span class="n">data</span> <span class="p">=</span> <span class="n">req</span><span class="p">.</span><span class="n">Content</span><span class="p">.</span><span class="n">ReadAsAsync</span><span class="p">&lt;</span><span class="kt">object</span><span class="p">&gt;().</span><span class="n">Result</span><span class="p">;</span>
 
-    <span style="color: #888888; font-style: italic">// Set name to query string or body data</span>
-    nameAndKebabType <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> <span style="color: #888888">{</span>
-    name <span style="color: #888888">=</span> data<span style="color: #888888">?.</span>name<span style="color: #888888">,</span>
-    favouriteKebab <span style="color: #888888">=</span> data<span style="color: #888888">?.</span>favouriteKebab
-<span style="color: #888888">};</span>
-    <span style="color: #2838b0">if</span> <span style="color: #888888">(</span>data<span style="color: #888888">?.</span>name <span style="color: #888888">==</span> <span style="color: #2838b0">null</span> <span style="color: #888888">||</span> data<span style="color: #888888">?.</span>favouriteKebab <span style="color: #888888">==</span> <span style="color: #2838b0">null</span><span style="color: #888888">)</span>
-    <span style="color: #888888">{</span>
-        <span style="color: #2838b0">return</span> req<span style="color: #888888">.</span>CreateResponse<span style="color: #888888">(</span>HttpStatusCode<span style="color: #888888">.</span>BadRequest<span style="color: #888888">,</span> 
-            <span style="color: #b83838">&quot;Name and kebab are both required!&quot;</span><span style="color: #888888">);</span>
-    <span style="color: #888888">}</span>
+    <span class="c1">// Set name to query string or body data
+</span><span class="c1"></span>    <span class="n">nameAndKebabType</span> <span class="p">=</span> <span class="k">new</span> <span class="p">{</span>
+    <span class="n">name</span> <span class="p">=</span> <span class="n">data</span><span class="p">?.</span><span class="n">name</span><span class="p">,</span>
+    <span class="n">favouriteKebab</span> <span class="p">=</span> <span class="n">data</span><span class="p">?.</span><span class="n">favouriteKebab</span>
+<span class="p">};</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">?.</span><span class="n">name</span> <span class="p">==</span> <span class="k">null</span> <span class="p">||</span> <span class="n">data</span><span class="p">?.</span><span class="n">favouriteKebab</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">req</span><span class="p">.</span><span class="n">CreateResponse</span><span class="p">(</span><span class="n">HttpStatusCode</span><span class="p">.</span><span class="n">BadRequest</span><span class="p">,</span> 
+            <span class="s">&#34;Name and kebab are both required!&#34;</span><span class="p">);</span>
+    <span class="p">}</span>
 
-    <span style="color: #2838b0">else</span>
-    <span style="color: #888888">{</span>
-        <span style="color: #2838b0">return</span> req<span style="color: #888888">.</span>CreateResponse<span style="color: #888888">(</span>HttpStatusCode<span style="color: #888888">.</span>OK<span style="color: #888888">);</span>
-    <span style="color: #888888">}</span>
-<span style="color: #888888">}</span>
-</pre></div>
-
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">req</span><span class="p">.</span><span class="n">CreateResponse</span><span class="p">(</span><span class="n">HttpStatusCode</span><span class="p">.</span><span class="n">OK</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
 <p>The name of the DocumentDB database and collection will be the same in every environment, so I&rsquo;ve just hardcoded them in the file (<code>&quot;kebabDB&quot;</code> and <code>&quot;kebabPreferences&quot;</code>). The other thing to note is that I am passing <code>CreateIfNotExists=true</code> in the binding options for the DocumentDB collection; it turns out to be non-trivial to create the database and the collection from an AzureRM template, so we let the app create them at runtime if required.</p>
 
 <p>The test project contains a single test, which exercises the behaviour described above:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #388038">[TestMethod]</span>
-<span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">KebabPost_ValidInput_StoresValuesInDb</span><span style="color: #888888">()</span>
-<span style="color: #888888">{</span>
-<span style="color: #2838b0; font-style: italic">string</span> content <span style="color: #888888">=</span> <span style="color: #b83838">&quot;{ &#39;name&#39;:&#39;Barry&#39; , &#39;favouriteKebab&#39;:&#39;Kofte&#39; }&quot;</span><span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="na">[TestMethod]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">KebabPost_ValidInput_StoresValuesInDb</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="kt">string</span> <span class="n">content</span> <span class="p">=</span> <span class="s">&#34;{ &#39;name&#39;:&#39;Barry&#39; , &#39;favouriteKebab&#39;:&#39;Kofte&#39; }&#34;</span><span class="p">;</span>
 
-<span style="color: #2838b0">using</span> <span style="color: #888888">(</span><span style="color: #2838b0; font-style: italic">var</span> client <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> HttpClient<span style="color: #888888">())</span>
-<span style="color: #888888">{</span>
-    <span style="color: #2838b0; font-style: italic">var</span> response <span style="color: #888888">=</span> client<span style="color: #888888">.</span>PostAsync<span style="color: #888888">(</span>functionUrl<span style="color: #888888">,</span>
-        <span style="color: #2838b0">new</span> <span style="color: #785840">StringContent</span><span style="color: #888888">(</span>content<span style="color: #888888">,</span> Encoding<span style="color: #888888">.</span>UTF8<span style="color: #888888">,</span> <span style="color: #b83838">&quot;application/json&quot;</span><span style="color: #888888">)).</span>Result<span style="color: #888888">;</span>
+<span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">client</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HttpClient</span><span class="p">())</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">response</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="n">PostAsync</span><span class="p">(</span><span class="n">functionUrl</span><span class="p">,</span>
+        <span class="k">new</span> <span class="n">StringContent</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">)).</span><span class="n">Result</span><span class="p">;</span>
     
-<span style="color: #888888">}</span>
+<span class="p">}</span>
 
-<span style="color: #2838b0">using</span> <span style="color: #888888">(</span><span style="color: #2838b0; font-style: italic">var</span> client <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> DocumentClient<span style="color: #888888">(</span>docDbUri<span style="color: #888888">,</span> docDbKey<span style="color: #888888">))</span>
-<span style="color: #888888">{</span>
-    IQueryable<span style="color: #888888">&lt;</span>KebabPrefs<span style="color: #888888">&gt;</span> kebabPrefsQuery <span style="color: #888888">=</span> client
-    <span style="color: #888888">.</span>CreateDocumentQuery<span style="color: #888888">&lt;</span>KebabPrefs<span style="color: #888888">&gt;(</span>
-        UriFactory
-        <span style="color: #888888">.</span>CreateDocumentCollectionUri<span style="color: #888888">(</span><span style="color: #b83838">&quot;kebabDb&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;kebabPreferences&quot;</span><span style="color: #888888">))</span>
-        <span style="color: #888888">.</span>Where<span style="color: #888888">(</span>kp <span style="color: #888888">=&gt;</span> kp<span style="color: #888888">.</span>name <span style="color: #888888">==</span> <span style="color: #b83838">&quot;Barry&quot;</span><span style="color: #888888">);</span>
+<span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">client</span> <span class="p">=</span> <span class="k">new</span> <span class="n">DocumentClient</span><span class="p">(</span><span class="n">docDbUri</span><span class="p">,</span> <span class="n">docDbKey</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="n">IQueryable</span><span class="p">&lt;</span><span class="n">KebabPrefs</span><span class="p">&gt;</span> <span class="n">kebabPrefsQuery</span> <span class="p">=</span> <span class="n">client</span>
+    <span class="p">.</span><span class="n">CreateDocumentQuery</span><span class="p">&lt;</span><span class="n">KebabPrefs</span><span class="p">&gt;(</span>
+        <span class="n">UriFactory</span>
+        <span class="p">.</span><span class="n">CreateDocumentCollectionUri</span><span class="p">(</span><span class="s">&#34;kebabDb&#34;</span><span class="p">,</span> <span class="s">&#34;kebabPreferences&#34;</span><span class="p">))</span>
+        <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">kp</span> <span class="p">=&gt;</span> <span class="n">kp</span><span class="p">.</span><span class="n">name</span> <span class="p">==</span> <span class="s">&#34;Barry&#34;</span><span class="p">);</span>
 
-    Assert<span style="color: #888888">.</span>AreEqual<span style="color: #888888">(</span><span style="color: #b83838">&quot;Kofte&quot;</span><span style="color: #888888">,</span> kebabPrefsQuery<span style="color: #888888">.</span>ToList<span style="color: #888888">()</span>
-        <span style="color: #888888">.</span>First<span style="color: #888888">().</span>favouriteKebab<span style="color: #888888">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="s">&#34;Kofte&#34;</span><span class="p">,</span> <span class="n">kebabPrefsQuery</span><span class="p">.</span><span class="n">ToList</span><span class="p">()</span>
+        <span class="p">.</span><span class="n">First</span><span class="p">().</span><span class="n">favouriteKebab</span><span class="p">);</span>
 
 
-    <span style="color: #888888">}</span>
-</pre></div>
-
+    <span class="p">}</span></code></pre></div>
 <p>Unit Testing enthusiasts will have noticed that this isn&rsquo;t really a Unit Test at all; there are no fakes or mocks, we are using the &ldquo;real&rdquo; dependencies for everything.</p>
 
 <p>If our Azure function were a bit bigger, it would be worth splitting out the &ldquo;core&rdquo; functionality into a separate assembly that <em>could</em> be meaningfully unit tested, but in the interests of brevity I&rsquo;ve not done that here.</p>
@@ -291,26 +263,24 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 <h2 id="the-azurerm-template">The AzureRM Template</h2>
 
 <p>The <a href="https://github.com/arapaima-uk/KebabAzureRmDemo/blob/master/KebabDbResourceGroup/azuredeploy.json">full template</a> is a bit too long to reproduce here, so I&rsquo;ll call out some edited highlights.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  <span style="color: #b83838">&quot;parameters&quot;</span><span style="background-color: #a848a8">:</span> <span style="color: #888888">{</span>
-    <span style="color: #2838b0">&quot;database_account_name&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabdac&#39;, uniqueString(resourceGroup().id))]&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;hostingPlanName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabhp&#39;, uniqueString(resourceGroup().id))]&quot;</span> <span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;functionAppName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabApp&#39;, uniqueString(resourceGroup().id))]&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;storageAccountName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabstor&#39;, uniqueString(resourceGroup().id))]&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
-    <span style="color: #888888">}</span>
-  <span style="color: #888888">}</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json">  <span class="s2">&#34;parameters&#34;</span><span class="err">:</span> <span class="p">{</span>
+    <span class="nt">&#34;database_account_name&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;defaultValue&#34;</span><span class="p">:</span> <span class="s2">&#34;[concat(&#39;kebabdac&#39;, uniqueString(resourceGroup().id))]&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span>
+    <span class="p">},</span>
+    <span class="nt">&#34;hostingPlanName&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;defaultValue&#34;</span><span class="p">:</span> <span class="s2">&#34;[concat(&#39;kebabhp&#39;, uniqueString(resourceGroup().id))]&#34;</span> <span class="p">,</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span>
+    <span class="p">},</span>
+    <span class="nt">&#34;functionAppName&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;defaultValue&#34;</span><span class="p">:</span> <span class="s2">&#34;[concat(&#39;kebabApp&#39;, uniqueString(resourceGroup().id))]&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span>
+    <span class="p">},</span>
+    <span class="nt">&#34;storageAccountName&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;defaultValue&#34;</span><span class="p">:</span> <span class="s2">&#34;[concat(&#39;kebabstor&#39;, uniqueString(resourceGroup().id))]&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></div>
 <p>The thing to note is that the template takes four parameters, each of which has a default value.</p>
 
 <p>Each of the defaults consists of a prefix that identifies the resource type, combined with the result of the function <code>uniqueString(resourceGroup().id)</code>. These unique strings are required as there are some objects in Azure (storage accounts or web apps for example) that require <em>globally</em> unique names that can be incorporated into a url of the form <code>https://myapp.azurewebsites.net</code> or similar. I can never remember which objects do require unique names and which ones don&rsquo;t, so I tend to use <code>uniqueString()</code> for everything.</p>
@@ -320,23 +290,21 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/resources.png" alt="Azure resource names generated with uniqueString" /></p>
 
 <p>At the end of the template is an <code>outputs</code> section:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  <span style="color: #b83838">&quot;outputs&quot;</span><span style="background-color: #a848a8">:</span> <span style="color: #888888">{</span>
-    <span style="color: #2838b0">&quot;functionAppName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;value&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[parameters(&#39;functionAppName&#39;)]&quot;</span>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json">  <span class="s2">&#34;outputs&#34;</span><span class="err">:</span> <span class="p">{</span>
+    <span class="nt">&#34;functionAppName&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;[parameters(&#39;functionAppName&#39;)]&#34;</span>
 
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;docDbUri&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;value&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[Concat(&#39;https://&#39;,parameters(&#39;database_account_name&#39;),&#39;.documents.azure.com:443&#39;)]&quot;</span>
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;docDbKey&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;value&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[listKeys(resourceId(&#39;Microsoft.DocumentDb/databaseAccounts&#39;, parameters(&#39;database_account_name&#39;)), &#39;2015-04-08&#39;).primaryMasterKey]&quot;</span>
-    <span style="color: #888888">}</span>
-  <span style="color: #888888">}</span>
-</pre></div>
-
+    <span class="p">},</span>
+    <span class="nt">&#34;docDbUri&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;[Concat(&#39;https://&#39;,parameters(&#39;database_account_name&#39;),&#39;.documents.azure.com:443&#39;)]&#34;</span>
+    <span class="p">},</span>
+    <span class="nt">&#34;docDbKey&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;[listKeys(resourceId(&#39;Microsoft.DocumentDb/databaseAccounts&#39;, parameters(&#39;database_account_name&#39;)), &#39;2015-04-08&#39;).primaryMasterKey]&#34;</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></div>
 <p>This defines three outputs, the Function App name, the Cosmos DB uri, and the Cosmos DB key. This is necessary as we didn&rsquo;t specify these values ourselves, so we need AzureRM to <em>tell us what it just created</em> in order that we can use these names for other tasks in our build process.</p>
 
 <h3 id="the-build-definition">The Build Definition</h3>
@@ -350,13 +318,11 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 <p>By passing the <em>name of the branch we are building</em> as the name of the resource group, this means that the first time we build any given branch we will get a brand new environment with a Cosmos DB, a Function App, etc. etc., exclusively for that build.</p>
 
 <p>After the template is deployed, we need a bit of Powershell to retrieve the outputs from the template.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">param</span> <span style="color: #888888">(</span><span style="color: #b85820">[string]</span><span style="color: #b04040">$resourceGroup</span><span style="color: #888888">)</span>
+<div class="highlight"><pre class="chroma"><code class="language-powershell" data-lang="powershell"><span class="k">param</span> <span class="p">(</span><span class="no">[string]</span><span class="nv">$resourceGroup</span><span class="p">)</span>
 
-<span style="color: #b04040">$outputs</span> <span style="color: #888888">=</span> <span style="color: #888888">(</span><span style="color: #388038">Get-AzureRmResourceGroupDeployment</span> -ResourceGroupName <span style="color: #b04040">$resourceGroup</span> <span style="color: #888888">|</span> Sort Timestamp -Descending <span style="color: #888888">|</span> Select -First 1<span style="color: #888888">).</span>Outputs
+<span class="nv">$outputs</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-AzureRmResourceGroupDeployment</span> <span class="n">-ResourceGroupName</span> <span class="nv">$resourceGroup</span> <span class="p">|</span> <span class="n">Sort</span> <span class="n">Timestamp</span> <span class="n">-Descending</span> <span class="p">|</span> <span class="n">Select</span> <span class="n">-First</span> <span class="n">1</span><span class="p">).</span><span class="n">Outputs</span>
 
-<span style="color: #b04040">$outputs</span><span style="color: #888888">.</span>Keys <span style="color: #888888">|</span> <span style="color: #888888">%</span> <span style="color: #888888">{</span> <span style="color: #388038">Write-Host</span> <span style="color: #888888">(</span><span style="color: #b83838">&quot;##vso[task.setvariable variable=&quot;</span><span style="color: #888888">+</span><span style="color: #b04040">$_</span><span style="color: #888888">+</span><span style="color: #b83838">&quot;;]&quot;</span><span style="color: #888888">+</span><span style="color: #b04040">$outputs</span><span style="color: #888888">[</span><span style="color: #b04040">$_</span><span style="color: #888888">].</span>Value<span style="color: #888888">)</span> <span style="color: #888888">}</span>
-</pre></div>
-
+<span class="nv">$outputs</span><span class="p">.</span><span class="n">Keys</span> <span class="p">|</span> <span class="p">%</span> <span class="p">{</span> <span class="nb">Write-Host</span> <span class="p">(</span><span class="s2">&#34;##vso[task.setvariable variable=&#34;</span><span class="p">+</span><span class="nv">$_</span><span class="p">+</span><span class="s2">&#34;;]&#34;</span><span class="p">+</span><span class="nv">$outputs</span><span class="p">[</span><span class="nv">$_</span><span class="p">].</span><span class="n">Value</span><span class="p">)</span> <span class="p">}</span></code></pre></div>
 <p>What this does is to find the most recent deployment for the specified resource group - i.e. the one we just did - and map the <em>outputs</em> of the template to <em>build variables</em> in VSTS by name. This means that for every output in the template, we need to define a build variable with <em>exactly</em> the same name, which indeed we have done:</p>
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/buildvars.png" alt="Build variables view" /></p>
@@ -459,7 +425,7 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/ResourceGroups.png" alt="resource groups in the Azure Portal" /></p>
 
-<p>All of the above is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the <a href="/fixed/About/">contact form</a> on the site.</p>
+<p>All of the above is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the <a href="/fixed/about/">contact form</a> on the site.</p>
 
    
 </div>
@@ -484,8 +450,8 @@ HttpRequestMessage req<span style="color: #888888">,</span>
   <h3>Say something</h3>
 
   <form class="post-new-comment" method="POST" action="https://api.staticman.net/v2/entry/arapaima-uk/source.arapaima-uk.github.io/master/comments">
-    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/#comment-submitted">
-     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/">
+    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2017-09-07-vsts-azurerm-dynamic-environment-provisioning/#comment-submitted">
+     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2017-09-07-vsts-azurerm-dynamic-environment-provisioning/">
     <input type="hidden" name="options[entryId]" value="a67e0146d75266aa0f74d155295c3650">
     <input name="fields[name]" type="text" class="post-comment-field" placeholder="Your name">
     <input name="fields[email]" type="email" class="post-comment-field" placeholder="Your email address">

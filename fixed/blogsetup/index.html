@@ -29,28 +29,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -74,11 +52,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item  active " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item  active " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -229,6 +207,10 @@
 
 <h1 id="overview">Overview</h1>
 
+<blockquote>
+<p>This page is somewhat out of date now, I&rsquo;m in the process of moving to new hosting in any case so will write a new post then.</p>
+</blockquote>
+
 <p>This site is created using the <a href="http://gohugo.io/">Hugo</a> static site generator and hosted on <a href="https://pages.github.com/">GitHub Pages</a>. It is built and deployed with <a href="https://travis-ci.org/">Travis CI</a>, meaning that changes and additions are pushed to the public website as soon as they are committed. For now this is an <a href="http://dilbert.com/strip/2016-06-21">MVP</a>, I&rsquo;ll add more moving parts and update this page accordingly as time goes on. There are a couple of features right &ldquo;out of the box&rdquo; such as drafts and scheduled posts.</p>
 
 <h2 id="github-setup">Github setup</h2>
@@ -322,13 +304,11 @@ PygmentsStyle = &quot;lovelace&quot;
 </code></pre>
 
 <p>to the <code>config.toml</code> file. The <code>PygmentsCodeFences</code> line allows specifying a style in markdown directly after the <code>```</code> , for example the following block is styled <code>```c</code>.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #289870">#include</span> <span style="color: #888888; font-style: italic">&lt;stdio.h&gt;</span><span style="color: #289870"></span>
-main<span style="color: #888888">()</span>
-<span style="color: #888888">{</span>
-    printf<span style="color: #888888">(</span><span style="color: #b83838">&quot;Hello, world!</span><span style="color: #709030">\n</span><span style="color: #b83838">&quot;</span><span style="color: #888888">);</span>
-<span style="color: #888888">}</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="sa"></span><span class="s">&#34;Hello, world!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+<span class="p">}</span></code></pre></div>
 <h2 id="github">Github</h2>
 
 <p>We&rsquo;ve got enough for a working site, time for a first commit. Before we start, we&rsquo;ll add a <code>.gitignore</code> file to the <code>public</code> folder of the site containing the following lines:</p>
@@ -358,16 +338,14 @@ git push
 <h3 id="build">Build</h3>
 
 <p>I started with the following lines in mine:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>sudo<span style="color: #888888">:</span> required
-install<span style="color: #888888">:</span> 
-  <span style="color: #888888">-</span> wget https://github.com/spf13/hugo/releases/download/v0.17/hugo_0.17-64bit.deb
-  <span style="color: #888888">-</span> sudo dpkg -i hugo_0.17-64bit.deb
-  <span style="color: #888888">-</span> sudo pip install Pygments
-   
-script<span style="color: #888888">:</span>
-  <span style="color: #888888">-</span> hugo -v
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">sudo<span class="p">:</span><span class="w"> </span>required<span class="w">
+</span><span class="w"></span>install<span class="p">:</span><span class="w"> 
+</span><span class="w">  </span>-<span class="w"> </span>wget<span class="w"> </span>https<span class="p">:</span>//github.com/spf<span class="m">13</span>/hugo/releases/download/v<span class="m">0.17</span>/hugo_<span class="m">0.17</span>-64bit.deb<span class="w">
+</span><span class="w">  </span>-<span class="w"> </span>sudo<span class="w"> </span>dpkg<span class="w"> </span>-i<span class="w"> </span>hugo_<span class="m">0.17</span>-64bit.deb<span class="w">
+</span><span class="w">  </span>-<span class="w"> </span>sudo<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>Pygments<span class="w">
+</span><span class="w">   
+</span><span class="w"></span>script<span class="p">:</span><span class="w">
+</span><span class="w">  </span>-<span class="w"> </span>hugo<span class="w"> </span>-v</code></pre></div>
 <p>This will download and install pygments and hugo, then call the <code>hugo</code> executable to build our site. One detail here is that I&rsquo;m fetching a specific version of hugo; I initially tried fetching the latest with <code>go get</code>, but this seemed to result in compatibility nightmares.</p>
 
 <p>Now, when we commit and push the repo with the <code>.travis.yml</code> file included, Travis will fetch our code and build our site. If this step isn&rsquo;t working, there&rsquo;s not much point continuing, so take a moment to ensure that everything is green. You will observe that Travis isn&rsquo;t all that fast; I got a car for free once and it wasn&rsquo;t all that fast either.</p>
@@ -393,30 +371,28 @@ script<span style="color: #888888">:</span>
 <li>Touches every file in the repo so they look &ldquo;new&rdquo;.</li>
 <li>Pushes the pages to our GH Pages Repo</li>
 </ul>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #287088; font-style: italic">#!/usr/bin/env bash</span>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/usr/bin/env bash
+</span><span class="cp"></span>
+<span class="nv">rev</span><span class="o">=</span><span class="k">$(</span>git rev-parse --short HEAD<span class="k">)</span>
 
-<span style="color: #b04040">rev</span><span style="color: #666666">=</span><span style="color: #2838b0">$(</span>git rev-parse --short HEAD<span style="color: #2838b0">)</span>
-
-<span style="color: #388038">cd</span> public
+<span class="nb">cd</span> public
 rm .gitignore
 
 git init
-git config user.name <span style="color: #b83838">&quot;Travis CI&quot;</span>
-git config user.email <span style="color: #b83838">&quot;travis@arapaima.uk&quot;</span>
+git config user.name <span class="s2">&#34;Travis CI&#34;</span>
+git config user.email <span class="s2">&#34;travis@arapaima.uk&#34;</span>
 
-git remote add upstream <span style="color: #b83838">&quot;https://</span><span style="color: #b04040">$GH_TOKEN</span><span style="color: #b83838">@github.com/arapaima-uk/arapaima-uk.github.io.git&quot;</span>
+git remote add upstream <span class="s2">&#34;https://</span><span class="nv">$GH_TOKEN</span><span class="s2">@github.com/arapaima-uk/arapaima-uk.github.io.git&#34;</span>
 git fetch upstream
 git reset upstream/master
 
-<span style="color: #388038">echo</span> <span style="color: #b83838">&quot;arapaima.uk&quot;</span> &gt; CNAME
+<span class="nb">echo</span> <span class="s2">&#34;arapaima.uk&#34;</span> &gt; CNAME
 
 touch .
 
 git add -A .
-git commit -m <span style="color: #b83838">&quot;rebuild pages at </span><span style="color: #b83838; text-decoration: underline">${</span><span style="color: #b04040">rev</span><span style="color: #b83838; text-decoration: underline">}</span><span style="color: #b83838">&quot;</span>
-git push -q upstream HEAD:master
-</pre></div>
-
+git commit -m <span class="s2">&#34;rebuild pages at </span><span class="si">${</span><span class="nv">rev</span><span class="si">}</span><span class="s2">&#34;</span>
+git push -q upstream HEAD:master</code></pre></div>
 <h3 id="dns-stuff">DNS stuff</h3>
 
 <p>If you&rsquo;re using a custom domain, now is a good time to log into your DNS provider and follow the steps <a href="https://help.github.com/articles/using-a-custom-domain-with-github-pages/">here</a>. It took a while for my ISP to get the change, clearly their DNS servers don&rsquo;t get up as early on a Saturday as I do.</p>
@@ -426,14 +402,12 @@ git push -q upstream HEAD:master
 <p>Having got to here, we definitely want to have one of those build status buttons in the sidebar of our site.</p>
 
 <p>This can be done by adding the following to the template, substituting the name of your source repo (not the Github Pages one! as appropriate).</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  <span style="color: #888888">&lt;</span><span style="color: #2838b0">div</span> <span style="color: #388038">class </span><span style="color: #666666">=</span> <span style="color: #b83838">&quot;sidebar-item&quot;</span><span style="color: #888888">&gt;</span>
-  <span style="color: #888888">&lt;</span><span style="color: #2838b0">p</span><span style="color: #888888">&gt;</span> <span style="color: #888888">&lt;</span><span style="color: #2838b0">a</span> <span style="color: #388038">href </span><span style="color: #666666">=</span> <span style="color: #b83838">&quot;https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io&quot;</span><span style="color: #888888">&gt;</span>
-      <span style="color: #888888">&lt;</span><span style="color: #2838b0">img</span> <span style="color: #388038">src </span><span style="color: #666666">=</span> <span style="color: #b83838">&quot;https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master&quot;</span> <span style="color: #388038">alt </span><span style="color: #666666">=</span> <span style="color: #b83838">&quot;Travis CI Build Status&quot;</span> <span style="color: #388038">title </span><span style="color: #666666">=</span> <span style="color: #b83838">&quot;Travis CI Build Status&quot;</span><span style="color: #888888">&gt;</span>
-      <span style="color: #888888">&lt;/</span><span style="color: #2838b0">a</span><span style="color: #888888">&gt;</span>
-    <span style="color: #888888">&lt;/</span><span style="color: #2838b0">p</span><span style="color: #888888">&gt;</span>
-  <span style="color: #888888">&lt;/</span><span style="color: #2838b0">div</span><span style="color: #888888">&gt;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-html" data-lang="html">  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class </span><span class="o">=</span> <span class="s">&#34;sidebar-item&#34;</span><span class="p"></span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p"></span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href </span><span class="o">=</span> <span class="s">&#34;https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io&#34;</span><span class="p"></span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">img</span> <span class="na">src </span><span class="o">=</span> <span class="s">&#34;https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master&#34;</span> <span class="na">alt </span><span class="o">=</span> <span class="s">&#34;Travis CI Build Status&#34;</span> <span class="na">title </span><span class="o">=</span> <span class="s">&#34;Travis CI Build Status&#34;</span><span class="p"></span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="p">/</span><span class="nt">a</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="p">/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="p">/</span><span class="nt">div</span><span class="p">&gt;</span></code></pre></div>
 <p>In fact, I think I&rsquo;ll have one here too: <a href="https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io"><img src="https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt="Build Status" /></a> You can get these links in various formats by clicking on the build status icon in the home page of your repo on Travis.</p>
 
 <h1 id="bells-and-whistles">Bells and Whistles</h1>

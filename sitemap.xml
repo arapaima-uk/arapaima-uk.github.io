@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>http://arapaima.uk/fixed/About/</loc>
+    <loc>http://arapaima.uk/fixed/about/</loc>
   </url>
   
   <url>
-    <loc>http://arapaima.uk/fixed/BlogSetup/</loc>
+    <loc>http://arapaima.uk/fixed/blogsetup/</loc>
   </url>
   
   <url>
-    <loc>http://arapaima.uk/post/2017-10-23-VSTS-secret-environment-variables/</loc>
+    <loc>http://arapaima.uk/post/2017-10-23-vsts-secret-environment-variables/</loc>
     <lastmod>2017-10-23T00:00:00+00:00</lastmod>
   </url>
   
@@ -20,7 +21,7 @@
   </url>
   
   <url>
-    <loc>http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/</loc>
+    <loc>http://arapaima.uk/post/2017-09-07-vsts-azurerm-dynamic-environment-provisioning/</loc>
     <lastmod>2017-09-07T00:00:00+00:00</lastmod>
   </url>
   
@@ -45,7 +46,7 @@
   </url>
   
   <url>
-    <loc>http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/</loc>
+    <loc>http://arapaima.uk/post/2017-02-28-script-to-download-pester/</loc>
     <lastmod>2017-02-28T00:00:00+00:00</lastmod>
   </url>
   
@@ -135,11 +136,12 @@
   
   <url>
     <loc>http://arapaima.uk/series/</loc>
+    <lastmod>2016-11-12T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://arapaima.uk/fixed/Speaking/</loc>
+    <loc>http://arapaima.uk/fixed/speaking/</loc>
   </url>
   
   <url>
@@ -156,6 +158,7 @@
   
   <url>
     <loc>http://arapaima.uk/tags/</loc>
+    <lastmod>2017-09-07T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

@@ -2,11 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>arapaima.uk </title>
-    <link>http://arapaima.uk/tags/visual-studio/index.xml</link>
+    <link>http://arapaima.uk/tags/visual-studio/</link>
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2017</rights>
-    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+    <updated>2017-09-13 00:00:00 &#43;0000 UTC</updated>
 
     
       
@@ -80,39 +80,35 @@
 
 &lt;p&gt;In short, we subclass the &lt;code&gt;SqlDatabaseTestService&lt;/code&gt; class used in &lt;code&gt;SqlDatabaseSetup.cs&lt;/code&gt; to allow us to deploy not one, but two projects from the &lt;code&gt;InitializeAssembly&lt;/code&gt; method.&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color: #287088&#34;&gt;KebabDbTestService&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; SqlDatabaseTestService
-&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;DeployCompositeProject&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-        DeployDatabaseProject&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;@&amp;quot;..\..\..\KebabTestDemo\KebabTestDemo.sqlproj&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Release&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;System.Data.SqlClient&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; GetConnectionString&lt;span style=&#34;color: #888888&#34;&gt;());&lt;/span&gt;
-        DeployDatabaseProject&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;@&amp;quot;..\..\..\KebabTestDemo.tSQLt\KebabTestDemo.tSQLt.sqlproj&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Release&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;System.Data.SqlClient&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; GetConnectionString&lt;span style=&#34;color: #888888&#34;&gt;());&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-csharp&#34; data-lang=&#34;csharp&#34;&gt;&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;KebabDbTestService&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;SqlDatabaseTestService&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;DeployCompositeProject&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;DeployDatabaseProject&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;@&amp;#34;..\..\..\KebabTestDemo\KebabTestDemo.sqlproj&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;Release&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;System.Data.SqlClient&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;GetConnectionString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;DeployDatabaseProject&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;@&amp;#34;..\..\..\KebabTestDemo.tSQLt\KebabTestDemo.tSQLt.sqlproj&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;Release&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;System.Data.SqlClient&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;GetConnectionString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;());&lt;/span&gt;
 
-    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
-    &lt;span style=&#34;color: #2838b0&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;string&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;GetConnectionString&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-        &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; config &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;SqlUnitTestingSection&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; ConfigurationManager&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;GetSection&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;SqlUnitTesting&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;GetConnectionString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;kt&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;config&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;SqlUnitTestingSection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ConfigurationManager&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;GetSection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;SqlUnitTesting&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 
-        &lt;span style=&#34;color: #2838b0&#34;&gt;return&lt;/span&gt; config&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;ExecutionContext&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;ConnectionString&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;config&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ExecutionContext&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ConnectionString&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;Note that this pays no attention to the &lt;code&gt;app.config&lt;/code&gt; setting that tells us what projects to deploy, so caution is advised!&lt;/p&gt;
 
 &lt;p&gt;We then call our new code from the &lt;code&gt;InitializeAssembly&lt;/code&gt; method in &lt;code&gt;SqlDatabaseSetup&lt;/code&gt;:&lt;/p&gt;
 
-&lt;p&gt;&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;// Setup the test database based on setting in the&lt;/span&gt;
-&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;// configuration file&lt;/span&gt;
-&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;//SqlDatabaseTestClass.TestService.DeployDatabaseProject();&lt;/span&gt;
-&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;//SqlDatabaseTestClass.TestService.GenerateData();&lt;/span&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-csharp&#34; data-lang=&#34;csharp&#34;&gt;&lt;span class=&#34;c1&#34;&gt;// Setup the test database based on setting in the
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// configuration file
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//SqlDatabaseTestClass.TestService.DeployDatabaseProject();
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//SqlDatabaseTestClass.TestService.GenerateData();
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;service&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;KebabDbTestService&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
 
-&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; service &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; KebabDbTestService&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
-
-service&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;DeployCompositeProject&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;span class=&#34;n&#34;&gt;service&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;DeployCompositeProject&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 (the commented out code is the previous contents of this method)&lt;/p&gt;
 
 &lt;h3 id=&#34;transactions&#34;&gt;Transactions&lt;/h3&gt;
@@ -125,33 +121,31 @@ service&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;DeployCompositeP
 
 &lt;p&gt;The only changes we make are the ones highlighted below; we add a reference to &lt;code&gt;System.Transactions&lt;/code&gt; and a member variable of type &lt;code&gt;System.Transactions.TransactionScope&lt;/code&gt;. We then initialise this variable in &lt;code&gt;TestInitialize()&lt;/code&gt; and call its &lt;code&gt;Dispose()&lt;/code&gt; method in &lt;code&gt;TestCleanup()&lt;/code&gt;, which will throw away the transaction without committing it.&lt;/p&gt;
 
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;background-color: #ffffcc&#34;&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;using&lt;/span&gt; &lt;span style=&#34;color: #289870&#34;&gt;System.Transactions&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-csharp&#34; data-lang=&#34;csharp&#34;&gt;&lt;span class=&#34;hl&#34;&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;System.Transactions&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 &lt;/span&gt;
-&lt;span style=&#34;color: #2838b0&#34;&gt;namespace&lt;/span&gt; &lt;span style=&#34;color: #289870&#34;&gt;KebabTestDemo.Tests&lt;/span&gt;
-&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-&lt;span style=&#34;color: #388038&#34;&gt;    [TestClass()]&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color: #287088&#34;&gt;KebabOrderLineTests&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; SqlDatabaseTestClass
-    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-&lt;span style=&#34;background-color: #ffffcc&#34;&gt;        TransactionScope _t&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
-&lt;/span&gt;        &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;KebabOrderLineTests&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
-        &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-            InitializeComponent&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
-        &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-
-&lt;span style=&#34;color: #388038&#34;&gt;        [TestInitialize()]&lt;/span&gt;
-        &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;TestInitialize&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
-        &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-&lt;span style=&#34;background-color: #ffffcc&#34;&gt;            _t &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; TransactionScope&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
-&lt;/span&gt;            &lt;span style=&#34;color: #2838b0&#34;&gt;base&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;InitializeTest&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
-        &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;span style=&#34;color: #388038&#34;&gt;        [TestCleanup()]&lt;/span&gt;
-        &lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;TestCleanup&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
-        &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-            &lt;span style=&#34;color: #2838b0&#34;&gt;base&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CleanupTest&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
-&lt;span style=&#34;background-color: #ffffcc&#34;&gt;            _t&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Dispose&lt;span style=&#34;color: #888888&#34;&gt;();&lt;/span&gt;
-&lt;/span&gt;        &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;KebabTestDemo.Tests&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;    [TestClass()]&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;KebabOrderLineTests&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;SqlDatabaseTestClass&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;hl&#34;&gt;        &lt;span class=&#34;n&#34;&gt;TransactionScope&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;        &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;KebabOrderLineTests&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;InitializeComponent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;        [TestInitialize()]&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TestInitialize&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;hl&#34;&gt;            &lt;span class=&#34;n&#34;&gt;_t&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TransactionScope&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;/span&gt;            &lt;span class=&#34;k&#34;&gt;base&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;InitializeTest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;        [TestCleanup()]&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TestCleanup&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;base&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CleanupTest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;span class=&#34;hl&#34;&gt;            &lt;span class=&#34;n&#34;&gt;_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Dispose&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+&lt;/span&gt;        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;Now when we run our tests, each individual test will be wrapped in a transaction, which will be disposed of (i.e. rolled back) at the end of the test.&lt;/p&gt;
 

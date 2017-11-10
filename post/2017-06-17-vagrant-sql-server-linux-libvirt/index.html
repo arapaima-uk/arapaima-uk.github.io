@@ -29,28 +29,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -74,11 +52,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -191,7 +169,7 @@
 <p><a href="https://www.vagrantup.com/">Vagrant</a> is a tool for building and managing virtual machine environments in a single workflow. With an easy-to-use workflow and focus on automation, Vagrant lowers development environment setup time, increases production parity, and makes the &ldquo;works on my machine&rdquo; excuse a relic of the past.</p>
 </blockquote>
 
-<p>I&rsquo;ve been doing <a href="/fixed/Speaking/">presentations</a> at conferences and meetups for a few years, so I&rsquo;m familiar with the pain of setting up &ldquo;Demo VMs&rdquo; for SQL Server on Windows. I also have less than fond memories of setting up and maintaining multiple VMs on a single host to reproduce client problems with clustering, replication, etc.; fortunately I don&rsquo;t tend to get involved with this kind of thing too much these days, so it&rsquo;s not in the scope of this example.</p>
+<p>I&rsquo;ve been doing <a href="/fixed/speaking/">presentations</a> at conferences and meetups for a few years, so I&rsquo;m familiar with the pain of setting up &ldquo;Demo VMs&rdquo; for SQL Server on Windows. I also have less than fond memories of setting up and maintaining multiple VMs on a single host to reproduce client problems with clustering, replication, etc.; fortunately I don&rsquo;t tend to get involved with this kind of thing too much these days, so it&rsquo;s not in the scope of this example.</p>
 
 <p>Anyway, with the advent of SQL Server on Linux, it struck me that <a href="https://www.vagrantup.com/">Vagrant</a>, which I&rsquo;d used for some other stuff in the &ldquo;day job&rdquo; might be a way out of this spiral of despair.</p>
 
@@ -260,11 +238,9 @@
 <h2 id="the-wrap">The Wrap</h2>
 
 <p>I was slightly surprised that all this worked as well as it did; not so much the Vagrant part as the SQL Server on Linux part, which is certainly more complete than when I last looked at it. In particular, I wasn&rsquo;t expecting to be able to install tSQLt on Linux - I did have to make a change to the <code>SetClrEnabled.sql</code> script that is distributed with tSQLt to turn off <code>clr strict security</code>, but apart from that it all went pretty smoothly. I have a <a href="http://www.sqlsaturday.com/645/Sessions/Details.aspx?sid=63722">presentation about tSQLt</a> to do next month, which was one of the motivations for this exercise, and I&rsquo;ll certainly be setting aside some time in the next day or two to see if everything else works the way one might expect. If you want to try this out at home, and assuming your setup is roughly like mine (kvm rather than Virtualbox, vagrant already working, etc, etc):</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>mkdir hereGoesNothing <span style="color: #666666">&amp;&amp;</span> <span style="color: #388038">cd</span> hereGoesNothing<span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mkdir hereGoesNothing <span class="o">&amp;&amp;</span> <span class="nb">cd</span> hereGoesNothing<span class="p">;</span>
 git clone https://github.com/gavincampbell/VagrantSqlServerCentosEtc .
-vagrant up
-</pre></div>
-
+vagrant up</code></pre></div>
 <p>If your setup is different in relevant ways, there will be some steps between 2 and 3 where you install things and hack away at the <code>Vagrantfile</code>.</p>
 
    

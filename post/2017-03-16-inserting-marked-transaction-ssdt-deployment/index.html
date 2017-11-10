@@ -29,28 +29,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -74,11 +52,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -206,28 +184,24 @@
 <p>We can see this in action using the <a href="https://technet.microsoft.com/en-us/library/ms143221.aspx"><code>pubs</code></a> database, which if you&rsquo;re younger than a certain age, sadly isn&rsquo;t what you think.</p>
 
 <p>Note that if you&rsquo;re playing along at home, there are a couple of extra considerations; the database needs to be using the full (or bulk-logged) recovery model and <em>a full backup must already have been taken</em>, i.e. the database is not in the <a href="http://www.sqlskills.com/blogs/paul/new-script-is-that-database-really-in-the-full-recovery-mode/">pseudo-simple</a> recovery model.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>USE pubs<span style="color: #888888">;</span>
-<span style="color: #2838b0">GO</span>
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="n">USE</span> <span class="n">pubs</span><span class="p">;</span>
+<span class="k">GO</span>
 
-<span style="color: #2838b0">BEGIN</span> TRANSACTION update_auths <span style="color: #2838b0">WITH</span> MARK <span style="color: #b83838">&#39;update authors entry&#39;</span>
-<span style="color: #2838b0">UPDATE</span> authors <span style="color: #2838b0">set</span> 
-phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;408 496-7223&#39;</span> <span style="color: #2838b0">WHERE</span> au_id <span style="color: #666666">=</span> <span style="color: #b83838">&#39;172-32-1176&#39;</span>
-<span style="color: #2838b0">COMMIT</span> TRANSACTION
-</pre></div>
-
+<span class="k">BEGIN</span> <span class="n">TRANSACTION</span> <span class="n">update_auths</span> <span class="k">WITH</span> <span class="n">MARK</span> <span class="s1">&#39;update authors entry&#39;</span>
+<span class="k">UPDATE</span> <span class="n">authors</span> <span class="k">set</span> 
+<span class="n">phone</span> <span class="o">=</span> <span class="s1">&#39;408 496-7223&#39;</span> <span class="k">WHERE</span> <span class="n">au_id</span> <span class="o">=</span> <span class="s1">&#39;172-32-1176&#39;</span>
+<span class="k">COMMIT</span> <span class="n">TRANSACTION</span></code></pre></div>
 <p>If we take a peek at the transaction log we can see our marked transaction there:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">SELECT</span>  <span style="color: #888888">[</span>Transaction ID<span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        <span style="color: #888888">[</span><span style="color: #2838b0">Current</span> LSN<span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        <span style="color: #888888">[</span>Transaction Name<span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        <span style="color: #888888">[</span><span style="color: #2838b0">Operation</span><span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        Description <span style="color: #888888">,</span>
-        <span style="color: #888888">[</span>Transaction SID<span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        sp<span style="color: #888888">.</span>name
-<span style="color: #2838b0">FROM</span>    fn_dblog<span style="color: #888888">(</span><span style="color: #2838b0">NULL</span><span style="color: #888888">,</span> <span style="color: #2838b0">NULL</span><span style="color: #888888">)</span> <span style="color: #2838b0">AS</span> f
-        <span style="color: #2838b0">JOIN</span> sys<span style="color: #888888">.</span>server_principals sp <span style="color: #2838b0">ON</span> f<span style="color: #888888">.[</span>Transaction SID<span style="color: #888888">]</span> <span style="color: #666666">=</span> sp<span style="color: #888888">.</span>sid
-<span style="color: #2838b0">WHERE</span>   <span style="color: #888888">[</span>transaction Name<span style="color: #888888">]</span> <span style="color: #666666">=</span> <span style="color: #b83838">&#39;update_auths&#39;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="k">SELECT</span>  <span class="p">[</span><span class="n">Transaction</span> <span class="n">ID</span><span class="p">]</span> <span class="p">,</span>
+        <span class="p">[</span><span class="k">Current</span> <span class="n">LSN</span><span class="p">]</span> <span class="p">,</span>
+        <span class="p">[</span><span class="n">Transaction</span> <span class="n">Name</span><span class="p">]</span> <span class="p">,</span>
+        <span class="p">[</span><span class="k">Operation</span><span class="p">]</span> <span class="p">,</span>
+        <span class="n">Description</span> <span class="p">,</span>
+        <span class="p">[</span><span class="n">Transaction</span> <span class="n">SID</span><span class="p">]</span> <span class="p">,</span>
+        <span class="n">sp</span><span class="p">.</span><span class="n">name</span>
+<span class="k">FROM</span>    <span class="n">fn_dblog</span><span class="p">(</span><span class="k">NULL</span><span class="p">,</span> <span class="k">NULL</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f</span>
+        <span class="k">JOIN</span> <span class="n">sys</span><span class="p">.</span><span class="n">server_principals</span> <span class="n">sp</span> <span class="k">ON</span> <span class="n">f</span><span class="p">.[</span><span class="n">Transaction</span> <span class="n">SID</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="p">.</span><span class="n">sid</span>
+<span class="k">WHERE</span>   <span class="p">[</span><span class="n">transaction</span> <span class="n">Name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;update_auths&#39;</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -255,9 +229,7 @@ phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;40
 </table>
 
 <p>The <code>logmarkhistory</code> table in <code>msdb</code> also stores a list of our marked transactions:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">SELECT</span> <span style="color: #666666">*</span> <span style="color: #2838b0">FROM</span> msdb<span style="color: #888888">..</span>logmarkhistory
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">msdb</span><span class="p">..</span><span class="n">logmarkhistory</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -285,27 +257,23 @@ phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;40
 <p>So, it seems we can use this functionality to give us a named point in the transaction log to restore to in the event of career-threatening disaster.</p>
 
 <p>The thing to note is that we need to update <em>something</em> in the database where we&rsquo;re creating the mark, but it doesn&rsquo;t really matter <em>what</em> we update. It&rsquo;s often useful to have a <code>Releases</code> table in our databases where we can store the version number, date, and other fun facts about our database, so this is as good a candidate as any.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">CREATE</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>Releases<span style="color: #888888">]</span>
-<span style="color: #888888">(</span>
-        ReleaseVersion <span style="color: #388038">VARCHAR</span><span style="color: #888888">(</span><span style="color: #444444">20</span><span style="color: #888888">)</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">NULL</span> <span style="color: #2838b0">PRIMARY</span> <span style="color: #2838b0">KEY</span><span style="color: #888888">,</span>
-        DateDeployed DATETIME2 <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">NULL</span> <span style="color: #2838b0">DEFAULT</span> SYSUTCDATETIME<span style="color: #888888">()</span> 
-        <span style="color: #888888; font-style: italic">--Not taking any chances with the time zone!</span>
-
-<span style="color: #888888">)</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Releases</span><span class="p">]</span>
+<span class="p">(</span>
+        <span class="n">ReleaseVersion</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+        <span class="n">DateDeployed</span> <span class="n">DATETIME2</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="n">SYSUTCDATETIME</span><span class="p">()</span> 
+        <span class="c1">--Not taking any chances with the time zone!
+</span><span class="c1"></span>
+<span class="p">)</span></code></pre></div>
 <p>We need to create this table and add it to our database project.</p>
 
 <p>I&rsquo;ve created a proc to do the inserting:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">CREATE</span> <span style="color: #2838b0">PROCEDURE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>spFireInTheHole<span style="color: #888888">]</span>
-	<span style="color: #666666">@</span>ReleaseVersion <span style="color: #388038">varchar</span><span style="color: #888888">(</span><span style="color: #444444">20</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">AS</span>
-<span style="color: #2838b0">BEGIN</span> TRANSACTION <span style="color: #666666">@</span>ReleaseVersion <span style="color: #2838b0">WITH</span> MARK <span style="color: #666666">@</span>ReleaseVersion 
-  <span style="color: #2838b0">INSERT</span> <span style="color: #2838b0">INTO</span> dbo<span style="color: #888888">.</span>Releases<span style="color: #888888">(</span>ReleaseVersion<span style="color: #888888">)</span> <span style="color: #2838b0">VALUES</span> <span style="color: #888888">(</span><span style="color: #666666">@</span>ReleaseVersion<span style="color: #888888">);</span>
-<span style="color: #2838b0">COMMIT</span> TRANSACTION
-<span style="color: #2838b0">RETURN</span> <span style="color: #444444">0</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="k">CREATE</span> <span class="k">PROCEDURE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">spFireInTheHole</span><span class="p">]</span>
+	<span class="o">@</span><span class="n">ReleaseVersion</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="k">AS</span>
+<span class="k">BEGIN</span> <span class="n">TRANSACTION</span> <span class="o">@</span><span class="n">ReleaseVersion</span> <span class="k">WITH</span> <span class="n">MARK</span> <span class="o">@</span><span class="n">ReleaseVersion</span> 
+  <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">dbo</span><span class="p">.</span><span class="n">Releases</span><span class="p">(</span><span class="n">ReleaseVersion</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="o">@</span><span class="n">ReleaseVersion</span><span class="p">);</span>
+<span class="k">COMMIT</span> <span class="n">TRANSACTION</span>
+<span class="k">RETURN</span> <span class="mi">0</span></code></pre></div>
 <p>And now for the tricky part&hellip;</p>
 
 <p>The <em>first</em> time we deploy the database project after adding these objects, they won&rsquo;t be present in the target database, so we won&rsquo;t be able to call them from the pre-deployment script. This means we need to wrap them with <code>IF EXISTS</code> in the pre-deployment script so that they don&rsquo;t get called if they don&rsquo;t exist. The drawback of this approach, naturally, is that &ldquo;Release 0.0.1&rdquo; won&rsquo;t be recorded in your database for posterity. In my experience of such matters, the gap between Release 0.0.1 and Release 0.0.2 is normally measured in minutes rather than years, so I&rsquo;m not particularly concerned about this.</p>
@@ -313,27 +281,25 @@ phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;40
 <p>Finally, we are going to use a <code>sqlcmd</code> <em>variable</em> to hold the release number; this means we can pass it in at deployment time. Most deployment tools know how to do this, for this example we&rsquo;ll just pass it on the command line.</p>
 
 <h3 id="the-pre-deployment-script">The pre-deployment script</h3>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888; font-style: italic">/*</span>
-<span style="color: #888888; font-style: italic"> Pre-Deployment Script Template							</span>
-<span style="color: #888888; font-style: italic">--------------------------------------------------------------------------------------</span>
-<span style="color: #888888; font-style: italic"> This file contains SQL statements that will be executed before the build script.	</span>
-<span style="color: #888888; font-style: italic"> Use SQLCMD syntax to include a file in the pre-deployment script.			</span>
-<span style="color: #888888; font-style: italic"> Example:      :r .\myfile.sql								</span>
-<span style="color: #888888; font-style: italic"> Use SQLCMD syntax to reference a variable in the pre-deployment script.		</span>
-<span style="color: #888888; font-style: italic"> Example:      :setvar TableName MyTable							</span>
-<span style="color: #888888; font-style: italic">               SELECT * FROM [$(TableName)]					</span>
-<span style="color: #888888; font-style: italic">--------------------------------------------------------------------------------------</span>
-<span style="color: #888888; font-style: italic">*/</span>
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="cm">/*
+</span><span class="cm"> Pre-Deployment Script Template							
+</span><span class="cm">--------------------------------------------------------------------------------------
+</span><span class="cm"> This file contains SQL statements that will be executed before the build script.	
+</span><span class="cm"> Use SQLCMD syntax to include a file in the pre-deployment script.			
+</span><span class="cm"> Example:      :r .\myfile.sql								
+</span><span class="cm"> Use SQLCMD syntax to reference a variable in the pre-deployment script.		
+</span><span class="cm"> Example:      :setvar TableName MyTable							
+</span><span class="cm">               SELECT * FROM [$(TableName)]					
+</span><span class="cm">--------------------------------------------------------------------------------------
+</span><span class="cm">*/</span>
 
-<span style="color: #2838b0">IF</span> <span style="color: #2838b0">EXISTS</span><span style="color: #888888">(</span><span style="color: #2838b0">SELECT</span> <span style="color: #666666">*</span> <span style="color: #2838b0">FROM</span> sys<span style="color: #888888">.</span>tables <span style="color: #2838b0">where</span> name <span style="color: #666666">=</span> <span style="color: #b83838">&#39;Releases&#39;</span><span style="color: #888888">)</span> 
-<span style="color: #2838b0">AND</span> 
-<span style="color: #2838b0">EXISTS</span> <span style="color: #888888">(</span><span style="color: #2838b0">SELECT</span> <span style="color: #666666">*</span> <span style="color: #2838b0">FROM</span> sys<span style="color: #888888">.</span>procedures <span style="color: #2838b0">WHERE</span> NAME <span style="color: #666666">=</span> <span style="color: #b83838">&#39;spFireInTheHole&#39;</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">BEGIN</span>
+<span class="k">IF</span> <span class="k">EXISTS</span><span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">sys</span><span class="p">.</span><span class="n">tables</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Releases&#39;</span><span class="p">)</span> 
+<span class="k">AND</span> 
+<span class="k">EXISTS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">sys</span><span class="p">.</span><span class="n">procedures</span> <span class="k">WHERE</span> <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;spFireInTheHole&#39;</span><span class="p">)</span>
+<span class="k">BEGIN</span>
 	
-        <span style="color: #2838b0">EXEC</span> spFireInTheHole <span style="color: #666666">@</span>ReleaseVersion <span style="color: #666666">=</span> <span style="color: #b83838">&#39;$(ReleaseVersion)&#39;</span><span style="color: #888888">;</span>
-<span style="color: #2838b0">END</span>
-</pre></div>
-
+        <span class="k">EXEC</span> <span class="n">spFireInTheHole</span> <span class="o">@</span><span class="n">ReleaseVersion</span> <span class="o">=</span> <span class="s1">&#39;$(ReleaseVersion)&#39;</span><span class="p">;</span>
+<span class="k">END</span></code></pre></div>
 <p>Now, after we build our <code>dacpac</code>, we supply the version number at deploy time:</p>
 
 <pre><code>sqlpackage.exe /Action:Publish /SourceFile:pubs.dacpac /TargetServerName:(local) /TargetDatabaseName:pubs /v:ReleaseVersion=0.2.0
@@ -400,18 +366,16 @@ phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;40
 <p>So, the career-threatening disaster has happened, and we need to restore our database to its state immediately prior to release 0.6.0. If there hasn&rsquo;t been a log backup since the deployment, the first step is to make one.</p>
 
 <p>Then, with a bit of DBA magic, we can restore our database to just before the deployment started. I generated these scripts from SQL Server Management Studio, unless you&rsquo;ve got a competent adult handy I suggest you do the same. The crucial bit is in the last line where we specify <code>STOPBEFOREMARK</code>, which is exactly what we want to do.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>USE <span style="color: #888888">[</span>master<span style="color: #888888">]</span>
-BACKUP LOG <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">TO</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs_LogBackup_2017-03-16_21-05-56.bak&#39;</span> <span style="color: #2838b0">WITH</span> NOFORMAT<span style="color: #888888">,</span> NOINIT<span style="color: #888888">,</span>  NAME <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;pubs_LogBackup_2017-03-16_21-05-56&#39;</span><span style="color: #888888">,</span> NOSKIP<span style="color: #888888">,</span> NOREWIND<span style="color: #888888">,</span> NOUNLOAD<span style="color: #888888">,</span>  NORECOVERY <span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">5</span>
-RESTORE <span style="color: #2838b0">DATABASE</span> <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">FROM</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span style="color: #2838b0">WITH</span>  FILE <span style="color: #666666">=</span> <span style="color: #444444">2</span><span style="color: #888888">,</span>  NORECOVERY<span style="color: #888888">,</span>  NOUNLOAD<span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">5</span>
-<span style="color: #2838b0">GO</span>
-RESTORE LOG <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">FROM</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span style="color: #2838b0">WITH</span>  FILE <span style="color: #666666">=</span> <span style="color: #444444">3</span><span style="color: #888888">,</span>  NORECOVERY<span style="color: #888888">,</span>  NOUNLOAD<span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">10</span>
-<span style="color: #2838b0">GO</span>
-RESTORE LOG <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">FROM</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span style="color: #2838b0">WITH</span>  FILE <span style="color: #666666">=</span> <span style="color: #444444">4</span><span style="color: #888888">,</span>  NORECOVERY<span style="color: #888888">,</span>  NOUNLOAD<span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">10</span>
-<span style="color: #2838b0">GO</span>
-RESTORE LOG <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">FROM</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span style="color: #2838b0">WITH</span>  FILE <span style="color: #666666">=</span> <span style="color: #444444">5</span><span style="color: #888888">,</span>  NOUNLOAD<span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">10</span><span style="color: #888888">,</span>  STOPBEFOREMARK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;0.6.0&#39;</span> <span style="color: #2838b0">AFTER</span> N<span style="color: #b83838">&#39;2017-03-16T20:46:07&#39;</span>
-<span style="color: #2838b0">GO</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="n">USE</span> <span class="p">[</span><span class="n">master</span><span class="p">]</span>
+<span class="n">BACKUP</span> <span class="n">LOG</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">TO</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs_LogBackup_2017-03-16_21-05-56.bak&#39;</span> <span class="k">WITH</span> <span class="n">NOFORMAT</span><span class="p">,</span> <span class="n">NOINIT</span><span class="p">,</span>  <span class="n">NAME</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;pubs_LogBackup_2017-03-16_21-05-56&#39;</span><span class="p">,</span> <span class="n">NOSKIP</span><span class="p">,</span> <span class="n">NOREWIND</span><span class="p">,</span> <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">NORECOVERY</span> <span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">RESTORE</span> <span class="k">DATABASE</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">FROM</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span class="k">WITH</span>  <span class="n">FILE</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>  <span class="n">NORECOVERY</span><span class="p">,</span>  <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="k">GO</span>
+<span class="n">RESTORE</span> <span class="n">LOG</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">FROM</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span class="k">WITH</span>  <span class="n">FILE</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>  <span class="n">NORECOVERY</span><span class="p">,</span>  <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">GO</span>
+<span class="n">RESTORE</span> <span class="n">LOG</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">FROM</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span class="k">WITH</span>  <span class="n">FILE</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>  <span class="n">NORECOVERY</span><span class="p">,</span>  <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">GO</span>
+<span class="n">RESTORE</span> <span class="n">LOG</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">FROM</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span class="k">WITH</span>  <span class="n">FILE</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>  <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>  <span class="n">STOPBEFOREMARK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;0.6.0&#39;</span> <span class="k">AFTER</span> <span class="n">N</span><span class="s1">&#39;2017-03-16T20:46:07&#39;</span>
+<span class="k">GO</span></code></pre></div>
 <p>And with that, the database is restored to its state immediately prior to the deployment - you can check this by looking at the <code>Releases</code> table - , and all that is left to do is blame the guy that left last month for the &ldquo;rogue code&rdquo; that &ldquo;crept&rdquo; into the release. This is normally possible by editing old git commit messages and force pushing the master branch, but that&rsquo;s a topic for another day.</p>
 
    

@@ -29,28 +29,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -74,11 +52,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -202,52 +180,42 @@
 <h3 id="further-jenkins-twiddling">Further Jenkins twiddling</h3>
 
 <p>The MSBuild plugin needs to be installed separately (as it isn&rsquo;t &ldquo;<em>recommended</em>&rdquo;!), which can be done from <a href="http://localhost:8080/pluginManager/available">http://localhost:8080/pluginManager/available</a> or by clicking through <em>Jenkins -&gt; Manage Jenkins -&gt; Manage Plugins -&gt; Available</em>. We need to tell Jenkins where it can find <code>MSBuild.exe</code>, this is done on <a href="http://localhost:8080/configureTools/">http://localhost:8080/configureTools/</a> (<em>Jenkins -&gt; Manage Jenkins -&gt; Global Tool Configuration</em>). You can find out where <code>MSBuild</code> is installled by opening the &ldquo;Developer Command Prompt for Visual Studio&rdquo; and typing</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>C<span style="color: #888888">:</span><span style="color: #289870">\Program</span><span style="color: #888888; font-style: italic"> Files (x86)\Microsoft Visual Studio 14.0&gt;where msbuild</span>
-C<span style="color: #888888">:</span><span style="color: #289870">\Program</span><span style="color: #888888; font-style: italic"> Files (x86)\MSBuild\14.0\Bin\MSBuild.exe</span>
-C<span style="color: #888888">:</span><span style="color: #289870">\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">C<span class="p">:</span><span class="nl">\Program</span><span class="c1"> Files (x86)\Microsoft Visual Studio 14.0&gt;where msbuild</span>
+C<span class="p">:</span><span class="nl">\Program</span><span class="c1"> Files (x86)\MSBuild\14.0\Bin\MSBuild.exe</span>
+C<span class="p">:</span><span class="nl">\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe</span><span class="c1"></span></code></pre></div>
 <p>I used the first of these, as this is the one installed by Visual Studio<sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup> 2015, and should avoid having to re-read the somewhat convoluted StackOverflow thread <a href="http://stackoverflow.com/questions/22968561/msbuild-errors-for-database-project-on-tfs-server-with-vs-2013-shell">here</a>.</p>
 
 <p>I already had git installed and in the path, so there was no need to configure this separately in Jenkins.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>$ git --version
-git version <span style="color: #444444">2</span>.11.0.windows.3
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ git --version
+git version <span class="m">2</span>.11.0.windows.3</code></pre></div>
 <h3 id="compromising-your-sql-server-2">Compromising your SQL Server <sup class="footnote-ref" id="fnref:2"><a rel="footnote" href="#fn:2">2</a></sup></h3>
 
 <p>By default, the Jenkins service will run as &ldquo;Local System&rdquo; on Windows. In order to allow this account - which will authenticate to SQL Server as the machine account - to deploy the database, I made &ldquo;Local System&rdquo; an <code>sa</code> of the SQL Server:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">EXEC</span> sp_addsrvrolemember <span style="color: #b83838">&#39;NT AUTHORITY\SYSTEM&#39;</span><span style="color: #888888">,</span> <span style="color: #b83838">&#39;sysadmin&#39;</span><span style="color: #888888">;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">EXEC</span> <span class="n">sp_addsrvrolemember</span> <span class="s1">&#39;NT AUTHORITY\SYSTEM&#39;</span><span class="p">,</span> <span class="s1">&#39;sysadmin&#39;</span><span class="p">;</span></code></pre></div>
 <p>There are many circumstances in which this wouldn&rsquo;t be a good idea, if any of them apply in your scenario you should make appropriate adjustments to the scripts that follow.</p>
 
 <h3 id="find-something-to-build">Find something to build</h3>
 
 <p>I started by cloning a repo I had prepared earlier, containing a copy of the Chinook database.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>C<span style="color: #888888">:</span><span style="color: #289870">\Projects</span><span style="color: #888888; font-style: italic">&gt;git clone https://github.com/arapaima-uk/Chinook.JenkinsDemo.git</span>
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">C<span class="p">:</span><span class="nl">\Projects</span><span class="c1">&gt;git clone https://github.com/arapaima-uk/Chinook.JenkinsDemo.git</span>
 Cloning into &#39;Chinook.JenkinsDemo&#39;...
 remote: Counting objects: 26, done.
 remote: Compressing objects: 100% (20/20), done.
 remote: Total 26 (delta 5), reused 26 (delta 5), pack-reused 0
 Unpacking objects: 100% (26/26), done.
 
-C<span style="color: #888888">:</span><span style="color: #289870">\Projects</span><span style="color: #888888; font-style: italic">&gt;tree</span>
+C<span class="p">:</span><span class="nl">\Projects</span><span class="c1">&gt;tree</span>
 Folder PATH listing
-Volume serial number is 000000B7 806E:E890
-C<span style="color: #888888">:</span><span style="color: #289870">.</span>
+Volume serial number is 000000B7 806E<span class="p">:</span><span class="nl">E890</span><span class="c1"></span>
+C<span class="p">:</span><span class="nl">.</span><span class="c1"></span>
 └───Chinook.JenkinsDemo
     └───Chinook.JenkinsDemo
         └───dbo
             └───Tables
 
-C<span style="color: #888888">:</span><span style="color: #289870">\Projects</span><span style="color: #888888; font-style: italic">&gt;</span>
-</pre></div>
-
+C<span class="p">:</span><span class="nl">\Projects</span><span class="c1">&gt;</span></code></pre></div>
 <p>having done that, I then removed the reference to the GitHub remote with</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>C<span style="color: #888888">:</span><span style="color: #289870">\Projects\Chinook.JenkinsDemo</span><span style="color: #888888; font-style: italic">&gt;git remote rm origin</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">C<span class="p">:</span><span class="nl">\Projects\Chinook.JenkinsDemo</span><span class="c1">&gt;git remote rm origin</span></code></pre></div>
 <p>From here on, everything is local (<em>geddit?</em>).</p>
 
 <h2 id="creating-the-jenkins-job">Creating the Jenkins job</h2>
@@ -375,11 +343,9 @@ Finished: SUCCESS
 <p>Notably, even though we&rsquo;re on Windows in this example, hooks are executed by the <code>msysgit</code> subsystem so much of the usual UNIX shell stuff will work.</p>
 
 <p>Hooks are stored in the <code>.git</code> folder in our repo (this is usually hidden on Windows) in files that match the name of the hook. So, our file is called <code>post-commit</code> (no extension) and contains the <code>#!/bin/sh</code> &ldquo;shebang&rdquo; plus a single line that uses <code>curl</code> to hit a specific URL in the Jenkins server that will cause our Jenkins job to poll its source repo as defined in the build pipeline (i.e. <code>file:///C:/Projects/Chinook.JenkinsDemo</code> )</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>C<span style="color: #888888">:</span><span style="color: #289870">\Projects\Chinook.JenkinsDemo\.git\hooks</span><span style="color: #888888; font-style: italic">&gt;type post-commit</span>
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">C<span class="p">:</span><span class="nl">\Projects\Chinook.JenkinsDemo\.git\hooks</span><span class="c1">&gt;type post-commit</span>
 #!/bin/sh
-curl http://localhost:8080/git/notifyCommit?url=file:///C:/Projects/Chinook.JenkinsDemo
-</pre></div>
-
+curl http://localhost:8080/git/notifyCommit?url=file:///C:/Projects/Chinook.JenkinsDemo</code></pre></div>
 <blockquote>
 <p>Note for <code>git</code> beginners: this file isn&rsquo;t in the repo when you download it, you&rsquo;ll need to add it yourself!</p>
 </blockquote>

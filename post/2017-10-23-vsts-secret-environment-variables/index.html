@@ -29,28 +29,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -74,11 +52,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -217,25 +195,23 @@
 <h2 id="never-mind-the-downside-on-with-the-weird-trick">Never mind the downside, on with the weird trick&hellip;</h2>
 
 <p>I used the following example of the &ldquo;config as environment variables&rdquo; approach in a recent talk about SSDT and VSTS, using a Powershell Script to read config values from environment variables and deploy a dacpac to a SQL Azure database using SQL Authentication.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #b04040">$serverName</span><span style="color: #888888">=</span><span style="color: #b04040">$env:Chinook_ServerName</span>
-<span style="color: #b04040">$dbName</span> <span style="color: #888888">=</span> <span style="color: #b04040">$env:Chinook_DatabaseName</span>
-<span style="color: #b04040">$dbUser</span> <span style="color: #888888">=</span> <span style="color: #b04040">$env:Chinook_DbUser</span>
-<span style="color: #b04040">$dbPassword</span> <span style="color: #888888">=</span> <span style="color: #b04040">$env:Chinook_DbPassword</span>
+<div class="highlight"><pre class="chroma"><code class="language-Powershell" data-lang="Powershell">$serverName=$env:Chinook_ServerName
+$dbName = $env:Chinook_DatabaseName
+$dbUser = $env:Chinook_DbUser
+$dbPassword = $env:Chinook_DbPassword
 
-<span style="color: #b04040">$dacFxDll</span><span style="color: #888888">=</span><span style="color: #b83838">&#39;C:\Program Files (x86)\Microsoft SQL Server\140\DAC\bin\Microsoft.SqlServer.Dac.dll&#39;</span>
+$dacFxDll=&#39;C:\Program Files (x86)\Microsoft SQL Server\140\DAC\bin\Microsoft.SqlServer.Dac.dll&#39;
 
-<span style="color: #388038">Add-Type</span> -Path <span style="color: #b04040">$dacFxDll</span>
-<span style="color: #b04040">$dacServices</span> <span style="color: #888888">=</span> <span style="color: #388038">New-Object</span> Microsoft<span style="color: #888888">.</span>SqlServer<span style="color: #888888">.</span>Dac<span style="color: #888888">.</span>DacServices <span style="color: #b83838">&quot;server=$serverName;User ID=$dbUser;Password=$dbPassword;&quot;</span>
+Add-Type -Path $dacFxDll
+$dacServices = New-Object Microsoft.SqlServer.Dac.DacServices &#34;server=$serverName;User ID=$dbUser;Password=$dbPassword;&#34;
 
-<span style="color: #b04040">$dacpacPath</span><span style="color: #888888">=</span><span style="color: #388038">Join-Path</span> -Path <span style="color: #b04040">$PSScriptRoot</span> -ChildPath <span style="color: #b83838">&quot;\bin\Debug\ChinookDb.dacpac&quot;</span>
-<span style="color: #b04040">$publishProfilePath</span> <span style="color: #888888">=</span> <span style="color: #388038">Join-Path</span> -Path <span style="color: #b04040">$PSScriptRoot</span> -ChildPath <span style="color: #b83838">&quot;CommonSettings.publish.xml&quot;</span>
+$dacpacPath=Join-Path -Path $PSScriptRoot -ChildPath &#34;\bin\Debug\ChinookDb.dacpac&#34;
+$publishProfilePath = Join-Path -Path $PSScriptRoot -ChildPath &#34;CommonSettings.publish.xml&#34;
 
-<span style="color: #b04040">$dacpac</span> <span style="color: #888888">=</span> <span style="color: #b85820">[Microsoft.SqlServer.Dac.DacPackage]</span><span style="color: #888888">::</span>Load<span style="color: #888888">(</span><span style="color: #b04040">$dacpacPath</span><span style="color: #888888">)</span>
-<span style="color: #b04040">$dacProfile</span> <span style="color: #888888">=</span> <span style="color: #b85820">[Microsoft.SqlServer.Dac.DacProfile]</span><span style="color: #888888">::</span>Load<span style="color: #888888">(</span><span style="color: #b04040">$publishProfilePath</span><span style="color: #888888">)</span>
+$dacpac = [Microsoft.SqlServer.Dac.DacPackage]::Load($dacpacPath)
+$dacProfile = [Microsoft.SqlServer.Dac.DacProfile]::Load($publishProfilePath)
 
-<span style="color: #b04040">$dacServices</span><span style="color: #888888">.</span>Deploy<span style="color: #888888">(</span><span style="color: #b04040">$dacpac</span><span style="color: #888888">,</span> <span style="color: #b04040">$dbName</span><span style="color: #888888">,</span> <span style="color: #b04040">$true</span><span style="color: #888888">,</span> <span style="color: #b04040">$dacProfile</span><span style="color: #888888">.</span>DeployOptions <span style="color: #888888">)</span>
-</pre></div>
-
+$dacServices.Deploy($dacpac, $dbName, $true, $dacProfile.DeployOptions )</code></pre></div>
 <p>What this script does, in brief, is load the server name, database name, and credentials from environment variables, and then deploy a <code>.dacpac</code> using this information in addition to a publish profile(<code>CommonSettings.publish.xml</code>) that defines some common - to <em>all</em> environments - deployment configuration.</p>
 
 <p>The main advantage of this approach is that the <em>same</em> deployment script can be used without modification in <em>all</em> environments, from the developer&rsquo;s desktop through the various testing environments and on to UAT and Production.</p>
@@ -344,8 +320,8 @@
   <h3>Say something</h3>
 
   <form class="post-new-comment" method="POST" action="https://api.staticman.net/v2/entry/arapaima-uk/source.arapaima-uk.github.io/master/comments">
-    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2017-10-23-VSTS-secret-environment-variables/#comment-submitted">
-     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2017-10-23-VSTS-secret-environment-variables/">
+    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2017-10-23-vsts-secret-environment-variables/#comment-submitted">
+     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2017-10-23-vsts-secret-environment-variables/">
     <input type="hidden" name="options[entryId]" value="72b82447387128222a2e9dc7e10f2096">
     <input name="fields[name]" type="text" class="post-comment-field" placeholder="Your name">
     <input name="fields[email]" type="email" class="post-comment-field" placeholder="Your email address">

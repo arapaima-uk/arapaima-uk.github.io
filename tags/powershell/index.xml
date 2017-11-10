@@ -2,11 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>arapaima.uk </title>
-    <link>http://arapaima.uk/tags/powershell/index.xml</link>
+    <link>http://arapaima.uk/tags/powershell/</link>
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2017</rights>
-    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+    <updated>2017-04-04 00:00:00 &#43;0000 UTC</updated>
 
     
       
@@ -35,52 +35,42 @@
 &lt;h3 id=&#34;further-jenkins-twiddling&#34;&gt;Further Jenkins twiddling&lt;/h3&gt;
 
 &lt;p&gt;The MSBuild plugin needs to be installed separately (as it isn&amp;rsquo;t &amp;ldquo;&lt;em&gt;recommended&lt;/em&gt;&amp;rdquo;!), which can be done from &lt;a href=&#34;http://localhost:8080/pluginManager/available&#34;&gt;http://localhost:8080/pluginManager/available&lt;/a&gt; or by clicking through &lt;em&gt;Jenkins -&amp;gt; Manage Jenkins -&amp;gt; Manage Plugins -&amp;gt; Available&lt;/em&gt;. We need to tell Jenkins where it can find &lt;code&gt;MSBuild.exe&lt;/code&gt;, this is done on &lt;a href=&#34;http://localhost:8080/configureTools/&#34;&gt;http://localhost:8080/configureTools/&lt;/a&gt; (&lt;em&gt;Jenkins -&amp;gt; Manage Jenkins -&amp;gt; Global Tool Configuration&lt;/em&gt;). You can find out where &lt;code&gt;MSBuild&lt;/code&gt; is installled by opening the &amp;ldquo;Developer Command Prompt for Visual Studio&amp;rdquo; and typing&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Program&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Files (x86)\Microsoft Visual Studio 14.0&amp;gt;where msbuild&lt;/span&gt;
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Program&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt; Files (x86)\MSBuild\14.0\Bin\MSBuild.exe&lt;/span&gt;
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bat&#34; data-lang=&#34;bat&#34;&gt;C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Program&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt; Files (x86)\Microsoft Visual Studio 14.0&amp;gt;where msbuild&lt;/span&gt;
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Program&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt; Files (x86)\MSBuild\14.0\Bin\MSBuild.exe&lt;/span&gt;
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;I used the first of these, as this is the one installed by Visual Studio&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; 2015, and should avoid having to re-read the somewhat convoluted StackOverflow thread &lt;a href=&#34;http://stackoverflow.com/questions/22968561/msbuild-errors-for-database-project-on-tfs-server-with-vs-2013-shell&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;I already had git installed and in the path, so there was no need to configure this separately in Jenkins.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;$ git --version
-git version &lt;span style=&#34;color: #444444&#34;&gt;2&lt;/span&gt;.11.0.windows.3
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ git --version
+git version &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;.11.0.windows.3&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;h3 id=&#34;compromising-your-sql-server-2&#34;&gt;Compromising your SQL Server &lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:2&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:2&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/h3&gt;
 
 &lt;p&gt;By default, the Jenkins service will run as &amp;ldquo;Local System&amp;rdquo; on Windows. In order to allow this account - which will authenticate to SQL Server as the machine account - to deploy the database, I made &amp;ldquo;Local System&amp;rdquo; an &lt;code&gt;sa&lt;/code&gt; of the SQL Server:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;EXEC&lt;/span&gt; sp_addsrvrolemember &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;NT AUTHORITY\SYSTEM&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;#39;sysadmin&amp;#39;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-sql&#34; data-lang=&#34;sql&#34;&gt;&lt;span class=&#34;k&#34;&gt;EXEC&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sp_addsrvrolemember&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;NT AUTHORITY\SYSTEM&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;sysadmin&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;There are many circumstances in which this wouldn&amp;rsquo;t be a good idea, if any of them apply in your scenario you should make appropriate adjustments to the scripts that follow.&lt;/p&gt;
 
 &lt;h3 id=&#34;find-something-to-build&#34;&gt;Find something to build&lt;/h3&gt;
 
 &lt;p&gt;I started by cloning a repo I had prepared earlier, containing a copy of the Chinook database.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;git clone https://github.com/arapaima-uk/Chinook.JenkinsDemo.git&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bat&#34; data-lang=&#34;bat&#34;&gt;C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;git clone https://github.com/arapaima-uk/Chinook.JenkinsDemo.git&lt;/span&gt;
 Cloning into &amp;#39;Chinook.JenkinsDemo&amp;#39;...
 remote: Counting objects: 26, done.
 remote: Compressing objects: 100% (20/20), done.
 remote: Total 26 (delta 5), reused 26 (delta 5), pack-reused 0
 Unpacking objects: 100% (26/26), done.
 
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;tree&lt;/span&gt;
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;tree&lt;/span&gt;
 Folder PATH listing
-Volume serial number is 000000B7 806E:E890
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;.&lt;/span&gt;
+Volume serial number is 000000B7 806E&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;E890&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
 └───Chinook.JenkinsDemo
     └───Chinook.JenkinsDemo
         └───dbo
             └───Tables
 
-C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;having done that, I then removed the reference to the GitHub remote with&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects\Chinook.JenkinsDemo&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;git remote rm origin&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bat&#34; data-lang=&#34;bat&#34;&gt;C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects\Chinook.JenkinsDemo&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;git remote rm origin&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;From here on, everything is local (&lt;em&gt;geddit?&lt;/em&gt;).&lt;/p&gt;
 
 &lt;h2 id=&#34;creating-the-jenkins-job&#34;&gt;Creating the Jenkins job&lt;/h2&gt;
@@ -208,11 +198,9 @@ Finished: SUCCESS
 &lt;p&gt;Notably, even though we&amp;rsquo;re on Windows in this example, hooks are executed by the &lt;code&gt;msysgit&lt;/code&gt; subsystem so much of the usual UNIX shell stuff will work.&lt;/p&gt;
 
 &lt;p&gt;Hooks are stored in the &lt;code&gt;.git&lt;/code&gt; folder in our repo (this is usually hidden on Windows) in files that match the name of the hook. So, our file is called &lt;code&gt;post-commit&lt;/code&gt; (no extension) and contains the &lt;code&gt;#!/bin/sh&lt;/code&gt; &amp;ldquo;shebang&amp;rdquo; plus a single line that uses &lt;code&gt;curl&lt;/code&gt; to hit a specific URL in the Jenkins server that will cause our Jenkins job to poll its source repo as defined in the build pipeline (i.e. &lt;code&gt;file:///C:/Projects/Chinook.JenkinsDemo&lt;/code&gt; )&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;C&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #289870&#34;&gt;\Projects\Chinook.JenkinsDemo\.git\hooks&lt;/span&gt;&lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;&amp;gt;type post-commit&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bat&#34; data-lang=&#34;bat&#34;&gt;C&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;\Projects\Chinook.JenkinsDemo\.git\hooks&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;gt;type post-commit&lt;/span&gt;
 #!/bin/sh
-curl http://localhost:8080/git/notifyCommit?url=file:///C:/Projects/Chinook.JenkinsDemo
-&lt;/pre&gt;&lt;/div&gt;
-
+curl http://localhost:8080/git/notifyCommit?url=file:///C:/Projects/Chinook.JenkinsDemo&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Note for &lt;code&gt;git&lt;/code&gt; beginners: this file isn&amp;rsquo;t in the repo when you download it, you&amp;rsquo;ll need to add it yourself!&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -260,10 +248,10 @@ No Git consumers using SCM API plugin for: file:///C:/Projects/Chinook.JenkinsDe
       
         <item>
           <title>A script to download and install the Pester testing framework for PowerShell</title>
-          <link>http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/</link>
+          <link>http://arapaima.uk/post/2017-02-28-script-to-download-pester/</link>
           <pubDate>Tue, 28 Feb 2017 00:00:00 UTC</pubDate>
           <author>Gavin Campbell</author>
-          <guid>http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/</guid>
+          <guid>http://arapaima.uk/post/2017-02-28-script-to-download-pester/</guid>
           <description>
 
 &lt;p&gt;I finally got around to looking into &lt;a href=&#34;https://github.com/pester/Pester&#34;&gt;Pester&lt;/a&gt; for test-driven development with PowerShell. In case it&amp;rsquo;s useful to anyone, and so that I don&amp;rsquo;t lose it, I created a script to download the latest release version, store it in the user&amp;rsquo;s PowerShell modules folder, and run a quick test to make sure everything is working. The script is stored in a &lt;a href=&#34;https://gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a&#34;&gt;GitHubGist&lt;/a&gt; and is reproduced below. Some of the cmdlets require a fairly recent version of PowerShell, possibly even 5.0. The steps are roughly as follows:&lt;/p&gt;

@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>arapaima.uk </title>
-    <link>http://arapaima.uk/tags/tdd/index.xml</link>
+    <link>http://arapaima.uk/tags/tdd/</link>
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2017</rights>
-    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+    <updated>2017-02-28 00:00:00 &#43;0000 UTC</updated>
 
     
       
         <item>
           <title>A script to download and install the Pester testing framework for PowerShell</title>
-          <link>http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/</link>
+          <link>http://arapaima.uk/post/2017-02-28-script-to-download-pester/</link>
           <pubDate>Tue, 28 Feb 2017 00:00:00 UTC</pubDate>
           <author>Gavin Campbell</author>
-          <guid>http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/</guid>
+          <guid>http://arapaima.uk/post/2017-02-28-script-to-download-pester/</guid>
           <description>
 
 &lt;p&gt;I finally got around to looking into &lt;a href=&#34;https://github.com/pester/Pester&#34;&gt;Pester&lt;/a&gt; for test-driven development with PowerShell. In case it&amp;rsquo;s useful to anyone, and so that I don&amp;rsquo;t lose it, I created a script to download the latest release version, store it in the user&amp;rsquo;s PowerShell modules folder, and run a quick test to make sure everything is working. The script is stored in a &lt;a href=&#34;https://gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a&#34;&gt;GitHubGist&lt;/a&gt; and is reproduced below. Some of the cmdlets require a fairly recent version of PowerShell, possibly even 5.0. The steps are roughly as follows:&lt;/p&gt;

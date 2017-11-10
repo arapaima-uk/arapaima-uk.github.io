@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 
   <head>
-	<meta name="generator" content="Hugo 0.19" />
+	<meta name="generator" content="Hugo 0.30.2" />
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
@@ -30,28 +30,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -75,11 +53,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -187,7 +165,7 @@
 <div class="posts">
   
     <div class="post">
-        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-10-23-VSTS-secret-environment-variables/">Expose VSTS secrets as environment variables with this one weird trick...</a></h1>
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-10-23-vsts-secret-environment-variables/">Expose VSTS secrets as environment variables with this one weird trick...</a></h1>
         <span class="post-date">2017-10-23</span>
         
 
@@ -223,25 +201,23 @@
 <h2 id="never-mind-the-downside-on-with-the-weird-trick">Never mind the downside, on with the weird trick&hellip;</h2>
 
 <p>I used the following example of the &ldquo;config as environment variables&rdquo; approach in a recent talk about SSDT and VSTS, using a Powershell Script to read config values from environment variables and deploy a dacpac to a SQL Azure database using SQL Authentication.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #b04040">$serverName</span><span style="color: #888888">=</span><span style="color: #b04040">$env:Chinook_ServerName</span>
-<span style="color: #b04040">$dbName</span> <span style="color: #888888">=</span> <span style="color: #b04040">$env:Chinook_DatabaseName</span>
-<span style="color: #b04040">$dbUser</span> <span style="color: #888888">=</span> <span style="color: #b04040">$env:Chinook_DbUser</span>
-<span style="color: #b04040">$dbPassword</span> <span style="color: #888888">=</span> <span style="color: #b04040">$env:Chinook_DbPassword</span>
+<div class="highlight"><pre class="chroma"><code class="language-Powershell" data-lang="Powershell">$serverName=$env:Chinook_ServerName
+$dbName = $env:Chinook_DatabaseName
+$dbUser = $env:Chinook_DbUser
+$dbPassword = $env:Chinook_DbPassword
 
-<span style="color: #b04040">$dacFxDll</span><span style="color: #888888">=</span><span style="color: #b83838">&#39;C:\Program Files (x86)\Microsoft SQL Server\140\DAC\bin\Microsoft.SqlServer.Dac.dll&#39;</span>
+$dacFxDll=&#39;C:\Program Files (x86)\Microsoft SQL Server\140\DAC\bin\Microsoft.SqlServer.Dac.dll&#39;
 
-<span style="color: #388038">Add-Type</span> -Path <span style="color: #b04040">$dacFxDll</span>
-<span style="color: #b04040">$dacServices</span> <span style="color: #888888">=</span> <span style="color: #388038">New-Object</span> Microsoft<span style="color: #888888">.</span>SqlServer<span style="color: #888888">.</span>Dac<span style="color: #888888">.</span>DacServices <span style="color: #b83838">&quot;server=$serverName;User ID=$dbUser;Password=$dbPassword;&quot;</span>
+Add-Type -Path $dacFxDll
+$dacServices = New-Object Microsoft.SqlServer.Dac.DacServices &#34;server=$serverName;User ID=$dbUser;Password=$dbPassword;&#34;
 
-<span style="color: #b04040">$dacpacPath</span><span style="color: #888888">=</span><span style="color: #388038">Join-Path</span> -Path <span style="color: #b04040">$PSScriptRoot</span> -ChildPath <span style="color: #b83838">&quot;\bin\Debug\ChinookDb.dacpac&quot;</span>
-<span style="color: #b04040">$publishProfilePath</span> <span style="color: #888888">=</span> <span style="color: #388038">Join-Path</span> -Path <span style="color: #b04040">$PSScriptRoot</span> -ChildPath <span style="color: #b83838">&quot;CommonSettings.publish.xml&quot;</span>
+$dacpacPath=Join-Path -Path $PSScriptRoot -ChildPath &#34;\bin\Debug\ChinookDb.dacpac&#34;
+$publishProfilePath = Join-Path -Path $PSScriptRoot -ChildPath &#34;CommonSettings.publish.xml&#34;
 
-<span style="color: #b04040">$dacpac</span> <span style="color: #888888">=</span> <span style="color: #b85820">[Microsoft.SqlServer.Dac.DacPackage]</span><span style="color: #888888">::</span>Load<span style="color: #888888">(</span><span style="color: #b04040">$dacpacPath</span><span style="color: #888888">)</span>
-<span style="color: #b04040">$dacProfile</span> <span style="color: #888888">=</span> <span style="color: #b85820">[Microsoft.SqlServer.Dac.DacProfile]</span><span style="color: #888888">::</span>Load<span style="color: #888888">(</span><span style="color: #b04040">$publishProfilePath</span><span style="color: #888888">)</span>
+$dacpac = [Microsoft.SqlServer.Dac.DacPackage]::Load($dacpacPath)
+$dacProfile = [Microsoft.SqlServer.Dac.DacProfile]::Load($publishProfilePath)
 
-<span style="color: #b04040">$dacServices</span><span style="color: #888888">.</span>Deploy<span style="color: #888888">(</span><span style="color: #b04040">$dacpac</span><span style="color: #888888">,</span> <span style="color: #b04040">$dbName</span><span style="color: #888888">,</span> <span style="color: #b04040">$true</span><span style="color: #888888">,</span> <span style="color: #b04040">$dacProfile</span><span style="color: #888888">.</span>DeployOptions <span style="color: #888888">)</span>
-</pre></div>
-
+$dacServices.Deploy($dacpac, $dbName, $true, $dacProfile.DeployOptions )</code></pre></div>
 <p>What this script does, in brief, is load the server name, database name, and credentials from environment variables, and then deploy a <code>.dacpac</code> using this information in addition to a publish profile(<code>CommonSettings.publish.xml</code>) that defines some common - to <em>all</em> environments - deployment configuration.</p>
 
 <p>The main advantage of this approach is that the <em>same</em> deployment script can be used without modification in <em>all</em> environments, from the developer&rsquo;s desktop through the various testing environments and on to UAT and Production.</p>
@@ -396,39 +372,35 @@
 
 <p>In short, we subclass the <code>SqlDatabaseTestService</code> class used in <code>SqlDatabaseSetup.cs</code> to allow us to deploy not one, but two projects from the <code>InitializeAssembly</code> method.</p>
 
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">class</span> <span style="color: #287088">KebabDbTestService</span> <span style="color: #888888">:</span> SqlDatabaseTestService
-<span style="color: #888888">{</span>
-    <span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">DeployCompositeProject</span><span style="color: #888888">()</span>
-    <span style="color: #888888">{</span>
-        DeployDatabaseProject<span style="color: #888888">(</span><span style="color: #b83838">@&quot;..\..\..\KebabTestDemo\KebabTestDemo.sqlproj&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;Release&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;System.Data.SqlClient&quot;</span><span style="color: #888888">,</span> GetConnectionString<span style="color: #888888">());</span>
-        DeployDatabaseProject<span style="color: #888888">(</span><span style="color: #b83838">@&quot;..\..\..\KebabTestDemo.tSQLt\KebabTestDemo.tSQLt.sqlproj&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;Release&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;System.Data.SqlClient&quot;</span><span style="color: #888888">,</span> GetConnectionString<span style="color: #888888">());</span>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="k">class</span> <span class="nc">KebabDbTestService</span> <span class="p">:</span> <span class="n">SqlDatabaseTestService</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">void</span> <span class="n">DeployCompositeProject</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">DeployDatabaseProject</span><span class="p">(</span><span class="s">@&#34;..\..\..\KebabTestDemo\KebabTestDemo.sqlproj&#34;</span><span class="p">,</span> <span class="s">&#34;Release&#34;</span><span class="p">,</span> <span class="s">&#34;System.Data.SqlClient&#34;</span><span class="p">,</span> <span class="n">GetConnectionString</span><span class="p">());</span>
+        <span class="n">DeployDatabaseProject</span><span class="p">(</span><span class="s">@&#34;..\..\..\KebabTestDemo.tSQLt\KebabTestDemo.tSQLt.sqlproj&#34;</span><span class="p">,</span> <span class="s">&#34;Release&#34;</span><span class="p">,</span> <span class="s">&#34;System.Data.SqlClient&#34;</span><span class="p">,</span> <span class="n">GetConnectionString</span><span class="p">());</span>
 
-    <span style="color: #888888">}</span>
+    <span class="p">}</span>
 
-    <span style="color: #2838b0">private</span> <span style="color: #2838b0">static</span> <span style="color: #2838b0; font-style: italic">string</span> <span style="color: #785840">GetConnectionString</span><span style="color: #888888">()</span>
-    <span style="color: #888888">{</span>
-        <span style="color: #2838b0; font-style: italic">var</span> config <span style="color: #888888">=</span> <span style="color: #888888">(</span>SqlUnitTestingSection<span style="color: #888888">)</span> ConfigurationManager<span style="color: #888888">.</span>GetSection<span style="color: #888888">(</span><span style="color: #b83838">&quot;SqlUnitTesting&quot;</span><span style="color: #888888">);</span>
+    <span class="k">private</span> <span class="k">static</span> <span class="kt">string</span> <span class="n">GetConnectionString</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">config</span> <span class="p">=</span> <span class="p">(</span><span class="n">SqlUnitTestingSection</span><span class="p">)</span> <span class="n">ConfigurationManager</span><span class="p">.</span><span class="n">GetSection</span><span class="p">(</span><span class="s">&#34;SqlUnitTesting&#34;</span><span class="p">);</span>
 
-        <span style="color: #2838b0">return</span> config<span style="color: #888888">.</span>ExecutionContext<span style="color: #888888">.</span>ConnectionString<span style="color: #888888">;</span>
-    <span style="color: #888888">}</span>
-<span style="color: #888888">}</span>
-</pre></div>
-
+        <span class="k">return</span> <span class="n">config</span><span class="p">.</span><span class="n">ExecutionContext</span><span class="p">.</span><span class="n">ConnectionString</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
 
 <p>Note that this pays no attention to the <code>app.config</code> setting that tells us what projects to deploy, so caution is advised!</p>
 
 <p>We then call our new code from the <code>InitializeAssembly</code> method in <code>SqlDatabaseSetup</code>:</p>
 
-<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888; font-style: italic">// Setup the test database based on setting in the</span>
-<span style="color: #888888; font-style: italic">// configuration file</span>
-<span style="color: #888888; font-style: italic">//SqlDatabaseTestClass.TestService.DeployDatabaseProject();</span>
-<span style="color: #888888; font-style: italic">//SqlDatabaseTestClass.TestService.GenerateData();</span>
+<p><div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="c1">// Setup the test database based on setting in the
+</span><span class="c1">// configuration file
+</span><span class="c1">//SqlDatabaseTestClass.TestService.DeployDatabaseProject();
+</span><span class="c1">//SqlDatabaseTestClass.TestService.GenerateData();
+</span><span class="c1"></span>
+<span class="kt">var</span> <span class="n">service</span> <span class="p">=</span> <span class="k">new</span> <span class="n">KebabDbTestService</span><span class="p">();</span>
 
-<span style="color: #2838b0; font-style: italic">var</span> service <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> KebabDbTestService<span style="color: #888888">();</span>
-
-service<span style="color: #888888">.</span>DeployCompositeProject<span style="color: #888888">();</span>
-</pre></div>
-
+<span class="n">service</span><span class="p">.</span><span class="n">DeployCompositeProject</span><span class="p">();</span></code></pre></div>
 (the commented out code is the previous contents of this method)</p>
 
 <h3 id="transactions">Transactions</h3>
@@ -441,33 +413,31 @@ service<span style="color: #888888">.</span>DeployCompositeProject<span style="c
 
 <p>The only changes we make are the ones highlighted below; we add a reference to <code>System.Transactions</code> and a member variable of type <code>System.Transactions.TransactionScope</code>. We then initialise this variable in <code>TestInitialize()</code> and call its <code>Dispose()</code> method in <code>TestCleanup()</code>, which will throw away the transaction without committing it.</p>
 
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="background-color: #ffffcc"><span style="color: #2838b0">using</span> <span style="color: #289870">System.Transactions</span><span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="hl"><span class="k">using</span> <span class="nn">System.Transactions</span><span class="p">;</span>
 </span>
-<span style="color: #2838b0">namespace</span> <span style="color: #289870">KebabTestDemo.Tests</span>
-<span style="color: #888888">{</span>
-<span style="color: #388038">    [TestClass()]</span>
-    <span style="color: #2838b0">public</span> <span style="color: #2838b0">class</span> <span style="color: #287088">KebabOrderLineTests</span> <span style="color: #888888">:</span> SqlDatabaseTestClass
-    <span style="color: #888888">{</span>
-<span style="background-color: #ffffcc">        TransactionScope _t<span style="color: #888888">;</span>
-</span>        <span style="color: #2838b0">public</span> <span style="color: #785840">KebabOrderLineTests</span><span style="color: #888888">()</span>
-        <span style="color: #888888">{</span>
-            InitializeComponent<span style="color: #888888">();</span>
-        <span style="color: #888888">}</span>
-
-<span style="color: #388038">        [TestInitialize()]</span>
-        <span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">TestInitialize</span><span style="color: #888888">()</span>
-        <span style="color: #888888">{</span>
-<span style="background-color: #ffffcc">            _t <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> TransactionScope<span style="color: #888888">();</span>
-</span>            <span style="color: #2838b0">base</span><span style="color: #888888">.</span>InitializeTest<span style="color: #888888">();</span>
-        <span style="color: #888888">}</span>
-<span style="color: #388038">        [TestCleanup()]</span>
-        <span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">TestCleanup</span><span style="color: #888888">()</span>
-        <span style="color: #888888">{</span>
-            <span style="color: #2838b0">base</span><span style="color: #888888">.</span>CleanupTest<span style="color: #888888">();</span>
-<span style="background-color: #ffffcc">            _t<span style="color: #888888">.</span>Dispose<span style="color: #888888">();</span>
-</span>        <span style="color: #888888">}</span>
-</pre></div>
-
+<span class="k">namespace</span> <span class="nn">KebabTestDemo.Tests</span>
+<span class="p">{</span><span class="na">
+</span><span class="na">    [TestClass()]</span>
+    <span class="k">public</span> <span class="k">class</span> <span class="nc">KebabOrderLineTests</span> <span class="p">:</span> <span class="n">SqlDatabaseTestClass</span>
+    <span class="p">{</span>
+<span class="hl">        <span class="n">TransactionScope</span> <span class="n">_t</span><span class="p">;</span>
+</span>        <span class="k">public</span> <span class="n">KebabOrderLineTests</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="n">InitializeComponent</span><span class="p">();</span>
+        <span class="p">}</span><span class="na">
+</span><span class="na">
+</span><span class="na">        [TestInitialize()]</span>
+        <span class="k">public</span> <span class="k">void</span> <span class="n">TestInitialize</span><span class="p">()</span>
+        <span class="p">{</span>
+<span class="hl">            <span class="n">_t</span> <span class="p">=</span> <span class="k">new</span> <span class="n">TransactionScope</span><span class="p">();</span>
+</span>            <span class="k">base</span><span class="p">.</span><span class="n">InitializeTest</span><span class="p">();</span>
+        <span class="p">}</span><span class="na">
+</span><span class="na">        [TestCleanup()]</span>
+        <span class="k">public</span> <span class="k">void</span> <span class="n">TestCleanup</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="k">base</span><span class="p">.</span><span class="n">CleanupTest</span><span class="p">();</span>
+<span class="hl">            <span class="n">_t</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+</span>        <span class="p">}</span></code></pre></div>
 
 <p>Now when we run our tests, each individual test will be wrapped in a transaction, which will be disposed of (i.e. rolled back) at the end of the test.</p>
 
@@ -498,7 +468,7 @@ service<span style="color: #888888">.</span>DeployCompositeProject<span style="c
     </div>
   
     <div class="post">
-        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/">Automatically provisioning a brand new environment for every feature branch using VSTS and AzureRM</a></h1>
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-09-07-vsts-azurerm-dynamic-environment-provisioning/">Automatically provisioning a brand new environment for every feature branch using VSTS and AzureRM</a></h1>
         <span class="post-date">2017-09-07</span>
         
 
@@ -530,75 +500,69 @@ service<span style="color: #888888">.</span>DeployCompositeProject<span style="c
 <h3 id="the-next-instagram">The next Instagram?</h3>
 
 <p>The details of what the app actually <em>does</em> aren&rsquo;t particularly important for this example, but in brief it is expecting a JSON structure:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888">{</span>
-<span style="color: #2838b0">&quot;name&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;Bill&quot;</span><span style="color: #888888">,</span>
-<span style="color: #2838b0">&quot;favouriteKebab&quot;</span><span style="color: #888888">:</span><span style="color: #b83838">&quot;Adana&quot;</span>
-<span style="color: #888888">}</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+<span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;Bill&#34;</span><span class="p">,</span>
+<span class="nt">&#34;favouriteKebab&#34;</span><span class="p">:</span><span class="s2">&#34;Adana&#34;</span>
+<span class="p">}</span></code></pre></div>
 <p>in the body of a <code>POST</code> message, which it will then store in the Cosmos DB database.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #388038">[FunctionName(&quot;KebabPost&quot;)]</span>
-<span style="color: #2838b0">public</span> <span style="color: #2838b0">static</span> HttpResponseMessage <span style="color: #785840">Run</span><span style="color: #888888">(</span>
-<span style="color: #388038">[HttpTrigger(AuthorizationLevel.Anonymous, &quot;post&quot;)]</span>
-HttpRequestMessage req<span style="color: #888888">,</span>
-<span style="color: #388038">[DocumentDB(&quot;kebabDb&quot;, &quot;kebabPreferences&quot;,</span>
-<span style="color: #388038">ConnectionStringSetting = &quot;DB_CONNECTION&quot;, CreateIfNotExists =true)]</span> <span style="color: #2838b0">out</span> <span style="color: #2838b0; font-style: italic">dynamic</span> nameAndKebabType<span style="color: #888888">,</span> 
-    TraceWriter log<span style="color: #888888">)</span>
-<span style="color: #888888">{</span>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="na">[FunctionName(&#34;KebabPost&#34;)]</span>
+<span class="k">public</span> <span class="k">static</span> <span class="n">HttpResponseMessage</span> <span class="n">Run</span><span class="p">(</span><span class="na">
+</span><span class="na">[HttpTrigger(AuthorizationLevel.Anonymous, &#34;post&#34;)]</span>
+<span class="n">HttpRequestMessage</span> <span class="n">req</span><span class="p">,</span><span class="na">
+</span><span class="na">[DocumentDB(&#34;kebabDb&#34;, &#34;kebabPreferences&#34;,
+</span><span class="na">ConnectionStringSetting = &#34;DB_CONNECTION&#34;, CreateIfNotExists =true)]</span> <span class="k">out</span> <span class="kt">dynamic</span> <span class="n">nameAndKebabType</span><span class="p">,</span> 
+    <span class="n">TraceWriter</span> <span class="n">log</span><span class="p">)</span>
+<span class="p">{</span>
 
-    log<span style="color: #888888">.</span>Info<span style="color: #888888">(</span><span style="color: #b83838">&quot;C# HTTP trigger function processed a request.&quot;</span><span style="color: #888888">);</span>
+    <span class="n">log</span><span class="p">.</span><span class="n">Info</span><span class="p">(</span><span class="s">&#34;C# HTTP trigger function processed a request.&#34;</span><span class="p">);</span>
 
-    <span style="color: #888888; font-style: italic">// Get request body</span>
-    <span style="color: #2838b0; font-style: italic">dynamic</span> data <span style="color: #888888">=</span> req<span style="color: #888888">.</span>Content<span style="color: #888888">.</span>ReadAsAsync<span style="color: #888888">&lt;</span><span style="color: #2838b0; font-style: italic">object</span><span style="color: #888888">&gt;().</span>Result<span style="color: #888888">;</span>
+    <span class="c1">// Get request body
+</span><span class="c1"></span>    <span class="kt">dynamic</span> <span class="n">data</span> <span class="p">=</span> <span class="n">req</span><span class="p">.</span><span class="n">Content</span><span class="p">.</span><span class="n">ReadAsAsync</span><span class="p">&lt;</span><span class="kt">object</span><span class="p">&gt;().</span><span class="n">Result</span><span class="p">;</span>
 
-    <span style="color: #888888; font-style: italic">// Set name to query string or body data</span>
-    nameAndKebabType <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> <span style="color: #888888">{</span>
-    name <span style="color: #888888">=</span> data<span style="color: #888888">?.</span>name<span style="color: #888888">,</span>
-    favouriteKebab <span style="color: #888888">=</span> data<span style="color: #888888">?.</span>favouriteKebab
-<span style="color: #888888">};</span>
-    <span style="color: #2838b0">if</span> <span style="color: #888888">(</span>data<span style="color: #888888">?.</span>name <span style="color: #888888">==</span> <span style="color: #2838b0">null</span> <span style="color: #888888">||</span> data<span style="color: #888888">?.</span>favouriteKebab <span style="color: #888888">==</span> <span style="color: #2838b0">null</span><span style="color: #888888">)</span>
-    <span style="color: #888888">{</span>
-        <span style="color: #2838b0">return</span> req<span style="color: #888888">.</span>CreateResponse<span style="color: #888888">(</span>HttpStatusCode<span style="color: #888888">.</span>BadRequest<span style="color: #888888">,</span> 
-            <span style="color: #b83838">&quot;Name and kebab are both required!&quot;</span><span style="color: #888888">);</span>
-    <span style="color: #888888">}</span>
+    <span class="c1">// Set name to query string or body data
+</span><span class="c1"></span>    <span class="n">nameAndKebabType</span> <span class="p">=</span> <span class="k">new</span> <span class="p">{</span>
+    <span class="n">name</span> <span class="p">=</span> <span class="n">data</span><span class="p">?.</span><span class="n">name</span><span class="p">,</span>
+    <span class="n">favouriteKebab</span> <span class="p">=</span> <span class="n">data</span><span class="p">?.</span><span class="n">favouriteKebab</span>
+<span class="p">};</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">?.</span><span class="n">name</span> <span class="p">==</span> <span class="k">null</span> <span class="p">||</span> <span class="n">data</span><span class="p">?.</span><span class="n">favouriteKebab</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">req</span><span class="p">.</span><span class="n">CreateResponse</span><span class="p">(</span><span class="n">HttpStatusCode</span><span class="p">.</span><span class="n">BadRequest</span><span class="p">,</span> 
+            <span class="s">&#34;Name and kebab are both required!&#34;</span><span class="p">);</span>
+    <span class="p">}</span>
 
-    <span style="color: #2838b0">else</span>
-    <span style="color: #888888">{</span>
-        <span style="color: #2838b0">return</span> req<span style="color: #888888">.</span>CreateResponse<span style="color: #888888">(</span>HttpStatusCode<span style="color: #888888">.</span>OK<span style="color: #888888">);</span>
-    <span style="color: #888888">}</span>
-<span style="color: #888888">}</span>
-</pre></div>
-
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">req</span><span class="p">.</span><span class="n">CreateResponse</span><span class="p">(</span><span class="n">HttpStatusCode</span><span class="p">.</span><span class="n">OK</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
 <p>The name of the DocumentDB database and collection will be the same in every environment, so I&rsquo;ve just hardcoded them in the file (<code>&quot;kebabDB&quot;</code> and <code>&quot;kebabPreferences&quot;</code>). The other thing to note is that I am passing <code>CreateIfNotExists=true</code> in the binding options for the DocumentDB collection; it turns out to be non-trivial to create the database and the collection from an AzureRM template, so we let the app create them at runtime if required.</p>
 
 <p>The test project contains a single test, which exercises the behaviour described above:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #388038">[TestMethod]</span>
-<span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">KebabPost_ValidInput_StoresValuesInDb</span><span style="color: #888888">()</span>
-<span style="color: #888888">{</span>
-<span style="color: #2838b0; font-style: italic">string</span> content <span style="color: #888888">=</span> <span style="color: #b83838">&quot;{ &#39;name&#39;:&#39;Barry&#39; , &#39;favouriteKebab&#39;:&#39;Kofte&#39; }&quot;</span><span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="na">[TestMethod]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">KebabPost_ValidInput_StoresValuesInDb</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="kt">string</span> <span class="n">content</span> <span class="p">=</span> <span class="s">&#34;{ &#39;name&#39;:&#39;Barry&#39; , &#39;favouriteKebab&#39;:&#39;Kofte&#39; }&#34;</span><span class="p">;</span>
 
-<span style="color: #2838b0">using</span> <span style="color: #888888">(</span><span style="color: #2838b0; font-style: italic">var</span> client <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> HttpClient<span style="color: #888888">())</span>
-<span style="color: #888888">{</span>
-    <span style="color: #2838b0; font-style: italic">var</span> response <span style="color: #888888">=</span> client<span style="color: #888888">.</span>PostAsync<span style="color: #888888">(</span>functionUrl<span style="color: #888888">,</span>
-        <span style="color: #2838b0">new</span> <span style="color: #785840">StringContent</span><span style="color: #888888">(</span>content<span style="color: #888888">,</span> Encoding<span style="color: #888888">.</span>UTF8<span style="color: #888888">,</span> <span style="color: #b83838">&quot;application/json&quot;</span><span style="color: #888888">)).</span>Result<span style="color: #888888">;</span>
+<span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">client</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HttpClient</span><span class="p">())</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">response</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="n">PostAsync</span><span class="p">(</span><span class="n">functionUrl</span><span class="p">,</span>
+        <span class="k">new</span> <span class="n">StringContent</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">)).</span><span class="n">Result</span><span class="p">;</span>
     
-<span style="color: #888888">}</span>
+<span class="p">}</span>
 
-<span style="color: #2838b0">using</span> <span style="color: #888888">(</span><span style="color: #2838b0; font-style: italic">var</span> client <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> DocumentClient<span style="color: #888888">(</span>docDbUri<span style="color: #888888">,</span> docDbKey<span style="color: #888888">))</span>
-<span style="color: #888888">{</span>
-    IQueryable<span style="color: #888888">&lt;</span>KebabPrefs<span style="color: #888888">&gt;</span> kebabPrefsQuery <span style="color: #888888">=</span> client
-    <span style="color: #888888">.</span>CreateDocumentQuery<span style="color: #888888">&lt;</span>KebabPrefs<span style="color: #888888">&gt;(</span>
-        UriFactory
-        <span style="color: #888888">.</span>CreateDocumentCollectionUri<span style="color: #888888">(</span><span style="color: #b83838">&quot;kebabDb&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;kebabPreferences&quot;</span><span style="color: #888888">))</span>
-        <span style="color: #888888">.</span>Where<span style="color: #888888">(</span>kp <span style="color: #888888">=&gt;</span> kp<span style="color: #888888">.</span>name <span style="color: #888888">==</span> <span style="color: #b83838">&quot;Barry&quot;</span><span style="color: #888888">);</span>
+<span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">client</span> <span class="p">=</span> <span class="k">new</span> <span class="n">DocumentClient</span><span class="p">(</span><span class="n">docDbUri</span><span class="p">,</span> <span class="n">docDbKey</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="n">IQueryable</span><span class="p">&lt;</span><span class="n">KebabPrefs</span><span class="p">&gt;</span> <span class="n">kebabPrefsQuery</span> <span class="p">=</span> <span class="n">client</span>
+    <span class="p">.</span><span class="n">CreateDocumentQuery</span><span class="p">&lt;</span><span class="n">KebabPrefs</span><span class="p">&gt;(</span>
+        <span class="n">UriFactory</span>
+        <span class="p">.</span><span class="n">CreateDocumentCollectionUri</span><span class="p">(</span><span class="s">&#34;kebabDb&#34;</span><span class="p">,</span> <span class="s">&#34;kebabPreferences&#34;</span><span class="p">))</span>
+        <span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">kp</span> <span class="p">=&gt;</span> <span class="n">kp</span><span class="p">.</span><span class="n">name</span> <span class="p">==</span> <span class="s">&#34;Barry&#34;</span><span class="p">);</span>
 
-    Assert<span style="color: #888888">.</span>AreEqual<span style="color: #888888">(</span><span style="color: #b83838">&quot;Kofte&quot;</span><span style="color: #888888">,</span> kebabPrefsQuery<span style="color: #888888">.</span>ToList<span style="color: #888888">()</span>
-        <span style="color: #888888">.</span>First<span style="color: #888888">().</span>favouriteKebab<span style="color: #888888">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="s">&#34;Kofte&#34;</span><span class="p">,</span> <span class="n">kebabPrefsQuery</span><span class="p">.</span><span class="n">ToList</span><span class="p">()</span>
+        <span class="p">.</span><span class="n">First</span><span class="p">().</span><span class="n">favouriteKebab</span><span class="p">);</span>
 
 
-    <span style="color: #888888">}</span>
-</pre></div>
-
+    <span class="p">}</span></code></pre></div>
 <p>Unit Testing enthusiasts will have noticed that this isn&rsquo;t really a Unit Test at all; there are no fakes or mocks, we are using the &ldquo;real&rdquo; dependencies for everything.</p>
 
 <p>If our Azure function were a bit bigger, it would be worth splitting out the &ldquo;core&rdquo; functionality into a separate assembly that <em>could</em> be meaningfully unit tested, but in the interests of brevity I&rsquo;ve not done that here.</p>
@@ -608,26 +572,24 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 <h2 id="the-azurerm-template">The AzureRM Template</h2>
 
 <p>The <a href="https://github.com/arapaima-uk/KebabAzureRmDemo/blob/master/KebabDbResourceGroup/azuredeploy.json">full template</a> is a bit too long to reproduce here, so I&rsquo;ll call out some edited highlights.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  <span style="color: #b83838">&quot;parameters&quot;</span><span style="background-color: #a848a8">:</span> <span style="color: #888888">{</span>
-    <span style="color: #2838b0">&quot;database_account_name&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabdac&#39;, uniqueString(resourceGroup().id))]&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;hostingPlanName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabhp&#39;, uniqueString(resourceGroup().id))]&quot;</span> <span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;functionAppName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabApp&#39;, uniqueString(resourceGroup().id))]&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;storageAccountName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;defaultValue&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[concat(&#39;kebabstor&#39;, uniqueString(resourceGroup().id))]&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span>
-    <span style="color: #888888">}</span>
-  <span style="color: #888888">}</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json">  <span class="s2">&#34;parameters&#34;</span><span class="err">:</span> <span class="p">{</span>
+    <span class="nt">&#34;database_account_name&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;defaultValue&#34;</span><span class="p">:</span> <span class="s2">&#34;[concat(&#39;kebabdac&#39;, uniqueString(resourceGroup().id))]&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span>
+    <span class="p">},</span>
+    <span class="nt">&#34;hostingPlanName&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;defaultValue&#34;</span><span class="p">:</span> <span class="s2">&#34;[concat(&#39;kebabhp&#39;, uniqueString(resourceGroup().id))]&#34;</span> <span class="p">,</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span>
+    <span class="p">},</span>
+    <span class="nt">&#34;functionAppName&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;defaultValue&#34;</span><span class="p">:</span> <span class="s2">&#34;[concat(&#39;kebabApp&#39;, uniqueString(resourceGroup().id))]&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span>
+    <span class="p">},</span>
+    <span class="nt">&#34;storageAccountName&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;defaultValue&#34;</span><span class="p">:</span> <span class="s2">&#34;[concat(&#39;kebabstor&#39;, uniqueString(resourceGroup().id))]&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></div>
 <p>The thing to note is that the template takes four parameters, each of which has a default value.</p>
 
 <p>Each of the defaults consists of a prefix that identifies the resource type, combined with the result of the function <code>uniqueString(resourceGroup().id)</code>. These unique strings are required as there are some objects in Azure (storage accounts or web apps for example) that require <em>globally</em> unique names that can be incorporated into a url of the form <code>https://myapp.azurewebsites.net</code> or similar. I can never remember which objects do require unique names and which ones don&rsquo;t, so I tend to use <code>uniqueString()</code> for everything.</p>
@@ -637,23 +599,21 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/resources.png" alt="Azure resource names generated with uniqueString" /></p>
 
 <p>At the end of the template is an <code>outputs</code> section:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>  <span style="color: #b83838">&quot;outputs&quot;</span><span style="background-color: #a848a8">:</span> <span style="color: #888888">{</span>
-    <span style="color: #2838b0">&quot;functionAppName&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;value&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[parameters(&#39;functionAppName&#39;)]&quot;</span>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json">  <span class="s2">&#34;outputs&#34;</span><span class="err">:</span> <span class="p">{</span>
+    <span class="nt">&#34;functionAppName&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;[parameters(&#39;functionAppName&#39;)]&#34;</span>
 
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;docDbUri&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;value&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[Concat(&#39;https://&#39;,parameters(&#39;database_account_name&#39;),&#39;.documents.azure.com:443&#39;)]&quot;</span>
-    <span style="color: #888888">},</span>
-    <span style="color: #2838b0">&quot;docDbKey&quot;</span><span style="color: #888888">:</span> <span style="color: #888888">{</span>
-      <span style="color: #2838b0">&quot;type&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;string&quot;</span><span style="color: #888888">,</span>
-      <span style="color: #2838b0">&quot;value&quot;</span><span style="color: #888888">:</span> <span style="color: #b83838">&quot;[listKeys(resourceId(&#39;Microsoft.DocumentDb/databaseAccounts&#39;, parameters(&#39;database_account_name&#39;)), &#39;2015-04-08&#39;).primaryMasterKey]&quot;</span>
-    <span style="color: #888888">}</span>
-  <span style="color: #888888">}</span>
-</pre></div>
-
+    <span class="p">},</span>
+    <span class="nt">&#34;docDbUri&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;[Concat(&#39;https://&#39;,parameters(&#39;database_account_name&#39;),&#39;.documents.azure.com:443&#39;)]&#34;</span>
+    <span class="p">},</span>
+    <span class="nt">&#34;docDbKey&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;[listKeys(resourceId(&#39;Microsoft.DocumentDb/databaseAccounts&#39;, parameters(&#39;database_account_name&#39;)), &#39;2015-04-08&#39;).primaryMasterKey]&#34;</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></div>
 <p>This defines three outputs, the Function App name, the Cosmos DB uri, and the Cosmos DB key. This is necessary as we didn&rsquo;t specify these values ourselves, so we need AzureRM to <em>tell us what it just created</em> in order that we can use these names for other tasks in our build process.</p>
 
 <h3 id="the-build-definition">The Build Definition</h3>
@@ -667,13 +627,11 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 <p>By passing the <em>name of the branch we are building</em> as the name of the resource group, this means that the first time we build any given branch we will get a brand new environment with a Cosmos DB, a Function App, etc. etc., exclusively for that build.</p>
 
 <p>After the template is deployed, we need a bit of Powershell to retrieve the outputs from the template.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">param</span> <span style="color: #888888">(</span><span style="color: #b85820">[string]</span><span style="color: #b04040">$resourceGroup</span><span style="color: #888888">)</span>
+<div class="highlight"><pre class="chroma"><code class="language-powershell" data-lang="powershell"><span class="k">param</span> <span class="p">(</span><span class="no">[string]</span><span class="nv">$resourceGroup</span><span class="p">)</span>
 
-<span style="color: #b04040">$outputs</span> <span style="color: #888888">=</span> <span style="color: #888888">(</span><span style="color: #388038">Get-AzureRmResourceGroupDeployment</span> -ResourceGroupName <span style="color: #b04040">$resourceGroup</span> <span style="color: #888888">|</span> Sort Timestamp -Descending <span style="color: #888888">|</span> Select -First 1<span style="color: #888888">).</span>Outputs
+<span class="nv">$outputs</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-AzureRmResourceGroupDeployment</span> <span class="n">-ResourceGroupName</span> <span class="nv">$resourceGroup</span> <span class="p">|</span> <span class="n">Sort</span> <span class="n">Timestamp</span> <span class="n">-Descending</span> <span class="p">|</span> <span class="n">Select</span> <span class="n">-First</span> <span class="n">1</span><span class="p">).</span><span class="n">Outputs</span>
 
-<span style="color: #b04040">$outputs</span><span style="color: #888888">.</span>Keys <span style="color: #888888">|</span> <span style="color: #888888">%</span> <span style="color: #888888">{</span> <span style="color: #388038">Write-Host</span> <span style="color: #888888">(</span><span style="color: #b83838">&quot;##vso[task.setvariable variable=&quot;</span><span style="color: #888888">+</span><span style="color: #b04040">$_</span><span style="color: #888888">+</span><span style="color: #b83838">&quot;;]&quot;</span><span style="color: #888888">+</span><span style="color: #b04040">$outputs</span><span style="color: #888888">[</span><span style="color: #b04040">$_</span><span style="color: #888888">].</span>Value<span style="color: #888888">)</span> <span style="color: #888888">}</span>
-</pre></div>
-
+<span class="nv">$outputs</span><span class="p">.</span><span class="n">Keys</span> <span class="p">|</span> <span class="p">%</span> <span class="p">{</span> <span class="nb">Write-Host</span> <span class="p">(</span><span class="s2">&#34;##vso[task.setvariable variable=&#34;</span><span class="p">+</span><span class="nv">$_</span><span class="p">+</span><span class="s2">&#34;;]&#34;</span><span class="p">+</span><span class="nv">$outputs</span><span class="p">[</span><span class="nv">$_</span><span class="p">].</span><span class="n">Value</span><span class="p">)</span> <span class="p">}</span></code></pre></div>
 <p>What this does is to find the most recent deployment for the specified resource group - i.e. the one we just did - and map the <em>outputs</em> of the template to <em>build variables</em> in VSTS by name. This means that for every output in the template, we need to define a build variable with <em>exactly</em> the same name, which indeed we have done:</p>
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/buildvars.png" alt="Build variables view" /></p>
@@ -776,7 +734,7 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/ResourceGroups.png" alt="resource groups in the Azure Portal" /></p>
 
-<p>All of the above is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the <a href="/fixed/About/">contact form</a> on the site.</p>
+<p>All of the above is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the <a href="/fixed/about/">contact form</a> on the site.</p>
 
     </div>
   
@@ -791,7 +749,7 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 <p><a href="https://www.vagrantup.com/">Vagrant</a> is a tool for building and managing virtual machine environments in a single workflow. With an easy-to-use workflow and focus on automation, Vagrant lowers development environment setup time, increases production parity, and makes the &ldquo;works on my machine&rdquo; excuse a relic of the past.</p>
 </blockquote>
 
-<p>I&rsquo;ve been doing <a href="/fixed/Speaking/">presentations</a> at conferences and meetups for a few years, so I&rsquo;m familiar with the pain of setting up &ldquo;Demo VMs&rdquo; for SQL Server on Windows. I also have less than fond memories of setting up and maintaining multiple VMs on a single host to reproduce client problems with clustering, replication, etc.; fortunately I don&rsquo;t tend to get involved with this kind of thing too much these days, so it&rsquo;s not in the scope of this example.</p>
+<p>I&rsquo;ve been doing <a href="/fixed/speaking/">presentations</a> at conferences and meetups for a few years, so I&rsquo;m familiar with the pain of setting up &ldquo;Demo VMs&rdquo; for SQL Server on Windows. I also have less than fond memories of setting up and maintaining multiple VMs on a single host to reproduce client problems with clustering, replication, etc.; fortunately I don&rsquo;t tend to get involved with this kind of thing too much these days, so it&rsquo;s not in the scope of this example.</p>
 
 <p>Anyway, with the advent of SQL Server on Linux, it struck me that <a href="https://www.vagrantup.com/">Vagrant</a>, which I&rsquo;d used for some other stuff in the &ldquo;day job&rdquo; might be a way out of this spiral of despair.</p>
 
@@ -860,11 +818,9 @@ HttpRequestMessage req<span style="color: #888888">,</span>
 <h2 id="the-wrap">The Wrap</h2>
 
 <p>I was slightly surprised that all this worked as well as it did; not so much the Vagrant part as the SQL Server on Linux part, which is certainly more complete than when I last looked at it. In particular, I wasn&rsquo;t expecting to be able to install tSQLt on Linux - I did have to make a change to the <code>SetClrEnabled.sql</code> script that is distributed with tSQLt to turn off <code>clr strict security</code>, but apart from that it all went pretty smoothly. I have a <a href="http://www.sqlsaturday.com/645/Sessions/Details.aspx?sid=63722">presentation about tSQLt</a> to do next month, which was one of the motivations for this exercise, and I&rsquo;ll certainly be setting aside some time in the next day or two to see if everything else works the way one might expect. If you want to try this out at home, and assuming your setup is roughly like mine (kvm rather than Virtualbox, vagrant already working, etc, etc):</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>mkdir hereGoesNothing <span style="color: #666666">&amp;&amp;</span> <span style="color: #388038">cd</span> hereGoesNothing<span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mkdir hereGoesNothing <span class="o">&amp;&amp;</span> <span class="nb">cd</span> hereGoesNothing<span class="p">;</span>
 git clone https://github.com/gavincampbell/VagrantSqlServerCentosEtc .
-vagrant up
-</pre></div>
-
+vagrant up</code></pre></div>
 <p>If your setup is different in relevant ways, there will be some steps between 2 and 3 where you install things and hack away at the <code>Vagrantfile</code>.</p>
 
     </div>
@@ -915,47 +871,41 @@ vagrant up
 <h3 id="creating-a-new-branch">Creating a new branch</h3>
 
 <p>As noted above, there&rsquo;s nothing in the gist UI to support creating new branches. However, if we clone the gist repo to a local folder we can create the branch and push it back to the origin. You can substitute the url to your own fork of the gist in place of mine (there&rsquo;s only one branch in mine, and you don&rsquo;t have permission to create more!). The downside of this approach of using a gist rather than a &ldquo;proper&rdquo; repo is that by default you get a long guid instead of a readable folder name.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #444444">$</span> mkdir j <span style="color: #666666">&amp;&amp;</span> <span style="color: #388038">cd</span> j<span style="color: #888888">;</span>
-<span style="color: #444444">$</span> git clone https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
-<span style="color: #666666">Cloning into &#39;480843552e43efa84c60f9bb4840d6c1&#39;...</span>
-<span style="color: #666666">remote: Counting objects: 32, done.</span>
-<span style="color: #666666">remote: Compressing objects: 100% (32/32), done.</span>
-<span style="color: #666666">remote: Total 32 (delta 7), reused 0 (delta 0), pack-reused 0</span>
-<span style="color: #666666">Unpacking objects: 100% (32/32), done.</span>
-<span style="color: #666666">Checking connectivity... done.</span>
-<span style="color: #444444">$</span> <span style="color: #388038">cd</span> 480843552e43efa84c60f9bb4840d6c1/
-<span style="color: #444444">$</span> git status
-<span style="color: #666666">On branch master</span>
-<span style="color: #666666">Your branch is up-to-date with &#39;origin/master&#39;.</span>
-<span style="color: #666666">nothing to commit, working tree clean</span>
-<span style="color: #444444">$</span> git checkout -b fancyFeature
-<span style="color: #666666">Switched to a new branch &#39;fancyFeature&#39;</span>
-<span style="color: #444444">$</span> git push --set-upstream origin fancyFeature
+<div class="highlight"><pre class="chroma"><code class="language-console" data-lang="console">$ mkdir j &amp;&amp; cd j;
+$ git clone https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+Cloning into &#39;480843552e43efa84c60f9bb4840d6c1&#39;...
+remote: Counting objects: 32, done.
+remote: Compressing objects: 100% (32/32), done.
+remote: Total 32 (delta 7), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (32/32), done.
+Checking connectivity... done.
+$ cd 480843552e43efa84c60f9bb4840d6c1/
+$ git status
+On branch master
+Your branch is up-to-date with &#39;origin/master&#39;.
+nothing to commit, working tree clean
+$ git checkout -b fancyFeature
+Switched to a new branch &#39;fancyFeature&#39;
+$ git push --set-upstream origin fancyFeature
 
-<span style="color: #666666">Total 0 (delta 0), reused 0 (delta 0)</span>
-<span style="color: #666666">To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1</span>
-<span style="color: #666666"> * [new branch]      fancyFeature -&gt; fancyFeature</span>
-<span style="color: #666666">Branch fancyFeature set up to track remote branch fancyFeature from origin.</span>
-</pre></div>
-
+Total 0 (delta 0), reused 0 (delta 0)
+To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+ * [new branch]      fancyFeature -&gt; fancyFeature
+Branch fancyFeature set up to track remote branch fancyFeature from origin.</code></pre></div>
 <p>The next time the repo is scanned,  the new job will be created in Jenkins:</p>
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/jenkins-multibranch-gist/job-created-for-new-branch.png" alt="job created for new branch" /></p>
 
 <p>When the branch is deleted, the job wil disappear too:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #444444">$</span> git push origin --delete fancyFeature
+<div class="highlight"><pre class="chroma"><code class="language-console" data-lang="console">$ git push origin --delete fancyFeature
 
-<span style="color: #666666">To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1</span>
-<span style="color: #666666"> - [deleted]         fancyFeature</span>
-</pre></div>
-
+To https://gist.github.com/gavincampbell/480843552e43efa84c60f9bb4840d6c1
+ - [deleted]         fancyFeature</code></pre></div>
 <p>Looking in the &ldquo;Multibranch Pipeline Log&rdquo; confirms this:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #666666">[Thu May 25 22:40:36 UTC 2017] Finished branch indexing. Indexing took 1.7 sec</span>
-<span style="color: #666666">Evaluating orphaned items in jenkins-branch-conditions</span>
-<span style="color: #666666">Will remove fancyFeature as it is #1 in the list</span>
-<span style="color: #666666">Finished: SUCCESS</span>
-</pre></div>
-<div class="footnotes">
+<div class="highlight"><pre class="chroma"><code class="language-console" data-lang="console">[Thu May 25 22:40:36 UTC 2017] Finished branch indexing. Indexing took 1.7 sec
+Evaluating orphaned items in jenkins-branch-conditions
+Will remove fancyFeature as it is #1 in the list
+Finished: SUCCESS</code></pre></div><div class="footnotes">
 
 <hr />
 
@@ -989,52 +939,42 @@ vagrant up
 <h3 id="further-jenkins-twiddling">Further Jenkins twiddling</h3>
 
 <p>The MSBuild plugin needs to be installed separately (as it isn&rsquo;t &ldquo;<em>recommended</em>&rdquo;!), which can be done from <a href="http://localhost:8080/pluginManager/available">http://localhost:8080/pluginManager/available</a> or by clicking through <em>Jenkins -&gt; Manage Jenkins -&gt; Manage Plugins -&gt; Available</em>. We need to tell Jenkins where it can find <code>MSBuild.exe</code>, this is done on <a href="http://localhost:8080/configureTools/">http://localhost:8080/configureTools/</a> (<em>Jenkins -&gt; Manage Jenkins -&gt; Global Tool Configuration</em>). You can find out where <code>MSBuild</code> is installled by opening the &ldquo;Developer Command Prompt for Visual Studio&rdquo; and typing</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>C<span style="color: #888888">:</span><span style="color: #289870">\Program</span><span style="color: #888888; font-style: italic"> Files (x86)\Microsoft Visual Studio 14.0&gt;where msbuild</span>
-C<span style="color: #888888">:</span><span style="color: #289870">\Program</span><span style="color: #888888; font-style: italic"> Files (x86)\MSBuild\14.0\Bin\MSBuild.exe</span>
-C<span style="color: #888888">:</span><span style="color: #289870">\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">C<span class="p">:</span><span class="nl">\Program</span><span class="c1"> Files (x86)\Microsoft Visual Studio 14.0&gt;where msbuild</span>
+C<span class="p">:</span><span class="nl">\Program</span><span class="c1"> Files (x86)\MSBuild\14.0\Bin\MSBuild.exe</span>
+C<span class="p">:</span><span class="nl">\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe</span><span class="c1"></span></code></pre></div>
 <p>I used the first of these, as this is the one installed by Visual Studio<sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup> 2015, and should avoid having to re-read the somewhat convoluted StackOverflow thread <a href="http://stackoverflow.com/questions/22968561/msbuild-errors-for-database-project-on-tfs-server-with-vs-2013-shell">here</a>.</p>
 
 <p>I already had git installed and in the path, so there was no need to configure this separately in Jenkins.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>$ git --version
-git version <span style="color: #444444">2</span>.11.0.windows.3
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ git --version
+git version <span class="m">2</span>.11.0.windows.3</code></pre></div>
 <h3 id="compromising-your-sql-server-2">Compromising your SQL Server <sup class="footnote-ref" id="fnref:2"><a rel="footnote" href="#fn:2">2</a></sup></h3>
 
 <p>By default, the Jenkins service will run as &ldquo;Local System&rdquo; on Windows. In order to allow this account - which will authenticate to SQL Server as the machine account - to deploy the database, I made &ldquo;Local System&rdquo; an <code>sa</code> of the SQL Server:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">EXEC</span> sp_addsrvrolemember <span style="color: #b83838">&#39;NT AUTHORITY\SYSTEM&#39;</span><span style="color: #888888">,</span> <span style="color: #b83838">&#39;sysadmin&#39;</span><span style="color: #888888">;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">EXEC</span> <span class="n">sp_addsrvrolemember</span> <span class="s1">&#39;NT AUTHORITY\SYSTEM&#39;</span><span class="p">,</span> <span class="s1">&#39;sysadmin&#39;</span><span class="p">;</span></code></pre></div>
 <p>There are many circumstances in which this wouldn&rsquo;t be a good idea, if any of them apply in your scenario you should make appropriate adjustments to the scripts that follow.</p>
 
 <h3 id="find-something-to-build">Find something to build</h3>
 
 <p>I started by cloning a repo I had prepared earlier, containing a copy of the Chinook database.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>C<span style="color: #888888">:</span><span style="color: #289870">\Projects</span><span style="color: #888888; font-style: italic">&gt;git clone https://github.com/arapaima-uk/Chinook.JenkinsDemo.git</span>
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">C<span class="p">:</span><span class="nl">\Projects</span><span class="c1">&gt;git clone https://github.com/arapaima-uk/Chinook.JenkinsDemo.git</span>
 Cloning into &#39;Chinook.JenkinsDemo&#39;...
 remote: Counting objects: 26, done.
 remote: Compressing objects: 100% (20/20), done.
 remote: Total 26 (delta 5), reused 26 (delta 5), pack-reused 0
 Unpacking objects: 100% (26/26), done.
 
-C<span style="color: #888888">:</span><span style="color: #289870">\Projects</span><span style="color: #888888; font-style: italic">&gt;tree</span>
+C<span class="p">:</span><span class="nl">\Projects</span><span class="c1">&gt;tree</span>
 Folder PATH listing
-Volume serial number is 000000B7 806E:E890
-C<span style="color: #888888">:</span><span style="color: #289870">.</span>
+Volume serial number is 000000B7 806E<span class="p">:</span><span class="nl">E890</span><span class="c1"></span>
+C<span class="p">:</span><span class="nl">.</span><span class="c1"></span>
 └───Chinook.JenkinsDemo
     └───Chinook.JenkinsDemo
         └───dbo
             └───Tables
 
-C<span style="color: #888888">:</span><span style="color: #289870">\Projects</span><span style="color: #888888; font-style: italic">&gt;</span>
-</pre></div>
-
+C<span class="p">:</span><span class="nl">\Projects</span><span class="c1">&gt;</span></code></pre></div>
 <p>having done that, I then removed the reference to the GitHub remote with</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>C<span style="color: #888888">:</span><span style="color: #289870">\Projects\Chinook.JenkinsDemo</span><span style="color: #888888; font-style: italic">&gt;git remote rm origin</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">C<span class="p">:</span><span class="nl">\Projects\Chinook.JenkinsDemo</span><span class="c1">&gt;git remote rm origin</span></code></pre></div>
 <p>From here on, everything is local (<em>geddit?</em>).</p>
 
 <h2 id="creating-the-jenkins-job">Creating the Jenkins job</h2>
@@ -1162,11 +1102,9 @@ Finished: SUCCESS
 <p>Notably, even though we&rsquo;re on Windows in this example, hooks are executed by the <code>msysgit</code> subsystem so much of the usual UNIX shell stuff will work.</p>
 
 <p>Hooks are stored in the <code>.git</code> folder in our repo (this is usually hidden on Windows) in files that match the name of the hook. So, our file is called <code>post-commit</code> (no extension) and contains the <code>#!/bin/sh</code> &ldquo;shebang&rdquo; plus a single line that uses <code>curl</code> to hit a specific URL in the Jenkins server that will cause our Jenkins job to poll its source repo as defined in the build pipeline (i.e. <code>file:///C:/Projects/Chinook.JenkinsDemo</code> )</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>C<span style="color: #888888">:</span><span style="color: #289870">\Projects\Chinook.JenkinsDemo\.git\hooks</span><span style="color: #888888; font-style: italic">&gt;type post-commit</span>
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">C<span class="p">:</span><span class="nl">\Projects\Chinook.JenkinsDemo\.git\hooks</span><span class="c1">&gt;type post-commit</span>
 #!/bin/sh
-curl http://localhost:8080/git/notifyCommit?url=file:///C:/Projects/Chinook.JenkinsDemo
-</pre></div>
-
+curl http://localhost:8080/git/notifyCommit?url=file:///C:/Projects/Chinook.JenkinsDemo</code></pre></div>
 <blockquote>
 <p>Note for <code>git</code> beginners: this file isn&rsquo;t in the repo when you download it, you&rsquo;ll need to add it yourself!</p>
 </blockquote>
@@ -1236,28 +1174,24 @@ No Git consumers using SCM API plugin for: file:///C:/Projects/Chinook.JenkinsDe
 <p>We can see this in action using the <a href="https://technet.microsoft.com/en-us/library/ms143221.aspx"><code>pubs</code></a> database, which if you&rsquo;re younger than a certain age, sadly isn&rsquo;t what you think.</p>
 
 <p>Note that if you&rsquo;re playing along at home, there are a couple of extra considerations; the database needs to be using the full (or bulk-logged) recovery model and <em>a full backup must already have been taken</em>, i.e. the database is not in the <a href="http://www.sqlskills.com/blogs/paul/new-script-is-that-database-really-in-the-full-recovery-mode/">pseudo-simple</a> recovery model.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>USE pubs<span style="color: #888888">;</span>
-<span style="color: #2838b0">GO</span>
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="n">USE</span> <span class="n">pubs</span><span class="p">;</span>
+<span class="k">GO</span>
 
-<span style="color: #2838b0">BEGIN</span> TRANSACTION update_auths <span style="color: #2838b0">WITH</span> MARK <span style="color: #b83838">&#39;update authors entry&#39;</span>
-<span style="color: #2838b0">UPDATE</span> authors <span style="color: #2838b0">set</span> 
-phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;408 496-7223&#39;</span> <span style="color: #2838b0">WHERE</span> au_id <span style="color: #666666">=</span> <span style="color: #b83838">&#39;172-32-1176&#39;</span>
-<span style="color: #2838b0">COMMIT</span> TRANSACTION
-</pre></div>
-
+<span class="k">BEGIN</span> <span class="n">TRANSACTION</span> <span class="n">update_auths</span> <span class="k">WITH</span> <span class="n">MARK</span> <span class="s1">&#39;update authors entry&#39;</span>
+<span class="k">UPDATE</span> <span class="n">authors</span> <span class="k">set</span> 
+<span class="n">phone</span> <span class="o">=</span> <span class="s1">&#39;408 496-7223&#39;</span> <span class="k">WHERE</span> <span class="n">au_id</span> <span class="o">=</span> <span class="s1">&#39;172-32-1176&#39;</span>
+<span class="k">COMMIT</span> <span class="n">TRANSACTION</span></code></pre></div>
 <p>If we take a peek at the transaction log we can see our marked transaction there:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">SELECT</span>  <span style="color: #888888">[</span>Transaction ID<span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        <span style="color: #888888">[</span><span style="color: #2838b0">Current</span> LSN<span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        <span style="color: #888888">[</span>Transaction Name<span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        <span style="color: #888888">[</span><span style="color: #2838b0">Operation</span><span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        Description <span style="color: #888888">,</span>
-        <span style="color: #888888">[</span>Transaction SID<span style="color: #888888">]</span> <span style="color: #888888">,</span>
-        sp<span style="color: #888888">.</span>name
-<span style="color: #2838b0">FROM</span>    fn_dblog<span style="color: #888888">(</span><span style="color: #2838b0">NULL</span><span style="color: #888888">,</span> <span style="color: #2838b0">NULL</span><span style="color: #888888">)</span> <span style="color: #2838b0">AS</span> f
-        <span style="color: #2838b0">JOIN</span> sys<span style="color: #888888">.</span>server_principals sp <span style="color: #2838b0">ON</span> f<span style="color: #888888">.[</span>Transaction SID<span style="color: #888888">]</span> <span style="color: #666666">=</span> sp<span style="color: #888888">.</span>sid
-<span style="color: #2838b0">WHERE</span>   <span style="color: #888888">[</span>transaction Name<span style="color: #888888">]</span> <span style="color: #666666">=</span> <span style="color: #b83838">&#39;update_auths&#39;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="k">SELECT</span>  <span class="p">[</span><span class="n">Transaction</span> <span class="n">ID</span><span class="p">]</span> <span class="p">,</span>
+        <span class="p">[</span><span class="k">Current</span> <span class="n">LSN</span><span class="p">]</span> <span class="p">,</span>
+        <span class="p">[</span><span class="n">Transaction</span> <span class="n">Name</span><span class="p">]</span> <span class="p">,</span>
+        <span class="p">[</span><span class="k">Operation</span><span class="p">]</span> <span class="p">,</span>
+        <span class="n">Description</span> <span class="p">,</span>
+        <span class="p">[</span><span class="n">Transaction</span> <span class="n">SID</span><span class="p">]</span> <span class="p">,</span>
+        <span class="n">sp</span><span class="p">.</span><span class="n">name</span>
+<span class="k">FROM</span>    <span class="n">fn_dblog</span><span class="p">(</span><span class="k">NULL</span><span class="p">,</span> <span class="k">NULL</span><span class="p">)</span> <span class="k">AS</span> <span class="n">f</span>
+        <span class="k">JOIN</span> <span class="n">sys</span><span class="p">.</span><span class="n">server_principals</span> <span class="n">sp</span> <span class="k">ON</span> <span class="n">f</span><span class="p">.[</span><span class="n">Transaction</span> <span class="n">SID</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="p">.</span><span class="n">sid</span>
+<span class="k">WHERE</span>   <span class="p">[</span><span class="n">transaction</span> <span class="n">Name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;update_auths&#39;</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1285,9 +1219,7 @@ phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;40
 </table>
 
 <p>The <code>logmarkhistory</code> table in <code>msdb</code> also stores a list of our marked transactions:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">SELECT</span> <span style="color: #666666">*</span> <span style="color: #2838b0">FROM</span> msdb<span style="color: #888888">..</span>logmarkhistory
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">msdb</span><span class="p">..</span><span class="n">logmarkhistory</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -1315,27 +1247,23 @@ phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;40
 <p>So, it seems we can use this functionality to give us a named point in the transaction log to restore to in the event of career-threatening disaster.</p>
 
 <p>The thing to note is that we need to update <em>something</em> in the database where we&rsquo;re creating the mark, but it doesn&rsquo;t really matter <em>what</em> we update. It&rsquo;s often useful to have a <code>Releases</code> table in our databases where we can store the version number, date, and other fun facts about our database, so this is as good a candidate as any.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">CREATE</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>Releases<span style="color: #888888">]</span>
-<span style="color: #888888">(</span>
-        ReleaseVersion <span style="color: #388038">VARCHAR</span><span style="color: #888888">(</span><span style="color: #444444">20</span><span style="color: #888888">)</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">NULL</span> <span style="color: #2838b0">PRIMARY</span> <span style="color: #2838b0">KEY</span><span style="color: #888888">,</span>
-        DateDeployed DATETIME2 <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">NULL</span> <span style="color: #2838b0">DEFAULT</span> SYSUTCDATETIME<span style="color: #888888">()</span> 
-        <span style="color: #888888; font-style: italic">--Not taking any chances with the time zone!</span>
-
-<span style="color: #888888">)</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Releases</span><span class="p">]</span>
+<span class="p">(</span>
+        <span class="n">ReleaseVersion</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+        <span class="n">DateDeployed</span> <span class="n">DATETIME2</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="n">SYSUTCDATETIME</span><span class="p">()</span> 
+        <span class="c1">--Not taking any chances with the time zone!
+</span><span class="c1"></span>
+<span class="p">)</span></code></pre></div>
 <p>We need to create this table and add it to our database project.</p>
 
 <p>I&rsquo;ve created a proc to do the inserting:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">CREATE</span> <span style="color: #2838b0">PROCEDURE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>spFireInTheHole<span style="color: #888888">]</span>
-	<span style="color: #666666">@</span>ReleaseVersion <span style="color: #388038">varchar</span><span style="color: #888888">(</span><span style="color: #444444">20</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">AS</span>
-<span style="color: #2838b0">BEGIN</span> TRANSACTION <span style="color: #666666">@</span>ReleaseVersion <span style="color: #2838b0">WITH</span> MARK <span style="color: #666666">@</span>ReleaseVersion 
-  <span style="color: #2838b0">INSERT</span> <span style="color: #2838b0">INTO</span> dbo<span style="color: #888888">.</span>Releases<span style="color: #888888">(</span>ReleaseVersion<span style="color: #888888">)</span> <span style="color: #2838b0">VALUES</span> <span style="color: #888888">(</span><span style="color: #666666">@</span>ReleaseVersion<span style="color: #888888">);</span>
-<span style="color: #2838b0">COMMIT</span> TRANSACTION
-<span style="color: #2838b0">RETURN</span> <span style="color: #444444">0</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="k">CREATE</span> <span class="k">PROCEDURE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">spFireInTheHole</span><span class="p">]</span>
+	<span class="o">@</span><span class="n">ReleaseVersion</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="k">AS</span>
+<span class="k">BEGIN</span> <span class="n">TRANSACTION</span> <span class="o">@</span><span class="n">ReleaseVersion</span> <span class="k">WITH</span> <span class="n">MARK</span> <span class="o">@</span><span class="n">ReleaseVersion</span> 
+  <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">dbo</span><span class="p">.</span><span class="n">Releases</span><span class="p">(</span><span class="n">ReleaseVersion</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="o">@</span><span class="n">ReleaseVersion</span><span class="p">);</span>
+<span class="k">COMMIT</span> <span class="n">TRANSACTION</span>
+<span class="k">RETURN</span> <span class="mi">0</span></code></pre></div>
 <p>And now for the tricky part&hellip;</p>
 
 <p>The <em>first</em> time we deploy the database project after adding these objects, they won&rsquo;t be present in the target database, so we won&rsquo;t be able to call them from the pre-deployment script. This means we need to wrap them with <code>IF EXISTS</code> in the pre-deployment script so that they don&rsquo;t get called if they don&rsquo;t exist. The drawback of this approach, naturally, is that &ldquo;Release 0.0.1&rdquo; won&rsquo;t be recorded in your database for posterity. In my experience of such matters, the gap between Release 0.0.1 and Release 0.0.2 is normally measured in minutes rather than years, so I&rsquo;m not particularly concerned about this.</p>
@@ -1343,27 +1271,25 @@ phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;40
 <p>Finally, we are going to use a <code>sqlcmd</code> <em>variable</em> to hold the release number; this means we can pass it in at deployment time. Most deployment tools know how to do this, for this example we&rsquo;ll just pass it on the command line.</p>
 
 <h3 id="the-pre-deployment-script">The pre-deployment script</h3>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888; font-style: italic">/*</span>
-<span style="color: #888888; font-style: italic"> Pre-Deployment Script Template							</span>
-<span style="color: #888888; font-style: italic">--------------------------------------------------------------------------------------</span>
-<span style="color: #888888; font-style: italic"> This file contains SQL statements that will be executed before the build script.	</span>
-<span style="color: #888888; font-style: italic"> Use SQLCMD syntax to include a file in the pre-deployment script.			</span>
-<span style="color: #888888; font-style: italic"> Example:      :r .\myfile.sql								</span>
-<span style="color: #888888; font-style: italic"> Use SQLCMD syntax to reference a variable in the pre-deployment script.		</span>
-<span style="color: #888888; font-style: italic"> Example:      :setvar TableName MyTable							</span>
-<span style="color: #888888; font-style: italic">               SELECT * FROM [$(TableName)]					</span>
-<span style="color: #888888; font-style: italic">--------------------------------------------------------------------------------------</span>
-<span style="color: #888888; font-style: italic">*/</span>
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="cm">/*
+</span><span class="cm"> Pre-Deployment Script Template							
+</span><span class="cm">--------------------------------------------------------------------------------------
+</span><span class="cm"> This file contains SQL statements that will be executed before the build script.	
+</span><span class="cm"> Use SQLCMD syntax to include a file in the pre-deployment script.			
+</span><span class="cm"> Example:      :r .\myfile.sql								
+</span><span class="cm"> Use SQLCMD syntax to reference a variable in the pre-deployment script.		
+</span><span class="cm"> Example:      :setvar TableName MyTable							
+</span><span class="cm">               SELECT * FROM [$(TableName)]					
+</span><span class="cm">--------------------------------------------------------------------------------------
+</span><span class="cm">*/</span>
 
-<span style="color: #2838b0">IF</span> <span style="color: #2838b0">EXISTS</span><span style="color: #888888">(</span><span style="color: #2838b0">SELECT</span> <span style="color: #666666">*</span> <span style="color: #2838b0">FROM</span> sys<span style="color: #888888">.</span>tables <span style="color: #2838b0">where</span> name <span style="color: #666666">=</span> <span style="color: #b83838">&#39;Releases&#39;</span><span style="color: #888888">)</span> 
-<span style="color: #2838b0">AND</span> 
-<span style="color: #2838b0">EXISTS</span> <span style="color: #888888">(</span><span style="color: #2838b0">SELECT</span> <span style="color: #666666">*</span> <span style="color: #2838b0">FROM</span> sys<span style="color: #888888">.</span>procedures <span style="color: #2838b0">WHERE</span> NAME <span style="color: #666666">=</span> <span style="color: #b83838">&#39;spFireInTheHole&#39;</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">BEGIN</span>
+<span class="k">IF</span> <span class="k">EXISTS</span><span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">sys</span><span class="p">.</span><span class="n">tables</span> <span class="k">where</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Releases&#39;</span><span class="p">)</span> 
+<span class="k">AND</span> 
+<span class="k">EXISTS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">sys</span><span class="p">.</span><span class="n">procedures</span> <span class="k">WHERE</span> <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;spFireInTheHole&#39;</span><span class="p">)</span>
+<span class="k">BEGIN</span>
 	
-        <span style="color: #2838b0">EXEC</span> spFireInTheHole <span style="color: #666666">@</span>ReleaseVersion <span style="color: #666666">=</span> <span style="color: #b83838">&#39;$(ReleaseVersion)&#39;</span><span style="color: #888888">;</span>
-<span style="color: #2838b0">END</span>
-</pre></div>
-
+        <span class="k">EXEC</span> <span class="n">spFireInTheHole</span> <span class="o">@</span><span class="n">ReleaseVersion</span> <span class="o">=</span> <span class="s1">&#39;$(ReleaseVersion)&#39;</span><span class="p">;</span>
+<span class="k">END</span></code></pre></div>
 <p>Now, after we build our <code>dacpac</code>, we supply the version number at deploy time:</p>
 
 <pre><code>sqlpackage.exe /Action:Publish /SourceFile:pubs.dacpac /TargetServerName:(local) /TargetDatabaseName:pubs /v:ReleaseVersion=0.2.0
@@ -1430,24 +1356,22 @@ phone <span style="color: #666666">=</span> <span style="color: #b83838">&#39;40
 <p>So, the career-threatening disaster has happened, and we need to restore our database to its state immediately prior to release 0.6.0. If there hasn&rsquo;t been a log backup since the deployment, the first step is to make one.</p>
 
 <p>Then, with a bit of DBA magic, we can restore our database to just before the deployment started. I generated these scripts from SQL Server Management Studio, unless you&rsquo;ve got a competent adult handy I suggest you do the same. The crucial bit is in the last line where we specify <code>STOPBEFOREMARK</code>, which is exactly what we want to do.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>USE <span style="color: #888888">[</span>master<span style="color: #888888">]</span>
-BACKUP LOG <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">TO</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs_LogBackup_2017-03-16_21-05-56.bak&#39;</span> <span style="color: #2838b0">WITH</span> NOFORMAT<span style="color: #888888">,</span> NOINIT<span style="color: #888888">,</span>  NAME <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;pubs_LogBackup_2017-03-16_21-05-56&#39;</span><span style="color: #888888">,</span> NOSKIP<span style="color: #888888">,</span> NOREWIND<span style="color: #888888">,</span> NOUNLOAD<span style="color: #888888">,</span>  NORECOVERY <span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">5</span>
-RESTORE <span style="color: #2838b0">DATABASE</span> <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">FROM</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span style="color: #2838b0">WITH</span>  FILE <span style="color: #666666">=</span> <span style="color: #444444">2</span><span style="color: #888888">,</span>  NORECOVERY<span style="color: #888888">,</span>  NOUNLOAD<span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">5</span>
-<span style="color: #2838b0">GO</span>
-RESTORE LOG <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">FROM</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span style="color: #2838b0">WITH</span>  FILE <span style="color: #666666">=</span> <span style="color: #444444">3</span><span style="color: #888888">,</span>  NORECOVERY<span style="color: #888888">,</span>  NOUNLOAD<span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">10</span>
-<span style="color: #2838b0">GO</span>
-RESTORE LOG <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">FROM</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span style="color: #2838b0">WITH</span>  FILE <span style="color: #666666">=</span> <span style="color: #444444">4</span><span style="color: #888888">,</span>  NORECOVERY<span style="color: #888888">,</span>  NOUNLOAD<span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">10</span>
-<span style="color: #2838b0">GO</span>
-RESTORE LOG <span style="color: #888888">[</span>pubs<span style="color: #888888">]</span> <span style="color: #2838b0">FROM</span>  DISK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span style="color: #2838b0">WITH</span>  FILE <span style="color: #666666">=</span> <span style="color: #444444">5</span><span style="color: #888888">,</span>  NOUNLOAD<span style="color: #888888">,</span>  STATS <span style="color: #666666">=</span> <span style="color: #444444">10</span><span style="color: #888888">,</span>  STOPBEFOREMARK <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;0.6.0&#39;</span> <span style="color: #2838b0">AFTER</span> N<span style="color: #b83838">&#39;2017-03-16T20:46:07&#39;</span>
-<span style="color: #2838b0">GO</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-SQL" data-lang="SQL"><span class="n">USE</span> <span class="p">[</span><span class="n">master</span><span class="p">]</span>
+<span class="n">BACKUP</span> <span class="n">LOG</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">TO</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs_LogBackup_2017-03-16_21-05-56.bak&#39;</span> <span class="k">WITH</span> <span class="n">NOFORMAT</span><span class="p">,</span> <span class="n">NOINIT</span><span class="p">,</span>  <span class="n">NAME</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;pubs_LogBackup_2017-03-16_21-05-56&#39;</span><span class="p">,</span> <span class="n">NOSKIP</span><span class="p">,</span> <span class="n">NOREWIND</span><span class="p">,</span> <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">NORECOVERY</span> <span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">RESTORE</span> <span class="k">DATABASE</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">FROM</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span class="k">WITH</span>  <span class="n">FILE</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>  <span class="n">NORECOVERY</span><span class="p">,</span>  <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="k">GO</span>
+<span class="n">RESTORE</span> <span class="n">LOG</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">FROM</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span class="k">WITH</span>  <span class="n">FILE</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>  <span class="n">NORECOVERY</span><span class="p">,</span>  <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">GO</span>
+<span class="n">RESTORE</span> <span class="n">LOG</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">FROM</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span class="k">WITH</span>  <span class="n">FILE</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>  <span class="n">NORECOVERY</span><span class="p">,</span>  <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">GO</span>
+<span class="n">RESTORE</span> <span class="n">LOG</span> <span class="p">[</span><span class="n">pubs</span><span class="p">]</span> <span class="k">FROM</span>  <span class="n">DISK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\Backup\pubs.bak&#39;</span> <span class="k">WITH</span>  <span class="n">FILE</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>  <span class="n">NOUNLOAD</span><span class="p">,</span>  <span class="n">STATS</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>  <span class="n">STOPBEFOREMARK</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;0.6.0&#39;</span> <span class="k">AFTER</span> <span class="n">N</span><span class="s1">&#39;2017-03-16T20:46:07&#39;</span>
+<span class="k">GO</span></code></pre></div>
 <p>And with that, the database is restored to its state immediately prior to the deployment - you can check this by looking at the <code>Releases</code> table - , and all that is left to do is blame the guy that left last month for the &ldquo;rogue code&rdquo; that &ldquo;crept&rdquo; into the release. This is normally possible by editing old git commit messages and force pushing the master branch, but that&rsquo;s a topic for another day.</p>
 
     </div>
   
     <div class="post">
-        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-02-28-Script-to-download-Pester/">A script to download and install the Pester testing framework for PowerShell</a></h1>
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-02-28-script-to-download-pester/">A script to download and install the Pester testing framework for PowerShell</a></h1>
         <span class="post-date">2017-02-28</span>
         
 
@@ -1483,158 +1407,148 @@ RESTORE LOG <span style="color: #888888">[</span>pubs<span style="color: #888888
 <h2 id="preliminaries">Preliminaries</h2>
 
 <p>For simplicity, I&rsquo;m creating a local repo I can point my Jenkins job at, right inside the <code>JENKINS_HOME</code> folder.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>jenkins@d99f4f77acdb:/$ <span style="color: #388038">cd</span> <span style="color: #b04040">$JENKINS_HOME</span>
-jenkins@d99f4f77acdb:~$ mkdir testBranch <span style="color: #888888">;</span> <span style="color: #388038">cd</span> testBranch
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">jenkins@d99f4f77acdb:/$ <span class="nb">cd</span> <span class="nv">$JENKINS_HOME</span>
+jenkins@d99f4f77acdb:~$ mkdir testBranch <span class="p">;</span> <span class="nb">cd</span> testBranch
 jenkins@d99f4f77acdb:~/testBranch$ git init
 Initialized empty Git repository in /var/jenkins_home/testBranch/.git/
-jenkins@d99f4f77acdb:~/testBranch$ <span style="color: #388038">echo</span> <span style="color: #b83838">&quot;Half a league, half a league, Half a league onward.&quot;</span> &gt; myFile.txt
+jenkins@d99f4f77acdb:~/testBranch$ <span class="nb">echo</span> <span class="s2">&#34;Half a league, half a league, Half a league onward.&#34;</span> &gt; myFile.txt
 jenkins@d99f4f77acdb:~/testBranch$ git add .
-jenkins@d99f4f77acdb:~/testBranch$ git commit -m <span style="color: #b83838">&quot;Initial Commit&quot;</span>
-<span style="color: #666666">[</span>master <span style="color: #666666">(</span>root-commit<span style="color: #666666">)</span> 7ef4b3b<span style="color: #666666">]</span> Initial Commit
- <span style="color: #444444">1</span> file changed, <span style="color: #444444">1</span> insertion<span style="color: #666666">(</span>+<span style="color: #666666">)</span>
- create mode <span style="color: #444444">100644</span> myFile.txt
+jenkins@d99f4f77acdb:~/testBranch$ git commit -m <span class="s2">&#34;Initial Commit&#34;</span>
+<span class="o">[</span>master <span class="o">(</span>root-commit<span class="o">)</span> 7ef4b3b<span class="o">]</span> Initial Commit
+ <span class="m">1</span> file changed, <span class="m">1</span> insertion<span class="o">(</span>+<span class="o">)</span>
+ create mode <span class="m">100644</span> myFile.txt
 jenkins@d99f4f77acdb:~/testBranch$ git checkout -b thisBranchExists
-Switched to a new branch <span style="color: #b83838">&#39;thisBranchExists&#39;</span>
-jenkins@d99f4f77acdb:~/testBranch$ <span style="color: #388038">echo</span> <span style="color: #b83838">&quot;All in the valley of Death Rode the six hundred&quot;</span> &gt;&gt; myFile.txt
-jenkins@d99f4f77acdb:~/testBranch$ git commit -am <span style="color: #b83838">&quot;a change&quot;</span>
+Switched to a new branch <span class="s1">&#39;thisBranchExists&#39;</span>
+jenkins@d99f4f77acdb:~/testBranch$ <span class="nb">echo</span> <span class="s2">&#34;All in the valley of Death Rode the six hundred&#34;</span> &gt;&gt; myFile.txt
+jenkins@d99f4f77acdb:~/testBranch$ git commit -am <span class="s2">&#34;a change&#34;</span>
 jenkins@d99f4f77acdb:~/testBranch$ git checkout master
-Switched to branch <span style="color: #b83838">&#39;master&#39;</span>
+Switched to branch <span class="s1">&#39;master&#39;</span>
 jenkins@d99f4f77acdb:~/testBranch$ git log --oneline --decorate --all --graph
-* 550587f <span style="color: #666666">(</span>thisBranchExists<span style="color: #666666">)</span> a change
-* 7ef4b3b <span style="color: #666666">(</span>HEAD, master<span style="color: #666666">)</span> Initial Commit
-</pre></div>
-
+* 550587f <span class="o">(</span>thisBranchExists<span class="o">)</span> a change
+* 7ef4b3b <span class="o">(</span>HEAD, master<span class="o">)</span> Initial Commit</code></pre></div>
 <p>With that out of the way, we have a repo with two branches, one of which is a single commit ahead of the other. Our goal, in the pipeline script, is to checkout the <code>thisBranchExists</code> branch, if it exists, or to fall back to <code>master</code> if it doesn&rsquo;t.</p>
 
 <h2 id="the-pipeline-script">The Pipeline script</h2>
 
 <p>I&rsquo;ve created a simple script in the Pipeline UI to demonstrate the use of <a href="https://jenkins.io/doc/pipeline/steps/workflow-multibranch/#resolvescm-resolves-an-scm-from-an-scm-source-and-a-list-of-candidate-target-branch-names"><code>resolveScm</code></a> to figure out whether the branch we want exists. <code>resolveScm</code> will go through the contents of <code>targets</code> in order, and return the first one that matches a branch name in the repo. We then checkout the branch and print the contents of the file to the console with <code>cat</code>.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>node<span style="color: #666666">{</span>
-<span style="color: #2838b0; font-style: italic">def</span> b <span style="color: #666666">=</span> resolveScm <span style="color: #289870">source:</span> <span style="color: #666666">[</span>$class<span style="color: #666666">:</span> <span style="color: #b83838">&#39;GitSCMSource&#39;</span><span style="color: #666666">,</span> <span style="color: #289870">credentialsId:</span> <span style="color: #b83838">&#39;&#39;</span><span style="color: #666666">,</span> 
-    <span style="color: #289870">excludes:</span> <span style="color: #b83838">&#39;&#39;</span><span style="color: #666666">,</span> <span style="color: #289870">id:</span> <span style="color: #b83838">&#39;_&#39;</span><span style="color: #666666">,</span> <span style="color: #289870">ignoreOnPushNotifications:</span> <span style="color: #444444; font-style: italic">false</span><span style="color: #666666">,</span> <span style="color: #289870">includes:</span> <span style="color: #b83838">&#39;*&#39;</span><span style="color: #666666">,</span> 
-    <span style="color: #289870">remote:</span> <span style="color: #b83838">&#39;file://$JENKINS_HOME/testBranch&#39;</span><span style="color: #666666">],</span> <span style="color: #289870">targets:</span> <span style="color: #666666">[</span><span style="color: #b83838">&#39;thisBranchExists&#39;</span><span style="color: #666666">,</span> <span style="color: #b83838">&#39;master&#39;</span><span style="color: #666666">]</span>
-checkout b
-sh <span style="color: #b83838">&#39;cat myFile.txt&#39;</span>
+<div class="highlight"><pre class="chroma"><code class="language-groovy" data-lang="groovy"><span class="n">node</span><span class="o">{</span>
+<span class="kt">def</span> <span class="n">b</span> <span class="o">=</span> <span class="n">resolveScm</span> <span class="nl">source:</span> <span class="o">[</span><span class="n">$class</span><span class="o">:</span> <span class="s1">&#39;GitSCMSource&#39;</span><span class="o">,</span> <span class="nl">credentialsId:</span> <span class="s1">&#39;&#39;</span><span class="o">,</span> 
+    <span class="nl">excludes:</span> <span class="s1">&#39;&#39;</span><span class="o">,</span> <span class="nl">id:</span> <span class="s1">&#39;_&#39;</span><span class="o">,</span> <span class="nl">ignoreOnPushNotifications:</span> <span class="kc">false</span><span class="o">,</span> <span class="nl">includes:</span> <span class="s1">&#39;*&#39;</span><span class="o">,</span> 
+    <span class="nl">remote:</span> <span class="s1">&#39;file://$JENKINS_HOME/testBranch&#39;</span><span class="o">],</span> <span class="nl">targets:</span> <span class="o">[</span><span class="s1">&#39;thisBranchExists&#39;</span><span class="o">,</span> <span class="s1">&#39;master&#39;</span><span class="o">]</span>
+<span class="n">checkout</span> <span class="n">b</span>
+<span class="n">sh</span> <span class="s1">&#39;cat myFile.txt&#39;</span>
    
-<span style="color: #666666">}</span>
-</pre></div>
-
+<span class="o">}</span></code></pre></div>
 <h2 id="the-happy-path">The Happy path</h2>
 
 <p>When we run this job we get the following output, indicating that our branch was located successfully. The contents of the file after the second commit are printed to the console.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">{</span>
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> resolveScm
-Checking <span style="color: #2838b0">for</span> first existing branch from <span style="color: #666666">[</span>thisBranchExists, master<span style="color: #666666">]</span>...
- &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
-Setting origin to file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch
- &gt; git config remote.origin.url file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
-Fetching <span style="color: #888888">&amp;</span> pruning origin...
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
+<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">{</span>
+<span class="o">[</span>Pipeline<span class="o">]</span> resolveScm
+Checking <span class="k">for</span> first existing branch from <span class="o">[</span>thisBranchExists, master<span class="o">]</span>...
+ &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
+</span><span class="c1"></span>Setting origin to file://<span class="nv">$JENKINS_HOME</span>/testBranch
+ &gt; git config remote.origin.url file://<span class="nv">$JENKINS_HOME</span>/testBranch <span class="c1"># timeout=10
+</span><span class="c1"></span>Fetching <span class="p">&amp;</span> pruning origin...
 Fetching upstream changes from origin
- &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
- &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
+ &gt; git --version <span class="c1"># timeout=10
+</span><span class="c1"></span> &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
 Getting remote branches...
 Seen branch in repository origin/master
 Seen branch in repository origin/thisBranchExists
-Seen <span style="color: #444444">2</span> remote branches
+Seen <span class="m">2</span> remote branches
 Checking branch master
 Checking branch thisBranchExists
 Found thisBranchExists at revision 550587fa43778989f50ca314feea38fdee50b21c
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> checkout
- &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
-Fetching changes from the remote Git repository
- &gt; git config remote.origin.url file:///var/jenkins_home/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
-Fetching upstream changes from file:///var/jenkins_home/testBranch
- &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
- &gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
-Checking out Revision 550587fa43778989f50ca314feea38fdee50b21c <span style="color: #666666">(</span>thisBranchExists<span style="color: #666666">)</span>
- &gt; git config core.sparsecheckout <span style="color: #888888; font-style: italic"># timeout=10</span>
- &gt; git checkout -f 550587fa43778989f50ca314feea38fdee50b21c
- &gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c <span style="color: #888888; font-style: italic"># timeout=10</span>
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> sh
-<span style="color: #666666">[</span>checkout_branch_if_exists<span style="color: #666666">]</span> Running shell script
+<span class="o">[</span>Pipeline<span class="o">]</span> checkout
+ &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
+</span><span class="c1"></span>Fetching changes from the remote Git repository
+ &gt; git config remote.origin.url file:///var/jenkins_home/testBranch <span class="c1"># timeout=10
+</span><span class="c1"></span>Fetching upstream changes from file:///var/jenkins_home/testBranch
+ &gt; git --version <span class="c1"># timeout=10
+</span><span class="c1"></span> &gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
+Checking out Revision 550587fa43778989f50ca314feea38fdee50b21c <span class="o">(</span>thisBranchExists<span class="o">)</span>
+ &gt; git config core.sparsecheckout <span class="c1"># timeout=10
+</span><span class="c1"></span> &gt; git checkout -f 550587fa43778989f50ca314feea38fdee50b21c
+ &gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c <span class="c1"># timeout=10
+</span><span class="c1"></span><span class="o">[</span>Pipeline<span class="o">]</span> sh
+<span class="o">[</span>checkout_branch_if_exists<span class="o">]</span> Running shell script
 + cat myFile.txt
 Half a league, half a league, Half a league onward.
 All in the valley of Death Rode the six hundred
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">}</span>
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> // node
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> End of Pipeline
-Finished: SUCCESS
-</pre></div>
-
+<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">}</span>
+<span class="o">[</span>Pipeline<span class="o">]</span> // node
+<span class="o">[</span>Pipeline<span class="o">]</span> End of Pipeline
+Finished: SUCCESS</code></pre></div>
 <h2 id="the-less-happy-path">The &ldquo;less-happy&rdquo; path</h2>
 
 <p>Lets see what happens if we change our list of <code>targets</code> to <code>['thisBranchDoesNotExist', 'master']</code>. This time we don&rsquo;t find our &ldquo;preferred&rdquo; branch, so we fall back to <code>master</code> and print the contents of the file as it was after the first commit.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> node
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>Pipeline<span class="o">]</span> node
 Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">{</span>
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> resolveScm
-Checking <span style="color: #2838b0">for</span> first existing branch from <span style="color: #666666">[</span>thisBranchDoesNotExist, master<span style="color: #666666">]</span>...
- &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
-Setting origin to file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch
- &gt; git config remote.origin.url file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
-Fetching <span style="color: #888888">&amp;</span> pruning origin...
+<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">{</span>
+<span class="o">[</span>Pipeline<span class="o">]</span> resolveScm
+Checking <span class="k">for</span> first existing branch from <span class="o">[</span>thisBranchDoesNotExist, master<span class="o">]</span>...
+ &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
+</span><span class="c1"></span>Setting origin to file://<span class="nv">$JENKINS_HOME</span>/testBranch
+ &gt; git config remote.origin.url file://<span class="nv">$JENKINS_HOME</span>/testBranch <span class="c1"># timeout=10
+</span><span class="c1"></span>Fetching <span class="p">&amp;</span> pruning origin...
 Fetching upstream changes from origin
- &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
- &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
+ &gt; git --version <span class="c1"># timeout=10
+</span><span class="c1"></span> &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
 Getting remote branches...
 Seen branch in repository origin/master
 Seen branch in repository origin/thisBranchExists
-Seen <span style="color: #444444">2</span> remote branches
+Seen <span class="m">2</span> remote branches
 Checking branch thisBranchExists
 Checking branch master
 Done.
 Found master at revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> checkout
- &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
-Fetching changes from the remote Git repository
- &gt; git config remote.origin.url file:///var/jenkins_home/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
-Fetching upstream changes from file:///var/jenkins_home/testBranch
- &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
- &gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
-Checking out Revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95 <span style="color: #666666">(</span>master<span style="color: #666666">)</span>
- &gt; git config core.sparsecheckout <span style="color: #888888; font-style: italic"># timeout=10</span>
- &gt; git checkout -f 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
- &gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c <span style="color: #888888; font-style: italic"># timeout=10</span>
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> sh
-<span style="color: #666666">[</span>checkout_branch_if_exists<span style="color: #666666">]</span> Running shell script
+<span class="o">[</span>Pipeline<span class="o">]</span> checkout
+ &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
+</span><span class="c1"></span>Fetching changes from the remote Git repository
+ &gt; git config remote.origin.url file:///var/jenkins_home/testBranch <span class="c1"># timeout=10
+</span><span class="c1"></span>Fetching upstream changes from file:///var/jenkins_home/testBranch
+ &gt; git --version <span class="c1"># timeout=10
+</span><span class="c1"></span> &gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
+Checking out Revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95 <span class="o">(</span>master<span class="o">)</span>
+ &gt; git config core.sparsecheckout <span class="c1"># timeout=10
+</span><span class="c1"></span> &gt; git checkout -f 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
+ &gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c <span class="c1"># timeout=10
+</span><span class="c1"></span><span class="o">[</span>Pipeline<span class="o">]</span> sh
+<span class="o">[</span>checkout_branch_if_exists<span class="o">]</span> Running shell script
 + cat myFile.txt
 Half a league, half a league, Half a league onward.
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">}</span>
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> // node
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> End of Pipeline
-Finished: SUCCESS
-</pre></div>
-
+<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">}</span>
+<span class="o">[</span>Pipeline<span class="o">]</span> // node
+<span class="o">[</span>Pipeline<span class="o">]</span> End of Pipeline
+Finished: SUCCESS</code></pre></div>
 <h2 id="the-unhappy-path">The Unhappy path</h2>
 
 <p>Finally, let&rsquo;s see what happens if none of the branches we specify in <code>targets</code> exist in the repo. Regrettably, the output is rather shorter, as the step fails if no matching branches are found.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">{</span>
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> resolveScm
-Checking <span style="color: #2838b0">for</span> first existing branch from <span style="color: #666666">[</span>thisBranchDoesNotExist, thisBranchDoesNotExistEither<span style="color: #666666">]</span>...
- &gt; git rev-parse --is-inside-work-tree <span style="color: #888888; font-style: italic"># timeout=10</span>
-Setting origin to file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch
- &gt; git config remote.origin.url file://<span style="color: #b04040">$JENKINS_HOME</span>/testBranch <span style="color: #888888; font-style: italic"># timeout=10</span>
-Fetching <span style="color: #888888">&amp;</span> pruning origin...
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
+<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">{</span>
+<span class="o">[</span>Pipeline<span class="o">]</span> resolveScm
+Checking <span class="k">for</span> first existing branch from <span class="o">[</span>thisBranchDoesNotExist, thisBranchDoesNotExistEither<span class="o">]</span>...
+ &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
+</span><span class="c1"></span>Setting origin to file://<span class="nv">$JENKINS_HOME</span>/testBranch
+ &gt; git config remote.origin.url file://<span class="nv">$JENKINS_HOME</span>/testBranch <span class="c1"># timeout=10
+</span><span class="c1"></span>Fetching <span class="p">&amp;</span> pruning origin...
 Fetching upstream changes from origin
- &gt; git --version <span style="color: #888888; font-style: italic"># timeout=10</span>
- &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
+ &gt; git --version <span class="c1"># timeout=10
+</span><span class="c1"></span> &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
 Getting remote branches...
 Seen branch in repository origin/master
 Seen branch in repository origin/thisBranchExists
-Seen <span style="color: #444444">2</span> remote branches
+Seen <span class="m">2</span> remote branches
 Checking branch master
 Checking branch thisBranchExists
 Done.
 Could not find any matching branch%n
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> <span style="color: #666666">}</span>
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> // node
-<span style="color: #666666">[</span>Pipeline<span style="color: #666666">]</span> End of Pipeline
+<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">}</span>
+<span class="o">[</span>Pipeline<span class="o">]</span> // node
+<span class="o">[</span>Pipeline<span class="o">]</span> End of Pipeline
 ERROR: Could not find any matching branch
-Finished: FAILURE
-</pre></div>
-
+Finished: FAILURE</code></pre></div>
     </div>
   
     <div class="post">
@@ -1669,50 +1583,42 @@ Finished: FAILURE
 <h3 id="the-refactorlog">The refactorlog</h3>
 
 <p>When we click apply, two things happen. The first is that all the references to this column are updated to use the new name. The second is that a new file appears in the solution, with the extension <code>.refactorlog</code>.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #289870">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
-<span style="color: #2838b0">&lt;Operations</span> <span style="color: #388038">Version=</span><span style="color: #b83838">&quot;1.0&quot;</span> <span style="color: #388038">xmlns=</span><span style="color: #b83838">&quot;http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02&quot;</span><span style="color: #2838b0">&gt;</span>
-  <span style="color: #2838b0">&lt;Operation</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;Rename Refactor&quot;</span> <span style="color: #388038">Key=</span><span style="color: #b83838">&quot;209f3afd-7195-401f-853f-aa3a906d39db&quot;</span> <span style="color: #388038">ChangeDateTime=</span><span style="color: #b83838">&quot;11/08/2016 20:02:31&quot;</span><span style="color: #2838b0">&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[Invoice].[InvoiceId]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlSimpleColumn&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[Invoice]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlTable&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;NewName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[Invoice_Id]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;/Operation&gt;</span>
-<span style="color: #2838b0">&lt;/Operations&gt;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;</span>
+<span class="nt">&lt;Operations</span> <span class="na">Version=</span><span class="s">&#34;1.0&#34;</span> <span class="na">xmlns=</span><span class="s">&#34;http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Rename Refactor&#34;</span> <span class="na">Key=</span><span class="s">&#34;209f3afd-7195-401f-853f-aa3a906d39db&#34;</span> <span class="na">ChangeDateTime=</span><span class="s">&#34;11/08/2016 20:02:31&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Invoice].[InvoiceId]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlSimpleColumn&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Invoice]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlTable&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[Invoice_Id]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/Operation&gt;</span>
+<span class="nt">&lt;/Operations&gt;</span></code></pre></div>
 <p>This file is how <code>sqlpackage.exe</code> (or SSDT publish, or DacFX.Deploy) will detemine <em>at deploy time</em> that we are renaming this column from InvoiceID to Invoice_Id rather than dropping the InvoiceID column and creating a new column called Invoice_ID. We can see in the XML that this is specifying the column and table name, and the precise action to perform. This is known, in the jargon, as &ldquo;preserving the intent&rdquo; of the refactoring. If we build a project containing a <code>.refactorlog</code> file and examine the resulting <code>.dacpac</code>, we can see that the regular <code>.dacpac</code> contents have been joined by a <code>refactor.xml</code> file.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>$ unzip -l Refactoring.Chinook.dacpac
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">$ unzip -l Refactoring.Chinook.dacpac
 Archive:  Refactoring.Chinook.dacpac
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-    69711  2016-11-10 05:44   model.xml
-      606  2016-11-10 05:44   refactor.xml
-      203  2016-11-10 05:44   DacMetadata.xml
-     1118  2016-11-10 05:44   Origin.xml
-      175  2016-11-10 05:44   [Content_Types].xml
+    69711  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   model.xml</span>
+      606  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   refactor.xml</span>
+      203  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   DacMetadata.xml</span>
+     1118  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   Origin.xml</span>
+      175  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   [Content_Types].xml</span>
 ---------                     -------
-    71813                     5 files
-</pre></div>
-
+    71813                     5 files</code></pre></div>
 <p>The contents of this file are the same as the <code>.refactorlog</code> file from our solution.</p>
 
 <p>When we publish the project we see the following output:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>The following operation was generated from a refactoring log file 209f3afd-7195-401f-853f-aa3a906d39db
-<span style="color: #2838b0">Rename</span> [dbo].[Invoice].[InvoiceId] to Invoice_Id
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">The following operation was generated from a refactoring log file 209f3afd-7195-401f-853f-aa3a906d39db
+<span class="k">Rename</span> [dbo].[Invoice].[InvoiceId] to Invoice_Id
 Caution: Changing any part of an object name could break scripts and stored procedures.
 
 Altering [dbo].[InvoicesWithLineTotals]...
 Altering [dbo].[UpdateInvoiceBillingAddress]...
-Update complete.
-</pre></div>
-
+Update complete.</code></pre></div>
 <p>The publish action has read the <code>refactorlog</code> file and taken the appropriate action. In addition, the &ldquo;key&rdquo; for this refactoring has been stored in a new table in our database called <code>dbo._RefactorLog</code>, which gets created the first time we deploy a dacpac containing a <code>refactor.xml</code> file:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888; font-style: italic">-- Refactoring step to update target server with deployed transaction logs</span>
-<span style="color: #2838b0">IF</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">EXISTS</span> <span style="color: #888888">(</span><span style="color: #2838b0">SELECT</span> OperationKey <span style="color: #2838b0">FROM</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>__RefactorLog<span style="color: #888888">]</span> <span style="color: #2838b0">WHERE</span> OperationKey <span style="color: #666666">=</span> <span style="color: #b83838">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">INSERT</span> <span style="color: #2838b0">INTO</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>__RefactorLog<span style="color: #888888">]</span> <span style="color: #888888">(</span>OperationKey<span style="color: #888888">)</span> <span style="color: #2838b0">values</span> <span style="color: #888888">(</span><span style="color: #b83838">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span style="color: #888888">)</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- Refactoring step to update target server with deployed transaction logs
+</span><span class="c1"></span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">OperationKey</span> <span class="k">FROM</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="k">WHERE</span> <span class="n">OperationKey</span> <span class="o">=</span> <span class="s1">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span class="p">)</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="p">(</span><span class="n">OperationKey</span><span class="p">)</span> <span class="k">values</span> <span class="p">(</span><span class="s1">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span class="p">)</span></code></pre></div>
 <p>On subsequent deployments, this table is read and any refactorings recorded here are skipped from the deployment.</p>
 
 <h3 id="appearances-can-be-deceptive">Appearances can be deceptive</h3>
@@ -1791,35 +1697,33 @@ However, when we go to build the project, we get an error:</p>
 </table>
 
 <p>If we fix the reference in our stored procedure and go on to generate a publish script, all we see for this change is</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>PRINT N<span style="color: #b83838">&#39;The following operation was generated from a refactoring log file 8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;The following operation was generated from a refactoring log file 8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span class="p">;</span>
 
-PRINT N<span style="color: #b83838">&#39;Rename [dbo].[Track].[TrackId] to Track_Id&#39;</span><span style="color: #888888">;</span>
-
-
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">EXECUTE</span> sp_rename <span style="color: #666666">@</span>objname <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;[dbo].[Track].[TrackId]&#39;</span><span style="color: #888888">,</span> <span style="color: #666666">@</span>newname <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;Track_Id&#39;</span><span style="color: #888888">,</span> <span style="color: #666666">@</span>objtype <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;COLUMN&#39;</span><span style="color: #888888">;</span>
+<span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Rename [dbo].[Track].[TrackId] to Track_Id&#39;</span><span class="p">;</span>
 
 
-<span style="color: #2838b0">GO</span>
-PRINT N<span style="color: #b83838">&#39;Altering [dbo].[ChangeTrackPriceByFactor]...&#39;</span><span style="color: #888888">;</span>
+<span class="k">GO</span>
+<span class="k">EXECUTE</span> <span class="n">sp_rename</span> <span class="o">@</span><span class="n">objname</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;[dbo].[Track].[TrackId]&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">newname</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;Track_Id&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">objtype</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;COLUMN&#39;</span><span class="p">;</span>
 
 
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">ALTER</span> <span style="color: #2838b0">PROCEDURE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>ChangeTrackPriceByFactor<span style="color: #888888">]</span>
-	<span style="color: #666666">@</span>TrackID <span style="color: #388038">int</span><span style="color: #888888">,</span>
-	<span style="color: #666666">@</span>Factor <span style="color: #388038">NUMERIC</span><span style="color: #888888">(</span><span style="color: #444444">10</span><span style="color: #888888">,</span> <span style="color: #444444">2</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">AS</span>
-	<span style="color: #2838b0">UPDATE</span> Track <span style="color: #2838b0">SET</span> UnitPrice <span style="color: #666666">*=</span> <span style="color: #666666">@</span>Factor <span style="color: #2838b0">WHERE</span> Track_Id <span style="color: #666666">=</span> <span style="color: #666666">@</span>TrackID<span style="color: #888888">;</span>
+<span class="k">GO</span>
+<span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Altering [dbo].[ChangeTrackPriceByFactor]...&#39;</span><span class="p">;</span>
 
-<span style="color: #2838b0">RETURN</span> <span style="color: #444444">0</span>
-<span style="color: #2838b0">GO</span>
-<span style="color: #888888; font-style: italic">-- Refactoring step to update target server with deployed transaction logs</span>
-<span style="color: #2838b0">IF</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">EXISTS</span> <span style="color: #888888">(</span><span style="color: #2838b0">SELECT</span> OperationKey <span style="color: #2838b0">FROM</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>__RefactorLog<span style="color: #888888">]</span> <span style="color: #2838b0">WHERE</span> OperationKey <span style="color: #666666">=</span> <span style="color: #b83838">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">INSERT</span> <span style="color: #2838b0">INTO</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>__RefactorLog<span style="color: #888888">]</span> <span style="color: #888888">(</span>OperationKey<span style="color: #888888">)</span> <span style="color: #2838b0">values</span> <span style="color: #888888">(</span><span style="color: #b83838">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span style="color: #888888">)</span>
 
-<span style="color: #2838b0">GO</span>
-</pre></div>
+<span class="k">GO</span>
+<span class="k">ALTER</span> <span class="k">PROCEDURE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">ChangeTrackPriceByFactor</span><span class="p">]</span>
+	<span class="o">@</span><span class="n">TrackID</span> <span class="nb">int</span><span class="p">,</span>
+	<span class="o">@</span><span class="n">Factor</span> <span class="nb">NUMERIC</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">AS</span>
+	<span class="k">UPDATE</span> <span class="n">Track</span> <span class="k">SET</span> <span class="n">UnitPrice</span> <span class="o">*=</span> <span class="o">@</span><span class="n">Factor</span> <span class="k">WHERE</span> <span class="n">Track_Id</span> <span class="o">=</span> <span class="o">@</span><span class="n">TrackID</span><span class="p">;</span>
 
+<span class="k">RETURN</span> <span class="mi">0</span>
+<span class="k">GO</span>
+<span class="c1">-- Refactoring step to update target server with deployed transaction logs
+</span><span class="c1"></span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">OperationKey</span> <span class="k">FROM</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="k">WHERE</span> <span class="n">OperationKey</span> <span class="o">=</span> <span class="s1">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span class="p">)</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="p">(</span><span class="n">OperationKey</span><span class="p">)</span> <span class="k">values</span> <span class="p">(</span><span class="s1">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span class="p">)</span>
+
+<span class="k">GO</span></code></pre></div>
 <p>The <code>refactorlog</code> is updated to include this change, but there are no changes deployed to any of the tables that referenced the <code>TrackId</code> column via foreign keys. This is because foreign keys - as noted above - don&rsquo;t <em>really</em> use column names, they use object and column ids, so it is sufficient to rename the referenced column with <code>sp_rename</code>. Stored Procedures, triggers, and other programmable objects, however, <em>do</em> reference columns and tables by name - in <code>sys.sql_modules</code> - so these references aren&rsquo;t updated automatically.</p>
 
 <p>However, SSDT itself takes into consideration that when we rename a column referenced by a foreign (or primary) key, the definition required to create the constraint from scratch will need to be updated, which is why the files containing the referencing tables are all updated.</p>
@@ -1835,16 +1739,14 @@ PRINT N<span style="color: #b83838">&#39;Altering [dbo].[ChangeTrackPriceByFacto
 <p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/renaming%20a%20key%20column%20in%20the%20sql%20file.PNG" alt="Renaming a column by editing the .sql file" title="Renaming a column by editing the .sql file]" /></p>
 
 <p>In all other scenarios, the script executed at deploy time is as follows:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>PRINT N<span style="color: #b83838">&#39;Altering [dbo].[Genre]...&#39;</span><span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Altering [dbo].[Genre]...&#39;</span><span class="p">;</span>
 
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">ALTER</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>Genre<span style="color: #888888">]</span> <span style="color: #2838b0">DROP</span> <span style="color: #2838b0">COLUMN</span> <span style="color: #888888">[</span>Name<span style="color: #888888">];</span>
+<span class="k">GO</span>
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Genre</span><span class="p">]</span> <span class="k">DROP</span> <span class="k">COLUMN</span> <span class="p">[</span><span class="n">Name</span><span class="p">];</span>
 
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">ALTER</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>Genre<span style="color: #888888">]</span>
-    <span style="color: #2838b0">ADD</span> <span style="color: #888888">[</span>GenreName<span style="color: #888888">]</span> NVARCHAR <span style="color: #888888">(</span><span style="color: #444444">120</span><span style="color: #888888">)</span> <span style="color: #2838b0">NULL</span><span style="color: #888888">;</span>
-</pre></div>
-
+<span class="k">GO</span>
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Genre</span><span class="p">]</span>
+    <span class="k">ADD</span> <span class="p">[</span><span class="n">GenreName</span><span class="p">]</span> <span class="n">NVARCHAR</span> <span class="p">(</span><span class="mi">120</span><span class="p">)</span> <span class="k">NULL</span><span class="p">;</span></code></pre></div>
 <p>The only safety net left at this point is the <a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#pulling-the-trigger-3">BlockOnPossibleDataLoss</a> deploy-time option, which is enabled by default. This will stop the deployment from proceeding.</p>
 
 <pre><code>Msg 50000, Level 16, State 127, Line 48
@@ -1869,28 +1771,24 @@ Rows were detected. The schema update is terminating because data loss might occ
 <p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/Refactor%20renaming%20a%20table.PNG" alt="Refactor preview for renaming a table" title="Refactor preview for renaming a table" /></p>
 
 <p>On clicking apply, the relevant objects are updated and a new entry is inserted into the <code>refactorlog</code> file:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">&lt;Operation</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;Rename Refactor&quot;</span> <span style="color: #388038">Key=</span><span style="color: #b83838">&quot;cce28c30-adb0-4019-876e-d93cc2ca0011&quot;</span> <span style="color: #388038">ChangeDateTime=</span><span style="color: #b83838">&quot;11/12/2016 14:22:18&quot;</span><span style="color: #2838b0">&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[Artist]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlTable&quot;</span> <span style="color: #2838b0">/&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlSchema&quot;</span> <span style="color: #2838b0">/&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;NewName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[Artiste]&quot;</span> <span style="color: #2838b0">/&gt;</span>
- <span style="color: #2838b0">&lt;/Operation&gt;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Rename Refactor&#34;</span> <span class="na">Key=</span><span class="s">&#34;cce28c30-adb0-4019-876e-d93cc2ca0011&#34;</span> <span class="na">ChangeDateTime=</span><span class="s">&#34;11/12/2016 14:22:18&#34;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Artist]&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlTable&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo]&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlSchema&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[Artiste]&#34;</span> <span class="nt">/&gt;</span>
+ <span class="nt">&lt;/Operation&gt;</span></code></pre></div>
 <p>The process for moving a table between schemas is similar, we are presented with a preview of the changes about to be made:</p>
 
 <p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/move%20to%20schema%20preview.PNG" alt="Refactor preview for move to schema" title="Refactor preview for move to schema" /></p>
 
 <p>and a new entry is made in the <code>refactorlog</code> file.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">&lt;Operation</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;Move Schema&quot;</span><span style="color: #388038">Key=</span><span style="color: #b83838">&quot;985e03c6-37f8-48c8-8ce8-5ed37fbb7c00&quot;</span><span style="color: #388038">ChangeDateTime=</span><span style="color: #b83838">&quot;11/12/2016 14:46:31&quot;</span><span style="color: #2838b0">&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[Invoice]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlTable&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;NewSchema&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;Sales&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;IsNewSchemaExternal&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;False&quot;</span> <span style="color: #2838b0">/&gt;</span>
-<span style="color: #2838b0">&lt;/Operation&gt;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Move Schema&#34;</span><span class="na">Key=</span><span class="s">&#34;985e03c6-37f8-48c8-8ce8-5ed37fbb7c00&#34;</span><span class="na">ChangeDateTime=</span><span class="s">&#34;11/12/2016 14:46:31&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Invoice]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlTable&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewSchema&#34;</span> <span class="na">Value=</span><span class="s">&#34;Sales&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;IsNewSchemaExternal&#34;</span> <span class="na">Value=</span><span class="s">&#34;False&#34;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/Operation&gt;</span></code></pre></div>
 <p>Finally, when we come to deploy our change, the table is moved to the new schema and all the referencing objects are updated:</p>
 
 <pre><code>PRINT N'The following operation was generated from a refactoring log file 985e03c6-37f8-48c8-8ce8-5ed37fbb7c00';
@@ -1915,19 +1813,17 @@ GO
 <p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/rename%20validation%20error.PNG" alt="Error from renaming a table in the sql file" title="error from renaming a table in the .sql file" /></p>
 
 <p>If we are less lucky we may get some warnings (remember that deferred name resolution means that a missing table is only a warning rather than an error in a stored procedure), but at deploy time we will get a new table created with the new name, and possibly even a <code>DROP TABLE</code> for the existing table, assuming we have the appropriate options set. (By default, SSDT won&rsquo;t drop objects from the database unless we specify &ldquo;<a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#a-note-on-drop-objects-not-in-source">Drop objects in target but not in source</a>&rdquo;).</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>PRINT N<span style="color: #b83838">&#39;Dropping [dbo].[PlaylistTrack]...&#39;</span><span style="color: #888888">;</span>
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">DROP</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>PlaylistTrack<span style="color: #888888">];</span>
-<span style="color: #2838b0">GO</span>
-PRINT N<span style="color: #b83838">&#39;Creating [dbo].[Playlist_Track]...&#39;</span><span style="color: #888888">;</span>
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">CREATE</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>Playlist_Track<span style="color: #888888">]</span> <span style="color: #888888">(</span>
-    <span style="color: #888888">[</span>PlaylistId<span style="color: #888888">]</span> <span style="color: #388038">INT</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">NULL</span><span style="color: #888888">,</span>
-    <span style="color: #888888">[</span>TrackId<span style="color: #888888">]</span>    <span style="color: #388038">INT</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">NULL</span><span style="color: #888888">,</span>
-    <span style="color: #2838b0">CONSTRAINT</span> <span style="color: #888888">[</span>PK_PlaylistTrack<span style="color: #888888">]</span> <span style="color: #2838b0">PRIMARY</span> <span style="color: #2838b0">KEY</span> NONCLUSTERED <span style="color: #888888">([</span>PlaylistId<span style="color: #888888">]</span> <span style="color: #2838b0">ASC</span><span style="color: #888888">,</span> <span style="color: #888888">[</span>TrackId<span style="color: #888888">]</span> <span style="color: #2838b0">ASC</span><span style="color: #888888">)</span>
-<span style="color: #888888">);</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Dropping [dbo].[PlaylistTrack]...&#39;</span><span class="p">;</span>
+<span class="k">GO</span>
+<span class="k">DROP</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">PlaylistTrack</span><span class="p">];</span>
+<span class="k">GO</span>
+<span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Creating [dbo].[Playlist_Track]...&#39;</span><span class="p">;</span>
+<span class="k">GO</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Playlist_Track</span><span class="p">]</span> <span class="p">(</span>
+    <span class="p">[</span><span class="n">PlaylistId</span><span class="p">]</span> <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">TrackId</span><span class="p">]</span>    <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="k">CONSTRAINT</span> <span class="p">[</span><span class="n">PK_PlaylistTrack</span><span class="p">]</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">NONCLUSTERED</span> <span class="p">([</span><span class="n">PlaylistId</span><span class="p">]</span> <span class="k">ASC</span><span class="p">,</span> <span class="p">[</span><span class="n">TrackId</span><span class="p">]</span> <span class="k">ASC</span><span class="p">)</span>
+<span class="p">);</span></code></pre></div>
 <h2 id="renaming-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules">Renaming Programmable Objects (Views, Functions, Stored Procedures, other miscellany in [<code>sys.sql_modules</code>]</h2>
 
 <blockquote>
@@ -1937,15 +1833,13 @@ PRINT N<span style="color: #b83838">&#39;Creating [dbo].[Playlist_Track]...&#39;
 <p>As noted in the <a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#dropping-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules-https-msdn-microsoft-com-en-us-library-ms175081-aspx">discussion of dropping programmable objects</a>, operations involving these objects involve substantially less risk of catastrophic data loss and consequent unemployment than similar operation involving tables and columns.</p>
 
 <p>It is still important to use the Refactor &rarr; Rename and Refactor &rarr; Move to Schema techniques to rename these objects rather than directly editing the <code>.sql</code> files, so that an entry is written to the <code>.refactorlog</code> file. This will ensure that the existing object is altered rather than a new one created at the expense of the old one.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">&lt;Operation</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;Rename Refactor&quot;</span> <span style="color: #388038">Key=</span><span style="color: #b83838">&quot;fc4b928d-9b00-4028-9cac-5859ba9b666c&quot;</span> <span style="color: #388038">ChangeDateTime=</span><span style="color: #b83838">&quot;11/12/2016 22:50:20&quot;</span><span style="color: #2838b0">&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[ChangeTrackPriceByFactor]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlProcedure&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlSchema&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;NewName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[ChangeTrackPriceByMultiplier]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-<span style="color: #2838b0">&lt;/Operation&gt;</span>
-</pre></div>
-<div class="footnotes">
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Rename Refactor&#34;</span> <span class="na">Key=</span><span class="s">&#34;fc4b928d-9b00-4028-9cac-5859ba9b666c&#34;</span> <span class="na">ChangeDateTime=</span><span class="s">&#34;11/12/2016 22:50:20&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[ChangeTrackPriceByFactor]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlProcedure&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlSchema&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[ChangeTrackPriceByMultiplier]&#34;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/Operation&gt;</span></code></pre></div><div class="footnotes">
 
 <hr />
 

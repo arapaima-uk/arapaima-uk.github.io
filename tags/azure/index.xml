@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>arapaima.uk </title>
-    <link>http://arapaima.uk/tags/azure/index.xml</link>
+    <link>http://arapaima.uk/tags/azure/</link>
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2017</rights>
-    <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+    <updated>2017-09-07 00:00:00 &#43;0000 UTC</updated>
 
     
       
         <item>
           <title>Automatically provisioning a brand new environment for every feature branch using VSTS and AzureRM</title>
-          <link>http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/</link>
+          <link>http://arapaima.uk/post/2017-09-07-vsts-azurerm-dynamic-environment-provisioning/</link>
           <pubDate>Thu, 07 Sep 2017 00:00:00 UTC</pubDate>
           <author>Gavin Campbell</author>
-          <guid>http://arapaima.uk/post/2017-09-07-VSTS-AzureRM-dynamic-environment-provisioning/</guid>
+          <guid>http://arapaima.uk/post/2017-09-07-vsts-azurerm-dynamic-environment-provisioning/</guid>
           <description>
 
 &lt;p&gt;It&amp;rsquo;s fairly uncontentious to suggest that, all else being equal, providing each developer with an individual &amp;ldquo;sandbox&amp;rdquo;, or private development environment, is a &lt;a href=&#34;http://www.agiledata.org/essays/sandboxes.html&#34;&gt;worthwhile endeavour&lt;/a&gt;.&lt;/p&gt;
@@ -46,75 +46,69 @@
 &lt;h3 id=&#34;the-next-instagram&#34;&gt;The next Instagram?&lt;/h3&gt;
 
 &lt;p&gt;The details of what the app actually &lt;em&gt;does&lt;/em&gt; aren&amp;rsquo;t particularly important for this example, but in brief it is expecting a JSON structure:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Bill&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-&lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;favouriteKebab&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Adana&amp;quot;&lt;/span&gt;
-&lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;Bill&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;nt&#34;&gt;&amp;#34;favouriteKebab&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;Adana&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;in the body of a &lt;code&gt;POST&lt;/code&gt; message, which it will then store in the Cosmos DB database.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #388038&#34;&gt;[FunctionName(&amp;quot;KebabPost&amp;quot;)]&lt;/span&gt;
-&lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;static&lt;/span&gt; HttpResponseMessage &lt;span style=&#34;color: #785840&#34;&gt;Run&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;
-&lt;span style=&#34;color: #388038&#34;&gt;[HttpTrigger(AuthorizationLevel.Anonymous, &amp;quot;post&amp;quot;)]&lt;/span&gt;
-HttpRequestMessage req&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-&lt;span style=&#34;color: #388038&#34;&gt;[DocumentDB(&amp;quot;kebabDb&amp;quot;, &amp;quot;kebabPreferences&amp;quot;,&lt;/span&gt;
-&lt;span style=&#34;color: #388038&#34;&gt;ConnectionStringSetting = &amp;quot;DB_CONNECTION&amp;quot;, CreateIfNotExists =true)]&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;out&lt;/span&gt; &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;dynamic&lt;/span&gt; nameAndKebabType&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; 
-    TraceWriter log&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
-&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-csharp&#34; data-lang=&#34;csharp&#34;&gt;&lt;span class=&#34;na&#34;&gt;[FunctionName(&amp;#34;KebabPost&amp;#34;)]&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpResponseMessage&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Run&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;[HttpTrigger(AuthorizationLevel.Anonymous, &amp;#34;post&amp;#34;)]&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;HttpRequestMessage&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;[DocumentDB(&amp;#34;kebabDb&amp;#34;, &amp;#34;kebabPreferences&amp;#34;,
+&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;ConnectionStringSetting = &amp;#34;DB_CONNECTION&amp;#34;, CreateIfNotExists =true)]&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;out&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;dynamic&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nameAndKebabType&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; 
+    &lt;span class=&#34;n&#34;&gt;TraceWriter&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
 
-    log&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Info&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;C# HTTP trigger function processed a request.&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;log&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Info&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;C# HTTP trigger function processed a request.&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 
-    &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;// Get request body&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;dynamic&lt;/span&gt; data &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; req&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Content&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;ReadAsAsync&lt;span style=&#34;color: #888888&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;object&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;&amp;gt;().&lt;/span&gt;Result&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;// Get request body
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;kt&#34;&gt;dynamic&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;data&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Content&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ReadAsAsync&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;object&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;&amp;gt;().&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Result&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
-    &lt;span style=&#34;color: #888888; font-style: italic&#34;&gt;// Set name to query string or body data&lt;/span&gt;
-    nameAndKebabType &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-    name &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; data&lt;span style=&#34;color: #888888&#34;&gt;?.&lt;/span&gt;name&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-    favouriteKebab &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; data&lt;span style=&#34;color: #888888&#34;&gt;?.&lt;/span&gt;favouriteKebab
-&lt;span style=&#34;color: #888888&#34;&gt;};&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;data&lt;span style=&#34;color: #888888&#34;&gt;?.&lt;/span&gt;name &lt;span style=&#34;color: #888888&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;null&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;||&lt;/span&gt; data&lt;span style=&#34;color: #888888&#34;&gt;?.&lt;/span&gt;favouriteKebab &lt;span style=&#34;color: #888888&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;null&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-        &lt;span style=&#34;color: #2838b0&#34;&gt;return&lt;/span&gt; req&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CreateResponse&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;HttpStatusCode&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;BadRequest&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; 
-            &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Name and kebab are both required!&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;// Set name to query string or body data
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;nameAndKebabType&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;?.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;favouriteKebab&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;?.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;favouriteKebab&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;?.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;||&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;?.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;favouriteKebab&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CreateResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HttpStatusCode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;BadRequest&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; 
+            &lt;span class=&#34;s&#34;&gt;&amp;#34;Name and kebab are both required!&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
-    &lt;span style=&#34;color: #2838b0&#34;&gt;else&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-        &lt;span style=&#34;color: #2838b0&#34;&gt;return&lt;/span&gt; req&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CreateResponse&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;HttpStatusCode&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;OK&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+    &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;req&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CreateResponse&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HttpStatusCode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;OK&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The name of the DocumentDB database and collection will be the same in every environment, so I&amp;rsquo;ve just hardcoded them in the file (&lt;code&gt;&amp;quot;kebabDB&amp;quot;&lt;/code&gt; and &lt;code&gt;&amp;quot;kebabPreferences&amp;quot;&lt;/code&gt;). The other thing to note is that I am passing &lt;code&gt;CreateIfNotExists=true&lt;/code&gt; in the binding options for the DocumentDB collection; it turns out to be non-trivial to create the database and the collection from an AzureRM template, so we let the app create them at runtime if required.&lt;/p&gt;
 
 &lt;p&gt;The test project contains a single test, which exercises the behaviour described above:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #388038&#34;&gt;[TestMethod]&lt;/span&gt;
-&lt;span style=&#34;color: #2838b0&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;KebabPost_ValidInput_StoresValuesInDb&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
-&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;string&lt;/span&gt; content &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;{ &amp;#39;name&amp;#39;:&amp;#39;Barry&amp;#39; , &amp;#39;favouriteKebab&amp;#39;:&amp;#39;Kofte&amp;#39; }&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-csharp&#34; data-lang=&#34;csharp&#34;&gt;&lt;span class=&#34;na&#34;&gt;[TestMethod]&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;KebabPost_ValidInput_StoresValuesInDb&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;string&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;content&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;{ &amp;#39;name&amp;#39;:&amp;#39;Barry&amp;#39; , &amp;#39;favouriteKebab&amp;#39;:&amp;#39;Kofte&amp;#39; }&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
-&lt;span style=&#34;color: #2838b0&#34;&gt;using&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; client &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; HttpClient&lt;span style=&#34;color: #888888&#34;&gt;())&lt;/span&gt;
-&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; response &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; client&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;PostAsync&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;functionUrl&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-        &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; &lt;span style=&#34;color: #785840&#34;&gt;StringContent&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;content&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; Encoding&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;UTF8&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;application/json&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)).&lt;/span&gt;Result&lt;span style=&#34;color: #888888&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;client&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;HttpClient&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;())&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kt&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;response&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;PostAsync&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;functionUrl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;StringContent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;content&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Encoding&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;UTF8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;application/json&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)).&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Result&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
     
-&lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
-&lt;span style=&#34;color: #2838b0&#34;&gt;using&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #2838b0; font-style: italic&#34;&gt;var&lt;/span&gt; client &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #2838b0&#34;&gt;new&lt;/span&gt; DocumentClient&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;docDbUri&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; docDbKey&lt;span style=&#34;color: #888888&#34;&gt;))&lt;/span&gt;
-&lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-    IQueryable&lt;span style=&#34;color: #888888&#34;&gt;&amp;lt;&lt;/span&gt;KebabPrefs&lt;span style=&#34;color: #888888&#34;&gt;&amp;gt;&lt;/span&gt; kebabPrefsQuery &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; client
-    &lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CreateDocumentQuery&lt;span style=&#34;color: #888888&#34;&gt;&amp;lt;&lt;/span&gt;KebabPrefs&lt;span style=&#34;color: #888888&#34;&gt;&amp;gt;(&lt;/span&gt;
-        UriFactory
-        &lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;CreateDocumentCollectionUri&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;kebabDb&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;kebabPreferences&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;))&lt;/span&gt;
-        &lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Where&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;kp &lt;span style=&#34;color: #888888&#34;&gt;=&amp;gt;&lt;/span&gt; kp&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;name &lt;span style=&#34;color: #888888&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Barry&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;var&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;client&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;DocumentClient&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;docDbUri&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;docDbKey&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;IQueryable&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;KebabPrefs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kebabPrefsQuery&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;client&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CreateDocumentQuery&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;KebabPrefs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;&amp;gt;(&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;UriFactory&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CreateDocumentCollectionUri&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;kebabDb&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;kebabPreferences&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Where&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;kp&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;Barry&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 
-    Assert&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;AreEqual&lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;Kofte&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt; kebabPrefsQuery&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;ToList&lt;span style=&#34;color: #888888&#34;&gt;()&lt;/span&gt;
-        &lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;First&lt;span style=&#34;color: #888888&#34;&gt;().&lt;/span&gt;favouriteKebab&lt;span style=&#34;color: #888888&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Assert&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;AreEqual&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Kofte&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;kebabPrefsQuery&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ToList&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+        &lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;First&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;favouriteKebab&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 
 
-    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Unit Testing enthusiasts will have noticed that this isn&amp;rsquo;t really a Unit Test at all; there are no fakes or mocks, we are using the &amp;ldquo;real&amp;rdquo; dependencies for everything.&lt;/p&gt;
 
 &lt;p&gt;If our Azure function were a bit bigger, it would be worth splitting out the &amp;ldquo;core&amp;rdquo; functionality into a separate assembly that &lt;em&gt;could&lt;/em&gt; be meaningfully unit tested, but in the interests of brevity I&amp;rsquo;ve not done that here.&lt;/p&gt;
@@ -124,26 +118,24 @@ HttpRequestMessage req&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
 &lt;h2 id=&#34;the-azurerm-template&#34;&gt;The AzureRM Template&lt;/h2&gt;
 
 &lt;p&gt;The &lt;a href=&#34;https://github.com/arapaima-uk/KebabAzureRmDemo/blob/master/KebabDbResourceGroup/azuredeploy.json&#34;&gt;full template&lt;/a&gt; is a bit too long to reproduce here, so I&amp;rsquo;ll call out some edited highlights.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;  &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;parameters&amp;quot;&lt;/span&gt;&lt;span style=&#34;background-color: #a848a8&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;database_account_name&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;defaultValue&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[concat(&amp;#39;kebabdac&amp;#39;, uniqueString(resourceGroup().id))]&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;hostingPlanName&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;defaultValue&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[concat(&amp;#39;kebabhp&amp;#39;, uniqueString(resourceGroup().id))]&amp;quot;&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;functionAppName&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;defaultValue&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[concat(&amp;#39;kebabApp&amp;#39;, uniqueString(resourceGroup().id))]&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;storageAccountName&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;defaultValue&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[concat(&amp;#39;kebabstor&amp;#39;, uniqueString(resourceGroup().id))]&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-  &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;  &lt;span class=&#34;s2&#34;&gt;&amp;#34;parameters&amp;#34;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;#34;database_account_name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;defaultValue&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[concat(&amp;#39;kebabdac&amp;#39;, uniqueString(resourceGroup().id))]&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;#34;hostingPlanName&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;defaultValue&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[concat(&amp;#39;kebabhp&amp;#39;, uniqueString(resourceGroup().id))]&amp;#34;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;#34;functionAppName&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;defaultValue&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[concat(&amp;#39;kebabApp&amp;#39;, uniqueString(resourceGroup().id))]&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;#34;storageAccountName&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;defaultValue&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[concat(&amp;#39;kebabstor&amp;#39;, uniqueString(resourceGroup().id))]&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The thing to note is that the template takes four parameters, each of which has a default value.&lt;/p&gt;
 
 &lt;p&gt;Each of the defaults consists of a prefix that identifies the resource type, combined with the result of the function &lt;code&gt;uniqueString(resourceGroup().id)&lt;/code&gt;. These unique strings are required as there are some objects in Azure (storage accounts or web apps for example) that require &lt;em&gt;globally&lt;/em&gt; unique names that can be incorporated into a url of the form &lt;code&gt;https://myapp.azurewebsites.net&lt;/code&gt; or similar. I can never remember which objects do require unique names and which ones don&amp;rsquo;t, so I tend to use &lt;code&gt;uniqueString()&lt;/code&gt; for everything.&lt;/p&gt;
@@ -153,23 +145,21 @@ HttpRequestMessage req&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
 &lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/resources.png&#34; alt=&#34;Azure resource names generated with uniqueString&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;At the end of the template is an &lt;code&gt;outputs&lt;/code&gt; section:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;  &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;outputs&amp;quot;&lt;/span&gt;&lt;span style=&#34;background-color: #a848a8&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;functionAppName&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;value&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[parameters(&amp;#39;functionAppName&amp;#39;)]&amp;quot;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;  &lt;span class=&#34;s2&#34;&gt;&amp;#34;outputs&amp;#34;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;#34;functionAppName&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;value&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[parameters(&amp;#39;functionAppName&amp;#39;)]&amp;#34;&lt;/span&gt;
 
-    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;docDbUri&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;value&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[Concat(&amp;#39;https://&amp;#39;,parameters(&amp;#39;database_account_name&amp;#39;),&amp;#39;.documents.azure.com:443&amp;#39;)]&amp;quot;&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;},&lt;/span&gt;
-    &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;docDbKey&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
-      &lt;span style=&#34;color: #2838b0&#34;&gt;&amp;quot;value&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;[listKeys(resourceId(&amp;#39;Microsoft.DocumentDb/databaseAccounts&amp;#39;, parameters(&amp;#39;database_account_name&amp;#39;)), &amp;#39;2015-04-08&amp;#39;).primaryMasterKey]&amp;quot;&lt;/span&gt;
-    &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-  &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+    &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;#34;docDbUri&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;value&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[Concat(&amp;#39;https://&amp;#39;,parameters(&amp;#39;database_account_name&amp;#39;),&amp;#39;.documents.azure.com:443&amp;#39;)]&amp;#34;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+    &lt;span class=&#34;nt&#34;&gt;&amp;#34;docDbKey&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+      &lt;span class=&#34;nt&#34;&gt;&amp;#34;value&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;[listKeys(resourceId(&amp;#39;Microsoft.DocumentDb/databaseAccounts&amp;#39;, parameters(&amp;#39;database_account_name&amp;#39;)), &amp;#39;2015-04-08&amp;#39;).primaryMasterKey]&amp;#34;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+  &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This defines three outputs, the Function App name, the Cosmos DB uri, and the Cosmos DB key. This is necessary as we didn&amp;rsquo;t specify these values ourselves, so we need AzureRM to &lt;em&gt;tell us what it just created&lt;/em&gt; in order that we can use these names for other tasks in our build process.&lt;/p&gt;
 
 &lt;h3 id=&#34;the-build-definition&#34;&gt;The Build Definition&lt;/h3&gt;
@@ -183,13 +173,11 @@ HttpRequestMessage req&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
 &lt;p&gt;By passing the &lt;em&gt;name of the branch we are building&lt;/em&gt; as the name of the resource group, this means that the first time we build any given branch we will get a brand new environment with a Cosmos DB, a Function App, etc. etc., exclusively for that build.&lt;/p&gt;
 
 &lt;p&gt;After the template is deployed, we need a bit of Powershell to retrieve the outputs from the template.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #ffffff&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #2838b0&#34;&gt;param&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b85820&#34;&gt;[string]&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$resourceGroup&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-powershell&#34; data-lang=&#34;powershell&#34;&gt;&lt;span class=&#34;k&#34;&gt;param&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;no&#34;&gt;[string]&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$resourceGroup&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
 
-&lt;span style=&#34;color: #b04040&#34;&gt;$outputs&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #388038&#34;&gt;Get-AzureRmResourceGroupDeployment&lt;/span&gt; -ResourceGroupName &lt;span style=&#34;color: #b04040&#34;&gt;$resourceGroup&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;|&lt;/span&gt; Sort Timestamp -Descending &lt;span style=&#34;color: #888888&#34;&gt;|&lt;/span&gt; Select -First 1&lt;span style=&#34;color: #888888&#34;&gt;).&lt;/span&gt;Outputs
+&lt;span class=&#34;nv&#34;&gt;$outputs&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;Get-AzureRmResourceGroupDeployment&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;-ResourceGroupName&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$resourceGroup&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Sort&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Timestamp&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;-Descending&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Select&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;-First&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;).&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Outputs&lt;/span&gt;
 
-&lt;span style=&#34;color: #b04040&#34;&gt;$outputs&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;.&lt;/span&gt;Keys &lt;span style=&#34;color: #888888&#34;&gt;|&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;%&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;{&lt;/span&gt; &lt;span style=&#34;color: #388038&#34;&gt;Write-Host&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;##vso[task.setvariable variable=&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$_&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #b83838&#34;&gt;&amp;quot;;]&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$outputs&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color: #b04040&#34;&gt;$_&lt;/span&gt;&lt;span style=&#34;color: #888888&#34;&gt;].&lt;/span&gt;Value&lt;span style=&#34;color: #888888&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color: #888888&#34;&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;span class=&#34;nv&#34;&gt;$outputs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Keys&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;%&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;Write-Host&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;##vso[task.setvariable variable=&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;;]&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$outputs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;].&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;What this does is to find the most recent deployment for the specified resource group - i.e. the one we just did - and map the &lt;em&gt;outputs&lt;/em&gt; of the template to &lt;em&gt;build variables&lt;/em&gt; in VSTS by name. This means that for every output in the template, we need to define a build variable with &lt;em&gt;exactly&lt;/em&gt; the same name, which indeed we have done:&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/buildvars.png&#34; alt=&#34;Build variables view&#34; /&gt;&lt;/p&gt;
@@ -292,7 +280,7 @@ HttpRequestMessage req&lt;span style=&#34;color: #888888&#34;&gt;,&lt;/span&gt;
 
 &lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/vsts-azurerm/ResourceGroups.png&#34; alt=&#34;resource groups in the Azure Portal&#34; /&gt;&lt;/p&gt;
 
-&lt;p&gt;All of the above is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the &lt;a href=&#34;http://arapaima.uk/fixed/About/&#34;&gt;contact form&lt;/a&gt; on the site.&lt;/p&gt;
+&lt;p&gt;All of the above is still a work in progress, if there are any glaring errors or omissions please do get in touch via the comments or via the &lt;a href=&#34;http://arapaima.uk/fixed/about/&#34;&gt;contact form&lt;/a&gt; on the site.&lt;/p&gt;
 </description>
         </item>
       

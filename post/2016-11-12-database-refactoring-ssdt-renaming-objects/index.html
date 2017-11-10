@@ -29,28 +29,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -74,11 +52,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -212,50 +190,42 @@
 <h3 id="the-refactorlog">The refactorlog</h3>
 
 <p>When we click apply, two things happen. The first is that all the references to this column are updated to use the new name. The second is that a new file appears in the solution, with the extension <code>.refactorlog</code>.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #289870">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
-<span style="color: #2838b0">&lt;Operations</span> <span style="color: #388038">Version=</span><span style="color: #b83838">&quot;1.0&quot;</span> <span style="color: #388038">xmlns=</span><span style="color: #b83838">&quot;http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02&quot;</span><span style="color: #2838b0">&gt;</span>
-  <span style="color: #2838b0">&lt;Operation</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;Rename Refactor&quot;</span> <span style="color: #388038">Key=</span><span style="color: #b83838">&quot;209f3afd-7195-401f-853f-aa3a906d39db&quot;</span> <span style="color: #388038">ChangeDateTime=</span><span style="color: #b83838">&quot;11/08/2016 20:02:31&quot;</span><span style="color: #2838b0">&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[Invoice].[InvoiceId]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlSimpleColumn&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[Invoice]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlTable&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;NewName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[Invoice_Id]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;/Operation&gt;</span>
-<span style="color: #2838b0">&lt;/Operations&gt;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;</span>
+<span class="nt">&lt;Operations</span> <span class="na">Version=</span><span class="s">&#34;1.0&#34;</span> <span class="na">xmlns=</span><span class="s">&#34;http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Rename Refactor&#34;</span> <span class="na">Key=</span><span class="s">&#34;209f3afd-7195-401f-853f-aa3a906d39db&#34;</span> <span class="na">ChangeDateTime=</span><span class="s">&#34;11/08/2016 20:02:31&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Invoice].[InvoiceId]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlSimpleColumn&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Invoice]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlTable&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[Invoice_Id]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/Operation&gt;</span>
+<span class="nt">&lt;/Operations&gt;</span></code></pre></div>
 <p>This file is how <code>sqlpackage.exe</code> (or SSDT publish, or DacFX.Deploy) will detemine <em>at deploy time</em> that we are renaming this column from InvoiceID to Invoice_Id rather than dropping the InvoiceID column and creating a new column called Invoice_ID. We can see in the XML that this is specifying the column and table name, and the precise action to perform. This is known, in the jargon, as &ldquo;preserving the intent&rdquo; of the refactoring. If we build a project containing a <code>.refactorlog</code> file and examine the resulting <code>.dacpac</code>, we can see that the regular <code>.dacpac</code> contents have been joined by a <code>refactor.xml</code> file.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>$ unzip -l Refactoring.Chinook.dacpac
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">$ unzip -l Refactoring.Chinook.dacpac
 Archive:  Refactoring.Chinook.dacpac
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-    69711  2016-11-10 05:44   model.xml
-      606  2016-11-10 05:44   refactor.xml
-      203  2016-11-10 05:44   DacMetadata.xml
-     1118  2016-11-10 05:44   Origin.xml
-      175  2016-11-10 05:44   [Content_Types].xml
+    69711  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   model.xml</span>
+      606  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   refactor.xml</span>
+      203  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   DacMetadata.xml</span>
+     1118  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   Origin.xml</span>
+      175  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   [Content_Types].xml</span>
 ---------                     -------
-    71813                     5 files
-</pre></div>
-
+    71813                     5 files</code></pre></div>
 <p>The contents of this file are the same as the <code>.refactorlog</code> file from our solution.</p>
 
 <p>When we publish the project we see the following output:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>The following operation was generated from a refactoring log file 209f3afd-7195-401f-853f-aa3a906d39db
-<span style="color: #2838b0">Rename</span> [dbo].[Invoice].[InvoiceId] to Invoice_Id
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">The following operation was generated from a refactoring log file 209f3afd-7195-401f-853f-aa3a906d39db
+<span class="k">Rename</span> [dbo].[Invoice].[InvoiceId] to Invoice_Id
 Caution: Changing any part of an object name could break scripts and stored procedures.
 
 Altering [dbo].[InvoicesWithLineTotals]...
 Altering [dbo].[UpdateInvoiceBillingAddress]...
-Update complete.
-</pre></div>
-
+Update complete.</code></pre></div>
 <p>The publish action has read the <code>refactorlog</code> file and taken the appropriate action. In addition, the &ldquo;key&rdquo; for this refactoring has been stored in a new table in our database called <code>dbo._RefactorLog</code>, which gets created the first time we deploy a dacpac containing a <code>refactor.xml</code> file:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888; font-style: italic">-- Refactoring step to update target server with deployed transaction logs</span>
-<span style="color: #2838b0">IF</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">EXISTS</span> <span style="color: #888888">(</span><span style="color: #2838b0">SELECT</span> OperationKey <span style="color: #2838b0">FROM</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>__RefactorLog<span style="color: #888888">]</span> <span style="color: #2838b0">WHERE</span> OperationKey <span style="color: #666666">=</span> <span style="color: #b83838">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">INSERT</span> <span style="color: #2838b0">INTO</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>__RefactorLog<span style="color: #888888">]</span> <span style="color: #888888">(</span>OperationKey<span style="color: #888888">)</span> <span style="color: #2838b0">values</span> <span style="color: #888888">(</span><span style="color: #b83838">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span style="color: #888888">)</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- Refactoring step to update target server with deployed transaction logs
+</span><span class="c1"></span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">OperationKey</span> <span class="k">FROM</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="k">WHERE</span> <span class="n">OperationKey</span> <span class="o">=</span> <span class="s1">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span class="p">)</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="p">(</span><span class="n">OperationKey</span><span class="p">)</span> <span class="k">values</span> <span class="p">(</span><span class="s1">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span class="p">)</span></code></pre></div>
 <p>On subsequent deployments, this table is read and any refactorings recorded here are skipped from the deployment.</p>
 
 <h3 id="appearances-can-be-deceptive">Appearances can be deceptive</h3>
@@ -334,35 +304,33 @@ However, when we go to build the project, we get an error:</p>
 </table>
 
 <p>If we fix the reference in our stored procedure and go on to generate a publish script, all we see for this change is</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>PRINT N<span style="color: #b83838">&#39;The following operation was generated from a refactoring log file 8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;The following operation was generated from a refactoring log file 8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span class="p">;</span>
 
-PRINT N<span style="color: #b83838">&#39;Rename [dbo].[Track].[TrackId] to Track_Id&#39;</span><span style="color: #888888">;</span>
-
-
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">EXECUTE</span> sp_rename <span style="color: #666666">@</span>objname <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;[dbo].[Track].[TrackId]&#39;</span><span style="color: #888888">,</span> <span style="color: #666666">@</span>newname <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;Track_Id&#39;</span><span style="color: #888888">,</span> <span style="color: #666666">@</span>objtype <span style="color: #666666">=</span> N<span style="color: #b83838">&#39;COLUMN&#39;</span><span style="color: #888888">;</span>
+<span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Rename [dbo].[Track].[TrackId] to Track_Id&#39;</span><span class="p">;</span>
 
 
-<span style="color: #2838b0">GO</span>
-PRINT N<span style="color: #b83838">&#39;Altering [dbo].[ChangeTrackPriceByFactor]...&#39;</span><span style="color: #888888">;</span>
+<span class="k">GO</span>
+<span class="k">EXECUTE</span> <span class="n">sp_rename</span> <span class="o">@</span><span class="n">objname</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;[dbo].[Track].[TrackId]&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">newname</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;Track_Id&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">objtype</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;COLUMN&#39;</span><span class="p">;</span>
 
 
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">ALTER</span> <span style="color: #2838b0">PROCEDURE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>ChangeTrackPriceByFactor<span style="color: #888888">]</span>
-	<span style="color: #666666">@</span>TrackID <span style="color: #388038">int</span><span style="color: #888888">,</span>
-	<span style="color: #666666">@</span>Factor <span style="color: #388038">NUMERIC</span><span style="color: #888888">(</span><span style="color: #444444">10</span><span style="color: #888888">,</span> <span style="color: #444444">2</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">AS</span>
-	<span style="color: #2838b0">UPDATE</span> Track <span style="color: #2838b0">SET</span> UnitPrice <span style="color: #666666">*=</span> <span style="color: #666666">@</span>Factor <span style="color: #2838b0">WHERE</span> Track_Id <span style="color: #666666">=</span> <span style="color: #666666">@</span>TrackID<span style="color: #888888">;</span>
+<span class="k">GO</span>
+<span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Altering [dbo].[ChangeTrackPriceByFactor]...&#39;</span><span class="p">;</span>
 
-<span style="color: #2838b0">RETURN</span> <span style="color: #444444">0</span>
-<span style="color: #2838b0">GO</span>
-<span style="color: #888888; font-style: italic">-- Refactoring step to update target server with deployed transaction logs</span>
-<span style="color: #2838b0">IF</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">EXISTS</span> <span style="color: #888888">(</span><span style="color: #2838b0">SELECT</span> OperationKey <span style="color: #2838b0">FROM</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>__RefactorLog<span style="color: #888888">]</span> <span style="color: #2838b0">WHERE</span> OperationKey <span style="color: #666666">=</span> <span style="color: #b83838">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span style="color: #888888">)</span>
-<span style="color: #2838b0">INSERT</span> <span style="color: #2838b0">INTO</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>__RefactorLog<span style="color: #888888">]</span> <span style="color: #888888">(</span>OperationKey<span style="color: #888888">)</span> <span style="color: #2838b0">values</span> <span style="color: #888888">(</span><span style="color: #b83838">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span style="color: #888888">)</span>
 
-<span style="color: #2838b0">GO</span>
-</pre></div>
+<span class="k">GO</span>
+<span class="k">ALTER</span> <span class="k">PROCEDURE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">ChangeTrackPriceByFactor</span><span class="p">]</span>
+	<span class="o">@</span><span class="n">TrackID</span> <span class="nb">int</span><span class="p">,</span>
+	<span class="o">@</span><span class="n">Factor</span> <span class="nb">NUMERIC</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">AS</span>
+	<span class="k">UPDATE</span> <span class="n">Track</span> <span class="k">SET</span> <span class="n">UnitPrice</span> <span class="o">*=</span> <span class="o">@</span><span class="n">Factor</span> <span class="k">WHERE</span> <span class="n">Track_Id</span> <span class="o">=</span> <span class="o">@</span><span class="n">TrackID</span><span class="p">;</span>
 
+<span class="k">RETURN</span> <span class="mi">0</span>
+<span class="k">GO</span>
+<span class="c1">-- Refactoring step to update target server with deployed transaction logs
+</span><span class="c1"></span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">OperationKey</span> <span class="k">FROM</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="k">WHERE</span> <span class="n">OperationKey</span> <span class="o">=</span> <span class="s1">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span class="p">)</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="p">(</span><span class="n">OperationKey</span><span class="p">)</span> <span class="k">values</span> <span class="p">(</span><span class="s1">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span class="p">)</span>
+
+<span class="k">GO</span></code></pre></div>
 <p>The <code>refactorlog</code> is updated to include this change, but there are no changes deployed to any of the tables that referenced the <code>TrackId</code> column via foreign keys. This is because foreign keys - as noted above - don&rsquo;t <em>really</em> use column names, they use object and column ids, so it is sufficient to rename the referenced column with <code>sp_rename</code>. Stored Procedures, triggers, and other programmable objects, however, <em>do</em> reference columns and tables by name - in <code>sys.sql_modules</code> - so these references aren&rsquo;t updated automatically.</p>
 
 <p>However, SSDT itself takes into consideration that when we rename a column referenced by a foreign (or primary) key, the definition required to create the constraint from scratch will need to be updated, which is why the files containing the referencing tables are all updated.</p>
@@ -378,16 +346,14 @@ PRINT N<span style="color: #b83838">&#39;Altering [dbo].[ChangeTrackPriceByFacto
 <p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/renaming%20a%20key%20column%20in%20the%20sql%20file.PNG" alt="Renaming a column by editing the .sql file" title="Renaming a column by editing the .sql file]" /></p>
 
 <p>In all other scenarios, the script executed at deploy time is as follows:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>PRINT N<span style="color: #b83838">&#39;Altering [dbo].[Genre]...&#39;</span><span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Altering [dbo].[Genre]...&#39;</span><span class="p">;</span>
 
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">ALTER</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>Genre<span style="color: #888888">]</span> <span style="color: #2838b0">DROP</span> <span style="color: #2838b0">COLUMN</span> <span style="color: #888888">[</span>Name<span style="color: #888888">];</span>
+<span class="k">GO</span>
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Genre</span><span class="p">]</span> <span class="k">DROP</span> <span class="k">COLUMN</span> <span class="p">[</span><span class="n">Name</span><span class="p">];</span>
 
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">ALTER</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>Genre<span style="color: #888888">]</span>
-    <span style="color: #2838b0">ADD</span> <span style="color: #888888">[</span>GenreName<span style="color: #888888">]</span> NVARCHAR <span style="color: #888888">(</span><span style="color: #444444">120</span><span style="color: #888888">)</span> <span style="color: #2838b0">NULL</span><span style="color: #888888">;</span>
-</pre></div>
-
+<span class="k">GO</span>
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Genre</span><span class="p">]</span>
+    <span class="k">ADD</span> <span class="p">[</span><span class="n">GenreName</span><span class="p">]</span> <span class="n">NVARCHAR</span> <span class="p">(</span><span class="mi">120</span><span class="p">)</span> <span class="k">NULL</span><span class="p">;</span></code></pre></div>
 <p>The only safety net left at this point is the <a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#pulling-the-trigger-3">BlockOnPossibleDataLoss</a> deploy-time option, which is enabled by default. This will stop the deployment from proceeding.</p>
 
 <pre><code>Msg 50000, Level 16, State 127, Line 48
@@ -412,28 +378,24 @@ Rows were detected. The schema update is terminating because data loss might occ
 <p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/Refactor%20renaming%20a%20table.PNG" alt="Refactor preview for renaming a table" title="Refactor preview for renaming a table" /></p>
 
 <p>On clicking apply, the relevant objects are updated and a new entry is inserted into the <code>refactorlog</code> file:</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">&lt;Operation</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;Rename Refactor&quot;</span> <span style="color: #388038">Key=</span><span style="color: #b83838">&quot;cce28c30-adb0-4019-876e-d93cc2ca0011&quot;</span> <span style="color: #388038">ChangeDateTime=</span><span style="color: #b83838">&quot;11/12/2016 14:22:18&quot;</span><span style="color: #2838b0">&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[Artist]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlTable&quot;</span> <span style="color: #2838b0">/&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlSchema&quot;</span> <span style="color: #2838b0">/&gt;</span>
-   <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;NewName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[Artiste]&quot;</span> <span style="color: #2838b0">/&gt;</span>
- <span style="color: #2838b0">&lt;/Operation&gt;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Rename Refactor&#34;</span> <span class="na">Key=</span><span class="s">&#34;cce28c30-adb0-4019-876e-d93cc2ca0011&#34;</span> <span class="na">ChangeDateTime=</span><span class="s">&#34;11/12/2016 14:22:18&#34;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Artist]&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlTable&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo]&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlSchema&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[Artiste]&#34;</span> <span class="nt">/&gt;</span>
+ <span class="nt">&lt;/Operation&gt;</span></code></pre></div>
 <p>The process for moving a table between schemas is similar, we are presented with a preview of the changes about to be made:</p>
 
 <p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/move%20to%20schema%20preview.PNG" alt="Refactor preview for move to schema" title="Refactor preview for move to schema" /></p>
 
 <p>and a new entry is made in the <code>refactorlog</code> file.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">&lt;Operation</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;Move Schema&quot;</span><span style="color: #388038">Key=</span><span style="color: #b83838">&quot;985e03c6-37f8-48c8-8ce8-5ed37fbb7c00&quot;</span><span style="color: #388038">ChangeDateTime=</span><span style="color: #b83838">&quot;11/12/2016 14:46:31&quot;</span><span style="color: #2838b0">&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[Invoice]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlTable&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;NewSchema&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;Sales&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;IsNewSchemaExternal&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;False&quot;</span> <span style="color: #2838b0">/&gt;</span>
-<span style="color: #2838b0">&lt;/Operation&gt;</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Move Schema&#34;</span><span class="na">Key=</span><span class="s">&#34;985e03c6-37f8-48c8-8ce8-5ed37fbb7c00&#34;</span><span class="na">ChangeDateTime=</span><span class="s">&#34;11/12/2016 14:46:31&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Invoice]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlTable&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewSchema&#34;</span> <span class="na">Value=</span><span class="s">&#34;Sales&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;IsNewSchemaExternal&#34;</span> <span class="na">Value=</span><span class="s">&#34;False&#34;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/Operation&gt;</span></code></pre></div>
 <p>Finally, when we come to deploy our change, the table is moved to the new schema and all the referencing objects are updated:</p>
 
 <pre><code>PRINT N'The following operation was generated from a refactoring log file 985e03c6-37f8-48c8-8ce8-5ed37fbb7c00';
@@ -458,19 +420,17 @@ GO
 <p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/rename%20validation%20error.PNG" alt="Error from renaming a table in the sql file" title="error from renaming a table in the .sql file" /></p>
 
 <p>If we are less lucky we may get some warnings (remember that deferred name resolution means that a missing table is only a warning rather than an error in a stored procedure), but at deploy time we will get a new table created with the new name, and possibly even a <code>DROP TABLE</code> for the existing table, assuming we have the appropriate options set. (By default, SSDT won&rsquo;t drop objects from the database unless we specify &ldquo;<a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#a-note-on-drop-objects-not-in-source">Drop objects in target but not in source</a>&rdquo;).</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span>PRINT N<span style="color: #b83838">&#39;Dropping [dbo].[PlaylistTrack]...&#39;</span><span style="color: #888888">;</span>
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">DROP</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>PlaylistTrack<span style="color: #888888">];</span>
-<span style="color: #2838b0">GO</span>
-PRINT N<span style="color: #b83838">&#39;Creating [dbo].[Playlist_Track]...&#39;</span><span style="color: #888888">;</span>
-<span style="color: #2838b0">GO</span>
-<span style="color: #2838b0">CREATE</span> <span style="color: #2838b0">TABLE</span> <span style="color: #888888">[</span>dbo<span style="color: #888888">].[</span>Playlist_Track<span style="color: #888888">]</span> <span style="color: #888888">(</span>
-    <span style="color: #888888">[</span>PlaylistId<span style="color: #888888">]</span> <span style="color: #388038">INT</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">NULL</span><span style="color: #888888">,</span>
-    <span style="color: #888888">[</span>TrackId<span style="color: #888888">]</span>    <span style="color: #388038">INT</span> <span style="color: #2838b0">NOT</span> <span style="color: #2838b0">NULL</span><span style="color: #888888">,</span>
-    <span style="color: #2838b0">CONSTRAINT</span> <span style="color: #888888">[</span>PK_PlaylistTrack<span style="color: #888888">]</span> <span style="color: #2838b0">PRIMARY</span> <span style="color: #2838b0">KEY</span> NONCLUSTERED <span style="color: #888888">([</span>PlaylistId<span style="color: #888888">]</span> <span style="color: #2838b0">ASC</span><span style="color: #888888">,</span> <span style="color: #888888">[</span>TrackId<span style="color: #888888">]</span> <span style="color: #2838b0">ASC</span><span style="color: #888888">)</span>
-<span style="color: #888888">);</span>
-</pre></div>
-
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Dropping [dbo].[PlaylistTrack]...&#39;</span><span class="p">;</span>
+<span class="k">GO</span>
+<span class="k">DROP</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">PlaylistTrack</span><span class="p">];</span>
+<span class="k">GO</span>
+<span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Creating [dbo].[Playlist_Track]...&#39;</span><span class="p">;</span>
+<span class="k">GO</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Playlist_Track</span><span class="p">]</span> <span class="p">(</span>
+    <span class="p">[</span><span class="n">PlaylistId</span><span class="p">]</span> <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">TrackId</span><span class="p">]</span>    <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="k">CONSTRAINT</span> <span class="p">[</span><span class="n">PK_PlaylistTrack</span><span class="p">]</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">NONCLUSTERED</span> <span class="p">([</span><span class="n">PlaylistId</span><span class="p">]</span> <span class="k">ASC</span><span class="p">,</span> <span class="p">[</span><span class="n">TrackId</span><span class="p">]</span> <span class="k">ASC</span><span class="p">)</span>
+<span class="p">);</span></code></pre></div>
 <h2 id="renaming-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules">Renaming Programmable Objects (Views, Functions, Stored Procedures, other miscellany in [<code>sys.sql_modules</code>]</h2>
 
 <blockquote>
@@ -480,15 +440,13 @@ PRINT N<span style="color: #b83838">&#39;Creating [dbo].[Playlist_Track]...&#39;
 <p>As noted in the <a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#dropping-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules-https-msdn-microsoft-com-en-us-library-ms175081-aspx">discussion of dropping programmable objects</a>, operations involving these objects involve substantially less risk of catastrophic data loss and consequent unemployment than similar operation involving tables and columns.</p>
 
 <p>It is still important to use the Refactor &rarr; Rename and Refactor &rarr; Move to Schema techniques to rename these objects rather than directly editing the <code>.sql</code> files, so that an entry is written to the <code>.refactorlog</code> file. This will ensure that the existing object is altered rather than a new one created at the expense of the old one.</p>
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">&lt;Operation</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;Rename Refactor&quot;</span> <span style="color: #388038">Key=</span><span style="color: #b83838">&quot;fc4b928d-9b00-4028-9cac-5859ba9b666c&quot;</span> <span style="color: #388038">ChangeDateTime=</span><span style="color: #b83838">&quot;11/12/2016 22:50:20&quot;</span><span style="color: #2838b0">&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo].[ChangeTrackPriceByFactor]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlProcedure&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[dbo]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;ParentElementType&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;SqlSchema&quot;</span> <span style="color: #2838b0">/&gt;</span>
-  <span style="color: #2838b0">&lt;Property</span> <span style="color: #388038">Name=</span><span style="color: #b83838">&quot;NewName&quot;</span> <span style="color: #388038">Value=</span><span style="color: #b83838">&quot;[ChangeTrackPriceByMultiplier]&quot;</span> <span style="color: #2838b0">/&gt;</span>
-<span style="color: #2838b0">&lt;/Operation&gt;</span>
-</pre></div>
-<div class="footnotes">
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Rename Refactor&#34;</span> <span class="na">Key=</span><span class="s">&#34;fc4b928d-9b00-4028-9cac-5859ba9b666c&#34;</span> <span class="na">ChangeDateTime=</span><span class="s">&#34;11/12/2016 22:50:20&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[ChangeTrackPriceByFactor]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlProcedure&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlSchema&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[ChangeTrackPriceByMultiplier]&#34;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/Operation&gt;</span></code></pre></div><div class="footnotes">
 
 <hr />
 

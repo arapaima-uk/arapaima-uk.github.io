@@ -29,28 +29,6 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
  
 
-<script type="text/javascript">
-  var _paq = _paq || [];
-  
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-   if (window.location.hostname == "localhost")
-     return;
-
-    var u="https://stats.arapaima.co.uk/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-
-
-
-<noscript><p><img src="https://stats.arapaima.co.uk/piwik.php?idsite=1&rec=1" style="border:0;" alt="" /></p></noscript>
-
 
 
 </head>
@@ -74,11 +52,11 @@
     
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/About/">Get in touch</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
       
     
       
-        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/BlogSetup/">Building this Site</a>
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
       
     
       
@@ -247,39 +225,35 @@
 
 <p>In short, we subclass the <code>SqlDatabaseTestService</code> class used in <code>SqlDatabaseSetup.cs</code> to allow us to deploy not one, but two projects from the <code>InitializeAssembly</code> method.</p>
 
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #2838b0">class</span> <span style="color: #287088">KebabDbTestService</span> <span style="color: #888888">:</span> SqlDatabaseTestService
-<span style="color: #888888">{</span>
-    <span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">DeployCompositeProject</span><span style="color: #888888">()</span>
-    <span style="color: #888888">{</span>
-        DeployDatabaseProject<span style="color: #888888">(</span><span style="color: #b83838">@&quot;..\..\..\KebabTestDemo\KebabTestDemo.sqlproj&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;Release&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;System.Data.SqlClient&quot;</span><span style="color: #888888">,</span> GetConnectionString<span style="color: #888888">());</span>
-        DeployDatabaseProject<span style="color: #888888">(</span><span style="color: #b83838">@&quot;..\..\..\KebabTestDemo.tSQLt\KebabTestDemo.tSQLt.sqlproj&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;Release&quot;</span><span style="color: #888888">,</span> <span style="color: #b83838">&quot;System.Data.SqlClient&quot;</span><span style="color: #888888">,</span> GetConnectionString<span style="color: #888888">());</span>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="k">class</span> <span class="nc">KebabDbTestService</span> <span class="p">:</span> <span class="n">SqlDatabaseTestService</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">void</span> <span class="n">DeployCompositeProject</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">DeployDatabaseProject</span><span class="p">(</span><span class="s">@&#34;..\..\..\KebabTestDemo\KebabTestDemo.sqlproj&#34;</span><span class="p">,</span> <span class="s">&#34;Release&#34;</span><span class="p">,</span> <span class="s">&#34;System.Data.SqlClient&#34;</span><span class="p">,</span> <span class="n">GetConnectionString</span><span class="p">());</span>
+        <span class="n">DeployDatabaseProject</span><span class="p">(</span><span class="s">@&#34;..\..\..\KebabTestDemo.tSQLt\KebabTestDemo.tSQLt.sqlproj&#34;</span><span class="p">,</span> <span class="s">&#34;Release&#34;</span><span class="p">,</span> <span class="s">&#34;System.Data.SqlClient&#34;</span><span class="p">,</span> <span class="n">GetConnectionString</span><span class="p">());</span>
 
-    <span style="color: #888888">}</span>
+    <span class="p">}</span>
 
-    <span style="color: #2838b0">private</span> <span style="color: #2838b0">static</span> <span style="color: #2838b0; font-style: italic">string</span> <span style="color: #785840">GetConnectionString</span><span style="color: #888888">()</span>
-    <span style="color: #888888">{</span>
-        <span style="color: #2838b0; font-style: italic">var</span> config <span style="color: #888888">=</span> <span style="color: #888888">(</span>SqlUnitTestingSection<span style="color: #888888">)</span> ConfigurationManager<span style="color: #888888">.</span>GetSection<span style="color: #888888">(</span><span style="color: #b83838">&quot;SqlUnitTesting&quot;</span><span style="color: #888888">);</span>
+    <span class="k">private</span> <span class="k">static</span> <span class="kt">string</span> <span class="n">GetConnectionString</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">config</span> <span class="p">=</span> <span class="p">(</span><span class="n">SqlUnitTestingSection</span><span class="p">)</span> <span class="n">ConfigurationManager</span><span class="p">.</span><span class="n">GetSection</span><span class="p">(</span><span class="s">&#34;SqlUnitTesting&#34;</span><span class="p">);</span>
 
-        <span style="color: #2838b0">return</span> config<span style="color: #888888">.</span>ExecutionContext<span style="color: #888888">.</span>ConnectionString<span style="color: #888888">;</span>
-    <span style="color: #888888">}</span>
-<span style="color: #888888">}</span>
-</pre></div>
-
+        <span class="k">return</span> <span class="n">config</span><span class="p">.</span><span class="n">ExecutionContext</span><span class="p">.</span><span class="n">ConnectionString</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
 
 <p>Note that this pays no attention to the <code>app.config</code> setting that tells us what projects to deploy, so caution is advised!</p>
 
 <p>We then call our new code from the <code>InitializeAssembly</code> method in <code>SqlDatabaseSetup</code>:</p>
 
-<p><div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="color: #888888; font-style: italic">// Setup the test database based on setting in the</span>
-<span style="color: #888888; font-style: italic">// configuration file</span>
-<span style="color: #888888; font-style: italic">//SqlDatabaseTestClass.TestService.DeployDatabaseProject();</span>
-<span style="color: #888888; font-style: italic">//SqlDatabaseTestClass.TestService.GenerateData();</span>
+<p><div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="c1">// Setup the test database based on setting in the
+</span><span class="c1">// configuration file
+</span><span class="c1">//SqlDatabaseTestClass.TestService.DeployDatabaseProject();
+</span><span class="c1">//SqlDatabaseTestClass.TestService.GenerateData();
+</span><span class="c1"></span>
+<span class="kt">var</span> <span class="n">service</span> <span class="p">=</span> <span class="k">new</span> <span class="n">KebabDbTestService</span><span class="p">();</span>
 
-<span style="color: #2838b0; font-style: italic">var</span> service <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> KebabDbTestService<span style="color: #888888">();</span>
-
-service<span style="color: #888888">.</span>DeployCompositeProject<span style="color: #888888">();</span>
-</pre></div>
-
+<span class="n">service</span><span class="p">.</span><span class="n">DeployCompositeProject</span><span class="p">();</span></code></pre></div>
 (the commented out code is the previous contents of this method)</p>
 
 <h3 id="transactions">Transactions</h3>
@@ -292,33 +266,31 @@ service<span style="color: #888888">.</span>DeployCompositeProject<span style="c
 
 <p>The only changes we make are the ones highlighted below; we add a reference to <code>System.Transactions</code> and a member variable of type <code>System.Transactions.TransactionScope</code>. We then initialise this variable in <code>TestInitialize()</code> and call its <code>Dispose()</code> method in <code>TestCleanup()</code>, which will throw away the transaction without committing it.</p>
 
-<div class="highlight" style="background: #ffffff"><pre style="line-height: 125%"><span></span><span style="background-color: #ffffcc"><span style="color: #2838b0">using</span> <span style="color: #289870">System.Transactions</span><span style="color: #888888">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="hl"><span class="k">using</span> <span class="nn">System.Transactions</span><span class="p">;</span>
 </span>
-<span style="color: #2838b0">namespace</span> <span style="color: #289870">KebabTestDemo.Tests</span>
-<span style="color: #888888">{</span>
-<span style="color: #388038">    [TestClass()]</span>
-    <span style="color: #2838b0">public</span> <span style="color: #2838b0">class</span> <span style="color: #287088">KebabOrderLineTests</span> <span style="color: #888888">:</span> SqlDatabaseTestClass
-    <span style="color: #888888">{</span>
-<span style="background-color: #ffffcc">        TransactionScope _t<span style="color: #888888">;</span>
-</span>        <span style="color: #2838b0">public</span> <span style="color: #785840">KebabOrderLineTests</span><span style="color: #888888">()</span>
-        <span style="color: #888888">{</span>
-            InitializeComponent<span style="color: #888888">();</span>
-        <span style="color: #888888">}</span>
-
-<span style="color: #388038">        [TestInitialize()]</span>
-        <span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">TestInitialize</span><span style="color: #888888">()</span>
-        <span style="color: #888888">{</span>
-<span style="background-color: #ffffcc">            _t <span style="color: #888888">=</span> <span style="color: #2838b0">new</span> TransactionScope<span style="color: #888888">();</span>
-</span>            <span style="color: #2838b0">base</span><span style="color: #888888">.</span>InitializeTest<span style="color: #888888">();</span>
-        <span style="color: #888888">}</span>
-<span style="color: #388038">        [TestCleanup()]</span>
-        <span style="color: #2838b0">public</span> <span style="color: #2838b0">void</span> <span style="color: #785840">TestCleanup</span><span style="color: #888888">()</span>
-        <span style="color: #888888">{</span>
-            <span style="color: #2838b0">base</span><span style="color: #888888">.</span>CleanupTest<span style="color: #888888">();</span>
-<span style="background-color: #ffffcc">            _t<span style="color: #888888">.</span>Dispose<span style="color: #888888">();</span>
-</span>        <span style="color: #888888">}</span>
-</pre></div>
-
+<span class="k">namespace</span> <span class="nn">KebabTestDemo.Tests</span>
+<span class="p">{</span><span class="na">
+</span><span class="na">    [TestClass()]</span>
+    <span class="k">public</span> <span class="k">class</span> <span class="nc">KebabOrderLineTests</span> <span class="p">:</span> <span class="n">SqlDatabaseTestClass</span>
+    <span class="p">{</span>
+<span class="hl">        <span class="n">TransactionScope</span> <span class="n">_t</span><span class="p">;</span>
+</span>        <span class="k">public</span> <span class="n">KebabOrderLineTests</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="n">InitializeComponent</span><span class="p">();</span>
+        <span class="p">}</span><span class="na">
+</span><span class="na">
+</span><span class="na">        [TestInitialize()]</span>
+        <span class="k">public</span> <span class="k">void</span> <span class="n">TestInitialize</span><span class="p">()</span>
+        <span class="p">{</span>
+<span class="hl">            <span class="n">_t</span> <span class="p">=</span> <span class="k">new</span> <span class="n">TransactionScope</span><span class="p">();</span>
+</span>            <span class="k">base</span><span class="p">.</span><span class="n">InitializeTest</span><span class="p">();</span>
+        <span class="p">}</span><span class="na">
+</span><span class="na">        [TestCleanup()]</span>
+        <span class="k">public</span> <span class="k">void</span> <span class="n">TestCleanup</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="k">base</span><span class="p">.</span><span class="n">CleanupTest</span><span class="p">();</span>
+<span class="hl">            <span class="n">_t</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+</span>        <span class="p">}</span></code></pre></div>
 
 <p>Now when we run our tests, each individual test will be wrapped in a transaction, which will be disposed of (i.e. rolled back) at the end of the test.</p>
 
