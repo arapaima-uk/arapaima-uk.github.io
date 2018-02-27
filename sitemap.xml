@@ -11,11 +11,6 @@
   </url>
   
   <url>
-    <loc>http://arapaima.uk/post/2018-02-27-hosting-multiple-reveal-js-presentations-github-pages/</loc>
-    <lastmod>2018-02-27T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>http://arapaima.uk/post/2017-10-23-vsts-secret-environment-variables/</loc>
     <lastmod>2017-10-23T00:00:00+00:00</lastmod>
   </url>
@@ -98,12 +93,6 @@
   </url>
   
   <url>
-    <loc>http://arapaima.uk/tags/github/</loc>
-    <lastmod>2018-02-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>http://arapaima.uk/tags/jenkins/</loc>
     <lastmod>2017-05-25T00:00:00+00:00</lastmod>
     <priority>0</priority>
@@ -116,12 +105,6 @@
   </url>
   
   <url>
-    <loc>http://arapaima.uk/tags/offtopic/</loc>
-    <lastmod>2018-02-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>http://arapaima.uk/tags/pester/</loc>
     <lastmod>2017-02-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
@@ -129,7 +112,7 @@
   
   <url>
     <loc>http://arapaima.uk/post/</loc>
-    <lastmod>2018-02-27T00:00:00+00:00</lastmod>
+    <lastmod>2017-10-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -148,12 +131,6 @@
   <url>
     <loc>http://arapaima.uk/series/refactoring-databases-with-ssdt/</loc>
     <lastmod>2016-11-12T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://arapaima.uk/tags/revealjs/</loc>
-    <lastmod>2018-02-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -217,7 +194,7 @@
   
   <url>
     <loc>http://arapaima.uk/</loc>
-    <lastmod>2018-02-27T00:00:00+00:00</lastmod>
+    <lastmod>2017-10-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
