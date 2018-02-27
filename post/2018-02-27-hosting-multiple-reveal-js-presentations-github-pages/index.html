@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Hosting your reveal.js presentations in a subfolder of your Github pages site &middot; arapaima.uk
+    
+  </title>
+
+  
+  <link rel="stylesheet" href="/css/poole.css">
+  <link rel="stylesheet" href="/css/syntax.css">
+  <link rel="stylesheet" href="/css/lanyon.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+  <link rel="stylesheet" href="/css/comments.css">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/assets/favicon.ico">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+ 
+
+
+
+</head>
+
+
+  <body class="theme-base-0d">
+
+    
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p>I'm Gavin Campbell, a database developer interested in Continuous Delivery, functional programming, and cricket.</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item " href="/">Home</a>
+    <a class="sidebar-nav-item " href="/post">Posts</a>
+
+    
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
+      
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a class="sidebar-nav-item " href="/index.xml">RSS</a>
+    
+
+  </nav>
+  
+  <div class = "sidebar-item">
+  <p> <a href = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io">
+      <img src = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt = "Travis CI Build Status" title = "Travis CI Build Status">
+      </a>
+    </p>
+  </div>
+  <div class="sidebar-item">
+    <p><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Content on arapaima.uk</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://arapaima.uk" property="cc:attributionName" rel="cc:attributionURL">Gavin Campbell, Arapaima Ltd</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+  </div>
+</div>
+
+
+    
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <h3 class="masthead-title">
+            <a href="/" title="Home">arapaima.uk</a>
+            <small>Data, Databases, Delivery</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+
+
+<div class="post">
+  <h1 class="post-title">Hosting your reveal.js presentations in a subfolder of your Github pages site</h1>
+  <span class="post-date">2018-02-27</span>
+  
+
+<p>Someone asked me how I did this so I thought I&rsquo;d note it down here in case it&rsquo;s of use to anyone else.</p>
+
+<p>There are a couple of things which I think are prerequisites, namely that this site <a href="http://arapaima.uk">arapaima.uk</a> is <a href="http://arapaima.uk/fixed/blogsetup/#github-setup">hosted on GitHub Pages</a>, and has a <a href="https://help.github.com/articles/using-a-custom-domain-with-github-pages/">custom domain</a>.</p>
+
+<p>Most of the <a href="https://revealjs.com">reveal.js</a> slides for the public talks I&rsquo;ve done, at least recently, are themselves hosted on Github, in individual repos such as <a href="https://github.com/arapaima-uk/slides-tsqlt-groupby">this one</a> or <a href="https://github.com/arapaima-uk/database-cd-ssdt-vsts">this one</a>.</p>
+
+<h2 id="tags">Tags</h2>
+
+<p>Now for the science bit. After I&rsquo;ve finished with a talk, I create a <a href="https://git-scm.com/book/en/v2/Git-Basics-Tagging">tag</a> in the repo that says which event it was from. Tags are created with the syntax</p>
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">git tag -a SQLBits2018 -m <span class="s2">&#34;SQLBits 2018, February 24 2018&#34;</span></code></pre></div>
+
+<p>and can be reviewed by typing <code>git tag</code> to see a list of tags, or <code>git show SQLBits2018</code> to see the commit to which the tag refers:</p>
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>gavin@THINKPAD database-cd-ssdt-vsts<span class="o">]</span>$ git show SQLBits2018 
+tag SQLBits2018
+Tagger: Gavin Campbell &lt;gavin@arapaima.uk&gt;
+Date:   Tue Feb <span class="m">27</span> <span class="m">17</span>:19:44 <span class="m">2018</span> +0000
+
+SQLBits <span class="m">2017</span>, <span class="m">24</span> February <span class="m">2018</span>
+
+commit bc5694ee81354a311bb37a457ec5c790ef970f8e <span class="o">(</span>HEAD -&gt; master, tag: SQLBits2018<span class="o">)</span>
+Author: Gavin Campbell &lt;gavin@arapaima.uk&gt;
+Date:   Tue Feb <span class="m">27</span> <span class="m">17</span>:13:46 <span class="m">2018</span> +0000
+
+    SQLBits Version</code></pre></div>
+
+<p>What the tags enable me to do is show two different versions of the <em>same repo</em> under different urls.</p>
+
+<p>Before we move onto the next stage, we need to explicitly push our tag(s) to the remote (i.e. GitHub) with the command <code>git push --tags</code>.</p>
+
+<h2 id="submodules">Submodules</h2>
+
+<p>The magic happens through the use of the much-maligned <a href="https://git-scm.com/docs/git-submodule"><code>git submodule</code></a> command.</p>
+
+<p>First, I created an empty repo called <code>presentations</code>.</p>
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mkdir presentations <span class="o">&amp;&amp;</span> <span class="nb">cd</span> presentations
+git init</code></pre></div>
+
+<p>Next, I clone the repo containing the presentation into a submodule of this empty repo.</p>
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>gavin@THINKPAD presentations<span class="o">]</span><span class="nv">$git</span> submodule add https://github.com/arapaima-uk/database-cd-ssdt-vsts database-cd-sqlbits-2018
+
+
+Cloning into <span class="s1">&#39;/home/gavin/presentations/database-cd-sqlbits-2018&#39;</span>...
+remote: Counting objects: <span class="m">233</span>, <span class="k">done</span>.
+remote: Compressing objects: <span class="m">100</span>% <span class="o">(</span><span class="m">183</span>/183<span class="o">)</span>, <span class="k">done</span>.
+remote: Total <span class="m">233</span> <span class="o">(</span>delta <span class="m">48</span><span class="o">)</span>, reused <span class="m">227</span> <span class="o">(</span>delta <span class="m">42</span><span class="o">)</span>, pack-reused <span class="m">0</span>
+Receiving objects: <span class="m">100</span>% <span class="o">(</span><span class="m">233</span>/233<span class="o">)</span>, <span class="m">7</span>.85 MiB <span class="p">|</span> <span class="m">442</span>.00 KiB/s, <span class="k">done</span>.
+Resolving deltas: <span class="m">100</span>% <span class="o">(</span><span class="m">48</span>/48<span class="o">)</span>, <span class="k">done</span>.</code></pre></div>
+
+<p>Note that I am specifying the folder name in which to create the submodule, this will form part of the url of the presentation so it has two purposes; firstly to give the folder a &ldquo;pretty&rdquo; name, and secondly to allow this repo to contain more than one submodule referring to the same repo, i.e. more than one version of the same presentation, by specifying <code>git submodule add https://github.com/arapaima-uk/database-cd-ssdt-vsts some-other-folder</code>.</p>
+
+<p>The other thing to note is that the clone url of the submodule <em>must</em> use <code>https://</code> rather than <code>git://</code>, or nothing will work. <em>Ask me how I know this sometime.</em></p>
+
+<p>Next, we need to change to the submodule directory, and <code>checkout</code> the tag we created earlier.</p>
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>gavin@THINKPAD database-cd-sqlbits-2018<span class="o">]</span>$ git checkout SQLBits2018 
+Note: checking out <span class="s1">&#39;SQLBits2018&#39;</span>.
+
+You are in <span class="s1">&#39;detached HEAD&#39;</span> state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+<span class="k">do</span> so <span class="o">(</span>now or later<span class="o">)</span> by using -b with the checkout <span class="nb">command</span> again. Example:
+
+  git checkout -b &lt;new-branch-name&gt;
+
+HEAD is now at bc5694e... SQLBits Version
+<span class="o">[</span>gavin@THINKPAD database-cd-sqlbits-2018<span class="o">]</span>$ git status
+HEAD detached at SQLBits2018
+nothing to commit, working tree clean</code></pre></div>
+
+<p>This has left our repo suffering from the dreaded &ldquo;<a href="https://www.google.co.uk/search?q=git+detached+head">detached head</a>&rdquo; condition, as confirmed above by <code>git status</code>,  and whilst I would ordinarily regard knowing how to recover from this as a key career-enhancing ability, in this instance we don&rsquo;t need to do anything.</p>
+
+<p>Without going into a detailed explanation of <code>git submodule</code>, if we go back to the <code>presentations</code> root directory (<code>cd ..</code>), and do <code>git status</code> again, we can see the following:</p>
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>gavin@THINKPAD presentations<span class="o">]</span>$ git status
+On branch master
+Your branch is up-to-date with <span class="s1">&#39;origin/master&#39;</span>.
+
+Changes to be committed:
+  <span class="o">(</span>use <span class="s2">&#34;git reset HEAD &lt;file&gt;...&#34;</span> to unstage<span class="o">)</span>
+
+	modified:   .gitmodules
+	new file:   database-cd-sqlbits-2018</code></pre></div>
+
+<p>There are no detached heads here, the <code>presentations</code> repo is still on the <code>master</code> branch, and we are adding the <code>database-cd-sqlbits-2018</code> folder as well as modifying the <code>.gitmodules</code> file, which contains a list of submodules as well as the commits to which they point, in this case the &ldquo;detached head&rdquo; tags. (I think the reason mine says <code>modified</code> rather than <code>added</code> is that this isn&rsquo;t the first submodule I&rsquo;ve created.)</p>
+
+<p>There&rsquo;s one more thing we need to do, which is to prevent <a href="#repo-settings">Github pages</a> from trying to render our <a href="https://revealjs.com">reveal.js</a> presentations using <a href="https://jekyllrb.com/">Jekyll</a>, Github&rsquo;s &ldquo;built-in&rdquo; static site generator. To do this, we just need to create an empty file called <code>.nojekyll</code> at the root of our repo. I also created a dummy <code>index.html</code>.</p>
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>gavin@THINKPAD presentations<span class="o">]</span><span class="nv">$touch</span> .nojekyll
+<span class="o">[</span>gavin@THINKPAD presentations<span class="o">]</span><span class="nv">$echo</span> <span class="s2">&#34;&lt;html&gt;&lt;body&gt;Some Text&lt;/body&gt;&lt;/html&gt;&#34;</span> &gt; index.html</code></pre></div>
+
+<p><em>(Yes, this took me a while to figure out. If you don&rsquo;t do this, you will get all sorts of errors reported when you try to publish the site. The index page does get rendered at arapaima.uk/presentations, one day I&rsquo;ll get around to making it prettier, possibly by reading the contents of the submodules and generating it dynamically. However, it isn&rsquo;t linked to anywhere, not even from here!)</em></p>
+
+<p>Finally we need to commit these changes in the main repo, and push them to Github.</p>
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>gavin@THINKPAD presentations<span class="o">]</span>$ git add .
+<span class="o">[</span>gavin@THINKPAD presentations<span class="o">]</span>$ git commit -m <span class="s2">&#34;added sqlbits presentation&#34;</span></code></pre></div>
+
+<p>If you haven&rsquo;t done so already, create the <code>presentations</code> repo in your GitHub account:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/hosting-revealjs-github-pages/createrepo.png" alt="Creating a Repo in the Github UI" />
+<em>(yes, I already had a &ldquo;<code>presentations</code>&rdquo;, so this one is called &ldquo;<code>presentation</code>&rdquo;!)</em></p>
+
+<p>then add it as a remote and push your changes:</p>
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">git remote add origin https://github.com/arapaima-uk/presentations.git
+git push -u origin master</code></pre></div>
+
+<p>You can see my <code>presentations</code> repo on Github <a href="https://github.com/arapaima-uk/presentations">here</a>.</p>
+
+<h2 id="repo-settings">Repo Settings</h2>
+
+<p>In the settings for the newly created repo, there is a section &ldquo;Github Pages&rdquo;:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/hosting-revealjs-github-pages/selectmasterbranch.png" alt="selecting the Github pages branch in the repo settings" /></p>
+
+<p>After selecting the <code>master</code> branch and clicking &ldquo;Save&rdquo;, you should see the following:</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/hosting-revealjs-github-pages/branchselected.png" alt="Github pages publish settings created" /></p>
+
+<p>Now, because the main site is a Github <a href="https://help.github.com/articles/user-organization-and-project-pages/">organisation page</a> with a custom domain, this project page has been created as a <a href="https://help.github.com/articles/custom-domain-redirects-for-github-pages-sites/">subdirectory of the main site</a>.</p>
+
+<p>If all is well, and you&rsquo;ve got to here, you should be able to see your presentation on <a href="http://arapaima.uk/presentations/database-cd-sqlbits-2018/">http://arapaima.uk/presentations/database-cd-sqlbits-2018/</a>, substituting your domain for <a href="http://arapaima.uk">arapaima.uk</a> and your presentation title for <code>database-cd-sqlbits-2018</code>.</p>
+
+<p>There&rsquo;s a list of all the talks I&rsquo;ve done, of which the top few have slide decks linked in this manner, <a href="http://arapaima.uk/fixed/speaking/#past">here</a>.</p>
+
+   
+</div>
+
+<section class="post-comments">
+  <h3>Comments</h3>
+
+  
+  
+  
+
+  
+    
+  
+    
+  
+
+  
+    <p>Nothing yet.</p>
+  
+
+  <h3>Say something</h3>
+
+  <form class="post-new-comment" method="POST" action="https://api.staticman.net/v2/entry/arapaima-uk/source.arapaima-uk.github.io/master/comments">
+    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2018-02-27-hosting-multiple-reveal-js-presentations-github-pages/#comment-submitted">
+     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2018-02-27-hosting-multiple-reveal-js-presentations-github-pages/">
+    <input type="hidden" name="options[entryId]" value="5bc89240df3da5963bbe6cdb74e1c50f">
+    <input name="fields[name]" type="text" class="post-comment-field" placeholder="Your name">
+    <input name="fields[email]" type="email" class="post-comment-field" placeholder="Your email address">
+    <textarea name="fields[body]" class="post-comment-field" placeholder="Your message. Feel free to use Markdown." rows="10"></textarea>
+    <input type="submit" class="post-comment-field btn" value="Submit">
+  </form>
+</section>
+
+<div id="comment-submitted" class="dialog">
+<h3>Thank you</h3>
+  <p>Your comment has been submitted and will be published once it has been approved.</p>
+  <p><a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/pulls">Click here</a> to see the pull request you generated.</p>
+  
+  <p><a href="#" class="btn">OK</a></p>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+  </body>
+</html>
+

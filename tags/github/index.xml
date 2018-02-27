@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>arapaima.uk </title>
+    <link>http://arapaima.uk/tags/github/</link>
+    <language>en-us</language>
+    <author>Gavin Campbell</author>
+    <rights>(C) 2018</rights>
+    <updated>2018-02-27 00:00:00 &#43;0000 UTC</updated>
+
+    
+      
+        <item>
+          <title>Hosting your reveal.js presentations in a subfolder of your Github pages site</title>
+          <link>http://arapaima.uk/post/2018-02-27-hosting-multiple-reveal-js-presentations-github-pages/</link>
+          <pubDate>Tue, 27 Feb 2018 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2018-02-27-hosting-multiple-reveal-js-presentations-github-pages/</guid>
+          <description>
+
+&lt;p&gt;Someone asked me how I did this so I thought I&amp;rsquo;d note it down here in case it&amp;rsquo;s of use to anyone else.&lt;/p&gt;
+
+&lt;p&gt;There are a couple of things which I think are prerequisites, namely that this site &lt;a href=&#34;http://arapaima.uk&#34;&gt;arapaima.uk&lt;/a&gt; is &lt;a href=&#34;http://arapaima.uk/fixed/blogsetup/#github-setup&#34;&gt;hosted on GitHub Pages&lt;/a&gt;, and has a &lt;a href=&#34;https://help.github.com/articles/using-a-custom-domain-with-github-pages/&#34;&gt;custom domain&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Most of the &lt;a href=&#34;https://revealjs.com&#34;&gt;reveal.js&lt;/a&gt; slides for the public talks I&amp;rsquo;ve done, at least recently, are themselves hosted on Github, in individual repos such as &lt;a href=&#34;https://github.com/arapaima-uk/slides-tsqlt-groupby&#34;&gt;this one&lt;/a&gt; or &lt;a href=&#34;https://github.com/arapaima-uk/database-cd-ssdt-vsts&#34;&gt;this one&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;tags&#34;&gt;Tags&lt;/h2&gt;
+
+&lt;p&gt;Now for the science bit. After I&amp;rsquo;ve finished with a talk, I create a &lt;a href=&#34;https://git-scm.com/book/en/v2/Git-Basics-Tagging&#34;&gt;tag&lt;/a&gt; in the repo that says which event it was from. Tags are created with the syntax&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;git tag -a SQLBits2018 -m &lt;span class=&#34;s2&#34;&gt;&amp;#34;SQLBits 2018, February 24 2018&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and can be reviewed by typing &lt;code&gt;git tag&lt;/code&gt; to see a list of tags, or &lt;code&gt;git show SQLBits2018&lt;/code&gt; to see the commit to which the tag refers:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;gavin@THINKPAD database-cd-ssdt-vsts&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ git show SQLBits2018 
+tag SQLBits2018
+Tagger: Gavin Campbell &amp;lt;gavin@arapaima.uk&amp;gt;
+Date:   Tue Feb &lt;span class=&#34;m&#34;&gt;27&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;17&lt;/span&gt;:19:44 &lt;span class=&#34;m&#34;&gt;2018&lt;/span&gt; +0000
+
+SQLBits &lt;span class=&#34;m&#34;&gt;2017&lt;/span&gt;, &lt;span class=&#34;m&#34;&gt;24&lt;/span&gt; February &lt;span class=&#34;m&#34;&gt;2018&lt;/span&gt;
+
+commit bc5694ee81354a311bb37a457ec5c790ef970f8e &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;HEAD -&amp;gt; master, tag: SQLBits2018&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+Author: Gavin Campbell &amp;lt;gavin@arapaima.uk&amp;gt;
+Date:   Tue Feb &lt;span class=&#34;m&#34;&gt;27&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;17&lt;/span&gt;:13:46 &lt;span class=&#34;m&#34;&gt;2018&lt;/span&gt; +0000
+
+    SQLBits Version&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;What the tags enable me to do is show two different versions of the &lt;em&gt;same repo&lt;/em&gt; under different urls.&lt;/p&gt;
+
+&lt;p&gt;Before we move onto the next stage, we need to explicitly push our tag(s) to the remote (i.e. GitHub) with the command &lt;code&gt;git push --tags&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;submodules&#34;&gt;Submodules&lt;/h2&gt;
+
+&lt;p&gt;The magic happens through the use of the much-maligned &lt;a href=&#34;https://git-scm.com/docs/git-submodule&#34;&gt;&lt;code&gt;git submodule&lt;/code&gt;&lt;/a&gt; command.&lt;/p&gt;
+
+&lt;p&gt;First, I created an empty repo called &lt;code&gt;presentations&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;mkdir presentations &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; presentations
+git init&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Next, I clone the repo containing the presentation into a submodule of this empty repo.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;gavin@THINKPAD presentations&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$git&lt;/span&gt; submodule add https://github.com/arapaima-uk/database-cd-ssdt-vsts database-cd-sqlbits-2018
+
+
+Cloning into &lt;span class=&#34;s1&#34;&gt;&amp;#39;/home/gavin/presentations/database-cd-sqlbits-2018&amp;#39;&lt;/span&gt;...
+remote: Counting objects: &lt;span class=&#34;m&#34;&gt;233&lt;/span&gt;, &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;.
+remote: Compressing objects: &lt;span class=&#34;m&#34;&gt;100&lt;/span&gt;% &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;183&lt;/span&gt;/183&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;, &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;.
+remote: Total &lt;span class=&#34;m&#34;&gt;233&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;delta &lt;span class=&#34;m&#34;&gt;48&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;, reused &lt;span class=&#34;m&#34;&gt;227&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;delta &lt;span class=&#34;m&#34;&gt;42&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;, pack-reused &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;
+Receiving objects: &lt;span class=&#34;m&#34;&gt;100&lt;/span&gt;% &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;233&lt;/span&gt;/233&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;, &lt;span class=&#34;m&#34;&gt;7&lt;/span&gt;.85 MiB &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;442&lt;/span&gt;.00 KiB/s, &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;.
+Resolving deltas: &lt;span class=&#34;m&#34;&gt;100&lt;/span&gt;% &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;48&lt;/span&gt;/48&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;, &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Note that I am specifying the folder name in which to create the submodule, this will form part of the url of the presentation so it has two purposes; firstly to give the folder a &amp;ldquo;pretty&amp;rdquo; name, and secondly to allow this repo to contain more than one submodule referring to the same repo, i.e. more than one version of the same presentation, by specifying &lt;code&gt;git submodule add https://github.com/arapaima-uk/database-cd-ssdt-vsts some-other-folder&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The other thing to note is that the clone url of the submodule &lt;em&gt;must&lt;/em&gt; use &lt;code&gt;https://&lt;/code&gt; rather than &lt;code&gt;git://&lt;/code&gt;, or nothing will work. &lt;em&gt;Ask me how I know this sometime.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Next, we need to change to the submodule directory, and &lt;code&gt;checkout&lt;/code&gt; the tag we created earlier.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;gavin@THINKPAD database-cd-sqlbits-2018&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ git checkout SQLBits2018 
+Note: checking out &lt;span class=&#34;s1&#34;&gt;&amp;#39;SQLBits2018&amp;#39;&lt;/span&gt;.
+
+You are in &lt;span class=&#34;s1&#34;&gt;&amp;#39;detached HEAD&amp;#39;&lt;/span&gt; state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+&lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; so &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;now or later&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; by using -b with the checkout &lt;span class=&#34;nb&#34;&gt;command&lt;/span&gt; again. Example:
+
+  git checkout -b &amp;lt;new-branch-name&amp;gt;
+
+HEAD is now at bc5694e... SQLBits Version
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;gavin@THINKPAD database-cd-sqlbits-2018&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ git status
+HEAD detached at SQLBits2018
+nothing to commit, working tree clean&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This has left our repo suffering from the dreaded &amp;ldquo;&lt;a href=&#34;https://www.google.co.uk/search?q=git+detached+head&#34;&gt;detached head&lt;/a&gt;&amp;rdquo; condition, as confirmed above by &lt;code&gt;git status&lt;/code&gt;,  and whilst I would ordinarily regard knowing how to recover from this as a key career-enhancing ability, in this instance we don&amp;rsquo;t need to do anything.&lt;/p&gt;
+
+&lt;p&gt;Without going into a detailed explanation of &lt;code&gt;git submodule&lt;/code&gt;, if we go back to the &lt;code&gt;presentations&lt;/code&gt; root directory (&lt;code&gt;cd ..&lt;/code&gt;), and do &lt;code&gt;git status&lt;/code&gt; again, we can see the following:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;gavin@THINKPAD presentations&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ git status
+On branch master
+Your branch is up-to-date with &lt;span class=&#34;s1&#34;&gt;&amp;#39;origin/master&amp;#39;&lt;/span&gt;.
+
+Changes to be committed:
+  &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;use &lt;span class=&#34;s2&#34;&gt;&amp;#34;git reset HEAD &amp;lt;file&amp;gt;...&amp;#34;&lt;/span&gt; to unstage&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+
+	modified:   .gitmodules
+	new file:   database-cd-sqlbits-2018&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;There are no detached heads here, the &lt;code&gt;presentations&lt;/code&gt; repo is still on the &lt;code&gt;master&lt;/code&gt; branch, and we are adding the &lt;code&gt;database-cd-sqlbits-2018&lt;/code&gt; folder as well as modifying the &lt;code&gt;.gitmodules&lt;/code&gt; file, which contains a list of submodules as well as the commits to which they point, in this case the &amp;ldquo;detached head&amp;rdquo; tags. (I think the reason mine says &lt;code&gt;modified&lt;/code&gt; rather than &lt;code&gt;added&lt;/code&gt; is that this isn&amp;rsquo;t the first submodule I&amp;rsquo;ve created.)&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s one more thing we need to do, which is to prevent &lt;a href=&#34;#repo-settings&#34;&gt;Github pages&lt;/a&gt; from trying to render our &lt;a href=&#34;https://revealjs.com&#34;&gt;reveal.js&lt;/a&gt; presentations using &lt;a href=&#34;https://jekyllrb.com/&#34;&gt;Jekyll&lt;/a&gt;, Github&amp;rsquo;s &amp;ldquo;built-in&amp;rdquo; static site generator. To do this, we just need to create an empty file called &lt;code&gt;.nojekyll&lt;/code&gt; at the root of our repo. I also created a dummy &lt;code&gt;index.html&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;gavin@THINKPAD presentations&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$touch&lt;/span&gt; .nojekyll
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;gavin@THINKPAD presentations&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;Some Text&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;&amp;#34;&lt;/span&gt; &amp;gt; index.html&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;em&gt;(Yes, this took me a while to figure out. If you don&amp;rsquo;t do this, you will get all sorts of errors reported when you try to publish the site. The index page does get rendered at arapaima.uk/presentations, one day I&amp;rsquo;ll get around to making it prettier, possibly by reading the contents of the submodules and generating it dynamically. However, it isn&amp;rsquo;t linked to anywhere, not even from here!)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally we need to commit these changes in the main repo, and push them to Github.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;gavin@THINKPAD presentations&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ git add .
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;gavin@THINKPAD presentations&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ git commit -m &lt;span class=&#34;s2&#34;&gt;&amp;#34;added sqlbits presentation&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;If you haven&amp;rsquo;t done so already, create the &lt;code&gt;presentations&lt;/code&gt; repo in your GitHub account:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/hosting-revealjs-github-pages/createrepo.png&#34; alt=&#34;Creating a Repo in the Github UI&#34; /&gt;
+&lt;em&gt;(yes, I already had a &amp;ldquo;&lt;code&gt;presentations&lt;/code&gt;&amp;rdquo;, so this one is called &amp;ldquo;&lt;code&gt;presentation&lt;/code&gt;&amp;rdquo;!)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;then add it as a remote and push your changes:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;git remote add origin https://github.com/arapaima-uk/presentations.git
+git push -u origin master&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can see my &lt;code&gt;presentations&lt;/code&gt; repo on Github &lt;a href=&#34;https://github.com/arapaima-uk/presentations&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;repo-settings&#34;&gt;Repo Settings&lt;/h2&gt;
+
+&lt;p&gt;In the settings for the newly created repo, there is a section &amp;ldquo;Github Pages&amp;rdquo;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/hosting-revealjs-github-pages/selectmasterbranch.png&#34; alt=&#34;selecting the Github pages branch in the repo settings&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After selecting the &lt;code&gt;master&lt;/code&gt; branch and clicking &amp;ldquo;Save&amp;rdquo;, you should see the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/hosting-revealjs-github-pages/branchselected.png&#34; alt=&#34;Github pages publish settings created&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now, because the main site is a Github &lt;a href=&#34;https://help.github.com/articles/user-organization-and-project-pages/&#34;&gt;organisation page&lt;/a&gt; with a custom domain, this project page has been created as a &lt;a href=&#34;https://help.github.com/articles/custom-domain-redirects-for-github-pages-sites/&#34;&gt;subdirectory of the main site&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If all is well, and you&amp;rsquo;ve got to here, you should be able to see your presentation on &lt;a href=&#34;http://arapaima.uk/presentations/database-cd-sqlbits-2018/&#34;&gt;http://arapaima.uk/presentations/database-cd-sqlbits-2018/&lt;/a&gt;, substituting your domain for &lt;a href=&#34;http://arapaima.uk&#34;&gt;arapaima.uk&lt;/a&gt; and your presentation title for &lt;code&gt;database-cd-sqlbits-2018&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s a list of all the talks I&amp;rsquo;ve done, of which the top few have slide decks linked in this manner, &lt;a href=&#34;http://arapaima.uk/fixed/speaking/#past&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+</description>
+        </item>
+      
+    
+
+  </channel>
+</rss>
