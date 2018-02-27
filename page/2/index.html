@@ -128,6 +128,14 @@
     
       
     
+      
+    
+      
+    
+      
+    
+      
+    
     <a class="sidebar-nav-item " href="/index.xml">RSS</a>
     
 
@@ -163,6 +171,306 @@
 
 
 <div class="posts">
+  
+    <div class="post">
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2016-11-12-database-refactoring-ssdt-renaming-objects/">What&#39;s in a name?</a></h1>
+        <span class="post-date">2016-11-12</span>
+        
+
+<p>Continuing our horticultural theme, in this article we&rsquo;ll look at the built-in support in SSDT for renaming database objects including tables, columns, and programmable objects, as well as peering into the details of how these changes are managed at deployment time.</p>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/6/66/Rosa_laxa.jpg" alt="That which we call a rose. By any other name would smell as sweet" title="That which we call a rose. By any other name would smell as sweet" /></p>
+
+<h2 id="renaming-columns">Renaming columns</h2>
+
+<blockquote>
+<p>Refactoring Databases, p 109</p>
+</blockquote>
+
+<h3 id="the-easy-way">The easy way</h3>
+
+<p>We can rename a column just by right-clicking in the <code>CREATE TABLE</code> script and selecting Refactor &rarr; Rename.</p>
+
+<p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/RefactorRenameSelected.PNG" alt="Renaming the InvoiceId Column by right-clicking in the editor window" title="Renaming the InvoiceId Column by right-clicking in the editor window" /></p>
+
+<p>Under normal circumstances, renaming the Primary Key column of a table such as &ldquo;Invoices&rdquo; would be a recipe for disaster, but SSDT can help to ease such changes by automatically updating all references to the column to use the new name. In this case we are renaming the column InvoiceId to Invoice_Id, and by specifying the option to preview the changes, we can see a list of all the objects that reference this column by its old name.</p>
+
+<p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/rename%20column%20preview.PNG" alt="SSDT shows a preview of which objects will be updated to refer to the new name" title="SSDT shows a preview of which objects will be updated to refer to the new name" /></p>
+
+<p>There&rsquo;s something of note here, which is that <em>only</em> the InvoiceId column from the Invoices table is being renamed, any other columns called InvoiceId (such as the one in the InvoiceLine table) are unaffected. The foreign key constraint on that particular column, however, <em>is</em> updated to use the new name of the referenced column.</p>
+
+<p>What this demonstrates is that there is something more than global search and replace going on here; SSDT is using its in-memory model of the database to determine which changes need to be made<sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup>.</p>
+
+<h3 id="the-refactorlog">The refactorlog</h3>
+
+<p>When we click apply, two things happen. The first is that all the references to this column are updated to use the new name. The second is that a new file appears in the solution, with the extension <code>.refactorlog</code>.</p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;</span>
+<span class="nt">&lt;Operations</span> <span class="na">Version=</span><span class="s">&#34;1.0&#34;</span> <span class="na">xmlns=</span><span class="s">&#34;http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Rename Refactor&#34;</span> <span class="na">Key=</span><span class="s">&#34;209f3afd-7195-401f-853f-aa3a906d39db&#34;</span> <span class="na">ChangeDateTime=</span><span class="s">&#34;11/08/2016 20:02:31&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Invoice].[InvoiceId]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlSimpleColumn&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Invoice]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlTable&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[Invoice_Id]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/Operation&gt;</span>
+<span class="nt">&lt;/Operations&gt;</span></code></pre></div>
+<p>This file is how <code>sqlpackage.exe</code> (or SSDT publish, or DacFX.Deploy) will detemine <em>at deploy time</em> that we are renaming this column from InvoiceID to Invoice_Id rather than dropping the InvoiceID column and creating a new column called Invoice_ID. We can see in the XML that this is specifying the column and table name, and the precise action to perform. This is known, in the jargon, as &ldquo;preserving the intent&rdquo; of the refactoring. If we build a project containing a <code>.refactorlog</code> file and examine the resulting <code>.dacpac</code>, we can see that the regular <code>.dacpac</code> contents have been joined by a <code>refactor.xml</code> file.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">$ unzip -l Refactoring.Chinook.dacpac
+Archive:  Refactoring.Chinook.dacpac
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+    69711  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   model.xml</span>
+      606  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   refactor.xml</span>
+      203  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   DacMetadata.xml</span>
+     1118  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   Origin.xml</span>
+      175  2016-11-10 05<span class="p">:</span><span class="nl">44</span><span class="c1">   [Content_Types].xml</span>
+---------                     -------
+    71813                     5 files</code></pre></div>
+<p>The contents of this file are the same as the <code>.refactorlog</code> file from our solution.</p>
+
+<p>When we publish the project we see the following output:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bat" data-lang="bat">The following operation was generated from a refactoring log file 209f3afd-7195-401f-853f-aa3a906d39db
+<span class="k">Rename</span> [dbo].[Invoice].[InvoiceId] to Invoice_Id
+Caution: Changing any part of an object name could break scripts and stored procedures.
+
+Altering [dbo].[InvoicesWithLineTotals]...
+Altering [dbo].[UpdateInvoiceBillingAddress]...
+Update complete.</code></pre></div>
+<p>The publish action has read the <code>refactorlog</code> file and taken the appropriate action. In addition, the &ldquo;key&rdquo; for this refactoring has been stored in a new table in our database called <code>dbo._RefactorLog</code>, which gets created the first time we deploy a dacpac containing a <code>refactor.xml</code> file:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="c1">-- Refactoring step to update target server with deployed transaction logs
+</span><span class="c1"></span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">OperationKey</span> <span class="k">FROM</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="k">WHERE</span> <span class="n">OperationKey</span> <span class="o">=</span> <span class="s1">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span class="p">)</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="p">(</span><span class="n">OperationKey</span><span class="p">)</span> <span class="k">values</span> <span class="p">(</span><span class="s1">&#39;209f3afd-7195-401f-853f-aa3a906d39db&#39;</span><span class="p">)</span></code></pre></div>
+<p>On subsequent deployments, this table is read and any refactorings recorded here are skipped from the deployment.</p>
+
+<h3 id="appearances-can-be-deceptive">Appearances can be deceptive</h3>
+
+<p>There&rsquo;s another UI wrinkle here which is worth examining, so we will rename another column, this time using the table designer.</p>
+
+<p>Another entry has been added to the <code>refactorlog</code> file, and it appears as if the references to this column elsewhere in the model have been updated (note the red tick showing that <code>PlaylistTrack.sql</code> and <code>InvoiceLine.sql</code> have been modified.)
+<img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/Renaming%20a%20Column%20in%20the%20table%20designer.PNG" alt="Renaming a column using the table designer" title="Renaming a column using the table designer" />
+However, when we go to build the project, we get an error:</p>
+
+<pre><code>SQL71501: Procedure: [dbo].[ChangeTrackPriceByFactor] has an unresolved reference to object [dbo].[Track].[TrackId].	
+</code></pre>
+
+<p>(Alternatively, the error will appear in the SSDT UI as soon as the Intellisense catches up). There was a stored procedure referencing this column by name, which is now causing the build to fail (remember that <a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#dropping-a-table">deferred name resolution works for table names but not for column names</a>.</p>
+
+<p>This is because of a detail of how foreign keys - and primary keys, for that matter - are maintained by SQL Server itself. If we look at the contents of <code>sys.foreign_key_columns</code>, there isn&rsquo;t a column name in sight (<code>sys.index_columns</code> looks much the same):</p>
+
+<table>
+<thead>
+<tr>
+<th>constraint_ object_id</th>
+<th>constraint_ column_id</th>
+<th>parent_ object_id</th>
+<th>parent_ column_id</th>
+<th>referenced_ object_id</th>
+<th>referenced_ column_id</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>1045578763</td>
+<td>1</td>
+<td>885578193</td>
+<td>3</td>
+<td>565577053</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td>917578307</td>
+<td>1</td>
+<td>565577053</td>
+<td>3</td>
+<td>597577167</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td>965578478</td>
+<td>1</td>
+<td>725577623</td>
+<td>2</td>
+<td>629577281</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td>933578364</td>
+<td>1</td>
+<td>629577281</td>
+<td>13</td>
+<td>661577395</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td>&hellip;</td>
+<td>&hellip;</td>
+<td>&hellip;</td>
+<td>&hellip;</td>
+<td>&hellip;</td>
+<td>&hellip;</td>
+</tr>
+</tbody>
+</table>
+
+<p>If we fix the reference in our stored procedure and go on to generate a publish script, all we see for this change is</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;The following operation was generated from a refactoring log file 8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span class="p">;</span>
+
+<span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Rename [dbo].[Track].[TrackId] to Track_Id&#39;</span><span class="p">;</span>
+
+
+<span class="k">GO</span>
+<span class="k">EXECUTE</span> <span class="n">sp_rename</span> <span class="o">@</span><span class="n">objname</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;[dbo].[Track].[TrackId]&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">newname</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;Track_Id&#39;</span><span class="p">,</span> <span class="o">@</span><span class="n">objtype</span> <span class="o">=</span> <span class="n">N</span><span class="s1">&#39;COLUMN&#39;</span><span class="p">;</span>
+
+
+<span class="k">GO</span>
+<span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Altering [dbo].[ChangeTrackPriceByFactor]...&#39;</span><span class="p">;</span>
+
+
+<span class="k">GO</span>
+<span class="k">ALTER</span> <span class="k">PROCEDURE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">ChangeTrackPriceByFactor</span><span class="p">]</span>
+	<span class="o">@</span><span class="n">TrackID</span> <span class="nb">int</span><span class="p">,</span>
+	<span class="o">@</span><span class="n">Factor</span> <span class="nb">NUMERIC</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">AS</span>
+	<span class="k">UPDATE</span> <span class="n">Track</span> <span class="k">SET</span> <span class="n">UnitPrice</span> <span class="o">*=</span> <span class="o">@</span><span class="n">Factor</span> <span class="k">WHERE</span> <span class="n">Track_Id</span> <span class="o">=</span> <span class="o">@</span><span class="n">TrackID</span><span class="p">;</span>
+
+<span class="k">RETURN</span> <span class="mi">0</span>
+<span class="k">GO</span>
+<span class="c1">-- Refactoring step to update target server with deployed transaction logs
+</span><span class="c1"></span><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">OperationKey</span> <span class="k">FROM</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="k">WHERE</span> <span class="n">OperationKey</span> <span class="o">=</span> <span class="s1">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span class="p">)</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">__RefactorLog</span><span class="p">]</span> <span class="p">(</span><span class="n">OperationKey</span><span class="p">)</span> <span class="k">values</span> <span class="p">(</span><span class="s1">&#39;8a905288-76de-4cc4-aad9-c6dddf081a17&#39;</span><span class="p">)</span>
+
+<span class="k">GO</span></code></pre></div>
+<p>The <code>refactorlog</code> is updated to include this change, but there are no changes deployed to any of the tables that referenced the <code>TrackId</code> column via foreign keys. This is because foreign keys - as noted above - don&rsquo;t <em>really</em> use column names, they use object and column ids, so it is sufficient to rename the referenced column with <code>sp_rename</code>. Stored Procedures, triggers, and other programmable objects, however, <em>do</em> reference columns and tables by name - in <code>sys.sql_modules</code> - so these references aren&rsquo;t updated automatically.</p>
+
+<p>However, SSDT itself takes into consideration that when we rename a column referenced by a foreign (or primary) key, the definition required to create the constraint from scratch will need to be updated, which is why the files containing the referencing tables are all updated.</p>
+
+<p>This behaviour may seem inconsistent, but it is in fact consistent with the <a href="https://msdn.microsoft.com/en-gb/library/ms188351.aspx#Anchor_3" title="MSDN documentation for sp_rename">behaviour of <code>sp_rename</code> itself</a>, which is to say that constraints and indexes aren&rsquo;t broken by <code>sp_rename</code>, but stored procedures, triggers, etc. are.</p>
+
+<h3 id="the-wrong-way">The wrong way</h3>
+
+<p>In contrast, renaming a column by editing the Transact-SQL file directly delivers the promised disaster, as SSDT will attempt to drop the column with the old name and create a new column with the new name.</p>
+
+<p>In the best-case scenario we get a validation error that stops the project from building, assuming the renamed column is referenced by some other object in the project.</p>
+
+<p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/renaming%20a%20key%20column%20in%20the%20sql%20file.PNG" alt="Renaming a column by editing the .sql file" title="Renaming a column by editing the .sql file]" /></p>
+
+<p>In all other scenarios, the script executed at deploy time is as follows:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Altering [dbo].[Genre]...&#39;</span><span class="p">;</span>
+
+<span class="k">GO</span>
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Genre</span><span class="p">]</span> <span class="k">DROP</span> <span class="k">COLUMN</span> <span class="p">[</span><span class="n">Name</span><span class="p">];</span>
+
+<span class="k">GO</span>
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Genre</span><span class="p">]</span>
+    <span class="k">ADD</span> <span class="p">[</span><span class="n">GenreName</span><span class="p">]</span> <span class="n">NVARCHAR</span> <span class="p">(</span><span class="mi">120</span><span class="p">)</span> <span class="k">NULL</span><span class="p">;</span></code></pre></div>
+<p>The only safety net left at this point is the <a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#pulling-the-trigger-3">BlockOnPossibleDataLoss</a> deploy-time option, which is enabled by default. This will stop the deployment from proceeding.</p>
+
+<pre><code>Msg 50000, Level 16, State 127, Line 48
+Rows were detected. The schema update is terminating because data loss might occur.
+** An error was encountered during execution of batch. Exiting.
+</code></pre>
+
+<h2 id="renaming-tables">Renaming tables</h2>
+
+<blockquote>
+<p>Refactoring Databases, p 113</p>
+</blockquote>
+
+<p>There are two options in the refactoring context menu that are relevant to naming tables; &ldquo;Rename&rdquo; and &ldquo;Move to Schema&rdquo;. In some RDBMSs, notably <a href="https://docs.oracle.com/database/122/CNCPT/tables-and-table-clusters.htm#GUID-72E247B5-F39A-47F1-9445-72D9221F57E3" title="Introduction to schema objects, Oracle 12.2">Oracle</a>, the notion of a schema is tightly coupled to the notion of a user, such that the user account in question &ldquo;owns&rdquo; the tables and other objects contained therein. SQL Server implemented a similar concept prior to SQL Server 2005, when the <a href="https://technet.microsoft.com/en-us/library/dd283095.aspx" title="SQL Server Best Practices – Implementation of Database Object Schemas">link between users and schemas was severed</a> such that a schema became more like a namespace, or even a filesystem folder, since a schema remains a securable object. Under either analogy - namespace or folder - the name of the schema can be considered to be a part of the (qualified) name of the table, meaning that moving an object to a new schema is merely a special case of renaming.</p>
+
+<h3 id="the-right-way">The right way</h3>
+
+<p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/refactoring-menu.PNG" alt="Right-click refactor menu for a table" title="Right-click Refactor menu for a table" /></p>
+
+<p>When we rename a table, we get the usual &ldquo;refactor preview&rdquo; showing the changes about to be applied to the project:</p>
+
+<p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/Refactor%20renaming%20a%20table.PNG" alt="Refactor preview for renaming a table" title="Refactor preview for renaming a table" /></p>
+
+<p>On clicking apply, the relevant objects are updated and a new entry is inserted into the <code>refactorlog</code> file:</p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Rename Refactor&#34;</span> <span class="na">Key=</span><span class="s">&#34;cce28c30-adb0-4019-876e-d93cc2ca0011&#34;</span> <span class="na">ChangeDateTime=</span><span class="s">&#34;11/12/2016 14:22:18&#34;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Artist]&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlTable&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo]&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlSchema&#34;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[Artiste]&#34;</span> <span class="nt">/&gt;</span>
+ <span class="nt">&lt;/Operation&gt;</span></code></pre></div>
+<p>The process for moving a table between schemas is similar, we are presented with a preview of the changes about to be made:</p>
+
+<p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/move%20to%20schema%20preview.PNG" alt="Refactor preview for move to schema" title="Refactor preview for move to schema" /></p>
+
+<p>and a new entry is made in the <code>refactorlog</code> file.</p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Move Schema&#34;</span><span class="na">Key=</span><span class="s">&#34;985e03c6-37f8-48c8-8ce8-5ed37fbb7c00&#34;</span><span class="na">ChangeDateTime=</span><span class="s">&#34;11/12/2016 14:46:31&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[Invoice]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlTable&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewSchema&#34;</span> <span class="na">Value=</span><span class="s">&#34;Sales&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;IsNewSchemaExternal&#34;</span> <span class="na">Value=</span><span class="s">&#34;False&#34;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/Operation&gt;</span></code></pre></div>
+<p>Finally, when we come to deploy our change, the table is moved to the new schema and all the referencing objects are updated:</p>
+
+<pre><code>PRINT N'The following operation was generated from a refactoring log file 985e03c6-37f8-48c8-8ce8-5ed37fbb7c00';
+
+PRINT N'Move object [dbo].[Invoice] to different schema [Sales]';
+
+GO
+ALTER SCHEMA [Sales] TRANSFER [dbo].[Invoice];
+
+GO
+ALTER VIEW [dbo].[InvoicesWithLineTotals] 
+	AS SELECT I.[Invoice_Id],
+	InvoiceTotal
+	FROM [Sales].Invoice AS I CROSS APPLY dbo.CalculateInvoiceTotal(I.[Invoice_Id]);
+GO
+</code></pre>
+
+<h3 id="the-wrong-way-1">The wrong way</h3>
+
+<p>As with columns, if we rename a table by editing the <code>.sql</code> file directly, we get a potentially undesirable outcome, namely that a new table will created with the new name, possibly at the expense of the current table. If we are lucky we get a validation error that stops the project from building:</p>
+
+<p><img src="http://aksidjenakfjg.s3.amazonaws.com/ssdt-refactoring-part-2/rename%20validation%20error.PNG" alt="Error from renaming a table in the sql file" title="error from renaming a table in the .sql file" /></p>
+
+<p>If we are less lucky we may get some warnings (remember that deferred name resolution means that a missing table is only a warning rather than an error in a stored procedure), but at deploy time we will get a new table created with the new name, and possibly even a <code>DROP TABLE</code> for the existing table, assuming we have the appropriate options set. (By default, SSDT won&rsquo;t drop objects from the database unless we specify &ldquo;<a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#a-note-on-drop-objects-not-in-source">Drop objects in target but not in source</a>&rdquo;).</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Dropping [dbo].[PlaylistTrack]...&#39;</span><span class="p">;</span>
+<span class="k">GO</span>
+<span class="k">DROP</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">PlaylistTrack</span><span class="p">];</span>
+<span class="k">GO</span>
+<span class="n">PRINT</span> <span class="n">N</span><span class="s1">&#39;Creating [dbo].[Playlist_Track]...&#39;</span><span class="p">;</span>
+<span class="k">GO</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="p">[</span><span class="n">dbo</span><span class="p">].[</span><span class="n">Playlist_Track</span><span class="p">]</span> <span class="p">(</span>
+    <span class="p">[</span><span class="n">PlaylistId</span><span class="p">]</span> <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">TrackId</span><span class="p">]</span>    <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="k">CONSTRAINT</span> <span class="p">[</span><span class="n">PK_PlaylistTrack</span><span class="p">]</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">NONCLUSTERED</span> <span class="p">([</span><span class="n">PlaylistId</span><span class="p">]</span> <span class="k">ASC</span><span class="p">,</span> <span class="p">[</span><span class="n">TrackId</span><span class="p">]</span> <span class="k">ASC</span><span class="p">)</span>
+<span class="p">);</span></code></pre></div>
+<h2 id="renaming-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules">Renaming Programmable Objects (Views, Functions, Stored Procedures, other miscellany in [<code>sys.sql_modules</code>]</h2>
+
+<blockquote>
+<p>Refactoring Databases, p 117</p>
+</blockquote>
+
+<p>As noted in the <a href="/post/2016-10-25-database-refactoring-ssdt-dropping-objects/#dropping-programmable-objects-views-functions-stored-procedures-other-miscellany-in-sys-sql-modules-https-msdn-microsoft-com-en-us-library-ms175081-aspx">discussion of dropping programmable objects</a>, operations involving these objects involve substantially less risk of catastrophic data loss and consequent unemployment than similar operation involving tables and columns.</p>
+
+<p>It is still important to use the Refactor &rarr; Rename and Refactor &rarr; Move to Schema techniques to rename these objects rather than directly editing the <code>.sql</code> files, so that an entry is written to the <code>.refactorlog</code> file. This will ensure that the existing object is altered rather than a new one created at the expense of the old one.</p>
+<div class="highlight"><pre class="chroma"><code class="language-xml" data-lang="xml"><span class="nt">&lt;Operation</span> <span class="na">Name=</span><span class="s">&#34;Rename Refactor&#34;</span> <span class="na">Key=</span><span class="s">&#34;fc4b928d-9b00-4028-9cac-5859ba9b666c&#34;</span> <span class="na">ChangeDateTime=</span><span class="s">&#34;11/12/2016 22:50:20&#34;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo].[ChangeTrackPriceByFactor]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlProcedure&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[dbo]&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;ParentElementType&#34;</span> <span class="na">Value=</span><span class="s">&#34;SqlSchema&#34;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;Property</span> <span class="na">Name=</span><span class="s">&#34;NewName&#34;</span> <span class="na">Value=</span><span class="s">&#34;[ChangeTrackPriceByMultiplier]&#34;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/Operation&gt;</span></code></pre></div><div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1">It isn&rsquo;t magic, this doesn&rsquo;t work with dynamic SQL, for instance.
+ <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+</ol>
+</div>
+
+    </div>
   
     <div class="post">
         <h1 class="post-title"><a href="http://arapaima.uk/post/2016-10-25-database-refactoring-ssdt-dropping-objects/">Database Pruning</a></h1>
