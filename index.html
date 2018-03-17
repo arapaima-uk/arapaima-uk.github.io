@@ -136,6 +136,8 @@
     
       
     
+      
+    
     <a class="sidebar-nav-item " href="/index.xml">RSS</a>
     
 
@@ -150,6 +152,10 @@
   <div class="sidebar-item">
     <p><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Content on arapaima.uk</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://arapaima.uk" property="cc:attributionName" rel="cc:attributionURL">Gavin Campbell, Arapaima Ltd</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
   </div>
+  <div class="sidebar-item">
+    <p>UK Domains by <a href="https://my.tsohost.com/aff.php?aff=1905">TSOHost</a></p>
+  </div>
+
 </div>
 
 
@@ -171,6 +177,111 @@
 
 
 <div class="posts">
+  
+    <div class="post">
+        <h1 class="post-title"><a href="http://arapaima.uk/post/2018-03-17-building-ssdt-project-vsts-yaml/">Building an SSDT project with YAML build in VSTS</a></h1>
+        <span class="post-date">2018-03-17</span>
+        
+
+<p>It may have been a while coming, at least compared to <a href="https://jenkins.io/solutions/pipeline/">Jenkins Pipeline</a>, <a href="https://travis-ci.org/">Travis-CI</a>, and friends, but VSTS now offers the facility to specify your build pipeline as YAML, meaning it can be version controlled with your application code. YAML Release Management Pipelines are &ldquo;on the way&rdquo;, but not yet publically available.</p>
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">The YAML Build is. The release is not yet.  <a href="https://t.co/FCHfdfMHd7">https://t.co/FCHfdfMHd7</a></p>&mdash; Donovan Brown (@DonovanBrown) <a href="https://twitter.com/DonovanBrown/status/971796151862222848?ref_src=twsrc%5Etfw">March 8, 2018</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+<p>YAML Build Definitions are currently in public preview, so you&rsquo;ll need to ensure you have the <a href="https://docs.microsoft.com/en-us/vsts/collaborate/preview-features">feature enabled for your account</a>.<sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup></p>
+
+<h2 id="the-sample-project">The Sample Project</h2>
+
+<p>We don&rsquo;t even need to download anything to get going with this, we can just use the WideWorldImporters Sample Database, which is buried in the <a href="https://github.com/Microsoft/sql-server-samples">SQL Server Samples repo on GitHub</a>, as VSTS supports building GitHub hosted projects. If you&rsquo;re following along, you&rsquo;ll need to <a href="https://help.github.com/articles/fork-a-repo/">create your own fork</a> of the official <a href="https://github.com/Microsoft/sql-server-samples">Microsoft/sql-server-samples</a> repo, as we&rsquo;ll be adding the YAML build definition to the root of our repo (yes, you need to have a <a href="https://github.com/join">Github Account</a> for this to work). According to the <a href="https://docs.microsoft.com/en-us/vsts/build-release/actions/build-yaml">docs</a>, the only sources currently supported for YAML Build Definitions are Git (hosted in VSTS) and GitHub, so if your code is hosted elsewhere you&rsquo;ll have to wait a while longer.</p>
+
+<h3 id="creating-a-dummy-build-definition">Creating a dummy build definition</h3>
+
+<p>Just to make sure everything is working, it&rsquo;s not a bad idea to go ahead and create a trivial build definition now. By convention, this file is called <code>.vsts-ci.yml</code> and is placed at the root of the repo. You can create this directly from the GitHub UI with the &ldquo;Create New File&rdquo; button. <a href="https://github.com/arapaima-uk/sql-server-samples/blob/fa28d3f8803991a20884722e23fe01be6f170ca4/.vsts-ci.yml">Mine</a> just has a single step, which is rather unimaginative:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">steps<span class="p">:</span><span class="w">
+</span><span class="w"></span>-<span class="w"> </span>script<span class="p">:</span><span class="w"> </span>echo<span class="w"> </span>hello<span class="w"> </span>world</code></pre></div>
+<h2 id="making-sure-vsts-can-talk-to-github">Making sure VSTS can talk to GitHub</h2>
+
+<p>The easiest way to do this, in my view at least, is to create a <a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">Personal Access Token</a> we can use so that VSTS can authenticate to GitHub. The <code>public_repo</code> scope will be adequate for everything we need to do here.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/create-access-token-public-repo.png" alt="Creating a personal access token" /></p>
+
+<p>You will need to copy the value of the token from GitHub as soon as you create it, it won&rsquo;t be accessible again.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/copy-personal-access-token.png" alt="Copying the access token" /></p>
+
+<h2 id="creating-the-project-in-vsts">Creating the Project in VSTS</h2>
+
+<p>Having selected the &ldquo;New Project&rdquo; button, we have a couple of forms to fill in. The first is just to give our VSTS project a name, the rest of the fields can be left at their defaults.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/vst-new-project.png" alt="Creating a new project in VSTS" /></p>
+
+<p>Next, we specify that we are building code from an external repo, and select &ldquo;Setup Build&rdquo;.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/setup-build.png" alt="Building code from an external repo" /></p>
+
+<p>In the next screen, we specify that we are building a project from GitHub, and paste in the access token we created earlier.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/entering-the-access-token.png" alt="entering the personal access token" />.</p>
+
+<p>Finally, we are presented with a list of all the repos our account has access to. We need to find our clone of <code>sql-server-samples</code> in this list and select it.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/select-repo.png" alt="selecting the repo" /></p>
+
+<p>We&rsquo;re presented with a list of build process templates, the one we want is &ldquo;YAML&rdquo;</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/select-yaml-build.png" alt="selecting YAML build" />.</p>
+
+<p>All that&rsquo;s left to do is specify the path to our YAML build definition, in this case <code>.vsts-ci-yml</code>.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/specify-path-to-yaml-file.png" alt="specifying the path to the yaml file" /></p>
+
+<p>Having got this far, we can go ahead and select &ldquo;Save and Queue&rdquo;, and a new build will be created using the &ldquo;Hello World&rdquo; build definition we created earlier.</p>
+
+<p>If we look at the output of our build, we can see our text being written to the log.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/successful-build.png" alt="building the trivial project" /></p>
+
+<p>Almost all of the elapsed time here was cloning the repo from GitHub, there is quite a lot of stuff in it!</p>
+
+<h2 id="building-the-real-project">Building the real project</h2>
+
+<p>This is all very well, but we haven&rsquo;t managed to build our actual database project yet. To do so, we&rsquo;ll need to go back to GitHub and edit the build definition file.</p>
+
+<p>The documentation for how to specify build steps in YAML is still a &ldquo;work in progress&rdquo;. In summary, the current procedure is to visit the <a href="https://github.com/Microsoft/vsts-tasks/tree/master/Tasks">VSTS Tasks repo on GitHub</a>, open the folder for the task your are interested in, and take a look at the <code>task.json</code>.</p>
+
+<p>In our case, the first task we need is <a href="https://github.com/Microsoft/vsts-tasks/tree/master/Tasks/MSBuild">MSBuild</a>, to build the database project. Looking inside <a href="https://github.com/Microsoft/vsts-tasks/blob/master/Tasks/MSBuild/task.json">task.json</a>, we can see that the name of the task we need is <code>MSBuild</code>, and that there are a huge number of available <code>inputs</code> we can use to configure the task; <code>solution</code> to specify the project or solution to build, <code>platform</code>, <code>configuration</code>, and many more. In our case, we&rsquo;ll just specify the path to our <code>.sqlproj</code> file and let <code>msbuild</code> take care of the rest.</p>
+
+<p>Having built the project, we need to copy our output somewhere so we can use it later. In this case, we&rsquo;ll use the &ldquo;Publish Build Artifacts&rdquo; task to copy the built dacpac file to VSTS.</p>
+
+<p>The complete build definition is shown below. We build the database project with MSBuild, then specify the path to the built artifact to copy. The artifact itself needs a name, so we can reference it later, for instance in a Release Definition, as well as a type. <code>ArtifactType: Container</code> just means that we are storing the artifact in VSTS, rather than in an external file share, for example.</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">steps<span class="p">:</span><span class="w">
+</span><span class="w"></span>-<span class="w"> </span>task<span class="p">:</span><span class="w"> </span>MSBuild@<span class="m">1</span><span class="w">
+</span><span class="w">  </span>displayName<span class="p">:</span><span class="w"> </span>Build<span class="w"> </span>the<span class="w"> </span>database<span class="w"> </span>project<span class="w">
+</span><span class="w">  </span>inputs<span class="p">:</span><span class="w">
+</span><span class="w">    </span>solution<span class="p">:</span><span class="w"> </span><span class="s1">&#39;samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/WideWorldImporters.sqlproj&#39;</span><span class="w">
+</span><span class="w">    
+</span><span class="w"></span>-<span class="w"> </span>task<span class="p">:</span><span class="w"> </span>PublishBuildArtifacts@<span class="m">1</span><span class="w">
+</span><span class="w">  </span>inputs<span class="p">:</span><span class="w">
+</span><span class="w">    </span>PathtoPublish<span class="p">:</span><span class="w"> </span><span class="s1">&#39;samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/bin/Debug/WideWorldImporters.dacpac&#39;</span><span class="w">
+</span><span class="w">    </span>ArtifactName<span class="p">:</span><span class="w"> </span>theDacpac<span class="w">
+</span><span class="w">    </span>ArtifactType<span class="p">:</span><span class="w"> </span>Container</code></pre></div>
+<p>If you take a glance at the history of this file, you&rsquo;ll observe it took me a couple of attempts to get this working; the single quotes turned out to be more important than I originally anticipated. Having overcome that hurdle, we can see that the build succeeds, and produces a single artifact containing our <code>dacpac</code> file.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/build-succeeded.png" alt="build succeeded and produced an artifact" /></p>
+
+<p>For now, this is where the story ends for YAML builds in VSTS, I&rsquo;ll try to return to this topic later once YAML release management is publically available.</p>
+<div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1">Note that contrary to the current version of the docs, &ldquo;Build YAML Definitions&rdquo; is an account-scoped feature rather than a user-scoped feature, so if you&rsquo;re following along at work this will enable it for every user in your VSTS Account.
+ <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+</ol>
+</div>
+
+    </div>
   
     <div class="post">
         <h1 class="post-title"><a href="http://arapaima.uk/post/2018-02-27-hosting-multiple-reveal-js-presentations-github-pages/">Hosting your reveal.js presentations in a subfolder of your Github pages site</a></h1>
@@ -1552,160 +1663,6 @@ No Git consumers using SCM API plugin for: file:///C:/Projects/Chinook.JenkinsDe
 
 <script src="//gist.github.com/gavincampbell/05c803654ff70d21d538b49f0e363a6a.js"></script>
 
-    </div>
-  
-    <div class="post">
-        <h1 class="post-title"><a href="http://arapaima.uk/post/2017-02-15-jenkins-pipeline-checkout-branch-if-exists/">Testing whether a branch exists before checking out in Jenkins Pipeline</a></h1>
-        <span class="post-date">2017-02-17</span>
-        
-
-<p>For reasons, I recently found myself in a scenario where I needed to test whether a branch existed before checking it out, and resorting to a sensible default - such as checking out <code>master</code>, if it didn&rsquo;t. From the command line, this is a simple matter of <code>git branch -l | grep myBranch</code>, but I needed to do this from the context of a Jenkins pipeline job.</p>
-
-<h2 id="preliminaries">Preliminaries</h2>
-
-<p>For simplicity, I&rsquo;m creating a local repo I can point my Jenkins job at, right inside the <code>JENKINS_HOME</code> folder.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">jenkins@d99f4f77acdb:/$ <span class="nb">cd</span> <span class="nv">$JENKINS_HOME</span>
-jenkins@d99f4f77acdb:~$ mkdir testBranch <span class="p">;</span> <span class="nb">cd</span> testBranch
-jenkins@d99f4f77acdb:~/testBranch$ git init
-Initialized empty Git repository in /var/jenkins_home/testBranch/.git/
-jenkins@d99f4f77acdb:~/testBranch$ <span class="nb">echo</span> <span class="s2">&#34;Half a league, half a league, Half a league onward.&#34;</span> &gt; myFile.txt
-jenkins@d99f4f77acdb:~/testBranch$ git add .
-jenkins@d99f4f77acdb:~/testBranch$ git commit -m <span class="s2">&#34;Initial Commit&#34;</span>
-<span class="o">[</span>master <span class="o">(</span>root-commit<span class="o">)</span> 7ef4b3b<span class="o">]</span> Initial Commit
- <span class="m">1</span> file changed, <span class="m">1</span> insertion<span class="o">(</span>+<span class="o">)</span>
- create mode <span class="m">100644</span> myFile.txt
-jenkins@d99f4f77acdb:~/testBranch$ git checkout -b thisBranchExists
-Switched to a new branch <span class="s1">&#39;thisBranchExists&#39;</span>
-jenkins@d99f4f77acdb:~/testBranch$ <span class="nb">echo</span> <span class="s2">&#34;All in the valley of Death Rode the six hundred&#34;</span> &gt;&gt; myFile.txt
-jenkins@d99f4f77acdb:~/testBranch$ git commit -am <span class="s2">&#34;a change&#34;</span>
-jenkins@d99f4f77acdb:~/testBranch$ git checkout master
-Switched to branch <span class="s1">&#39;master&#39;</span>
-jenkins@d99f4f77acdb:~/testBranch$ git log --oneline --decorate --all --graph
-* 550587f <span class="o">(</span>thisBranchExists<span class="o">)</span> a change
-* 7ef4b3b <span class="o">(</span>HEAD, master<span class="o">)</span> Initial Commit</code></pre></div>
-<p>With that out of the way, we have a repo with two branches, one of which is a single commit ahead of the other. Our goal, in the pipeline script, is to checkout the <code>thisBranchExists</code> branch, if it exists, or to fall back to <code>master</code> if it doesn&rsquo;t.</p>
-
-<h2 id="the-pipeline-script">The Pipeline script</h2>
-
-<p>I&rsquo;ve created a simple script in the Pipeline UI to demonstrate the use of <a href="https://jenkins.io/doc/pipeline/steps/workflow-multibranch/#resolvescm-resolves-an-scm-from-an-scm-source-and-a-list-of-candidate-target-branch-names"><code>resolveScm</code></a> to figure out whether the branch we want exists. <code>resolveScm</code> will go through the contents of <code>targets</code> in order, and return the first one that matches a branch name in the repo. We then checkout the branch and print the contents of the file to the console with <code>cat</code>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-groovy" data-lang="groovy"><span class="n">node</span><span class="o">{</span>
-<span class="kt">def</span> <span class="n">b</span> <span class="o">=</span> <span class="n">resolveScm</span> <span class="nl">source:</span> <span class="o">[</span><span class="n">$class</span><span class="o">:</span> <span class="s1">&#39;GitSCMSource&#39;</span><span class="o">,</span> <span class="nl">credentialsId:</span> <span class="s1">&#39;&#39;</span><span class="o">,</span> 
-    <span class="nl">excludes:</span> <span class="s1">&#39;&#39;</span><span class="o">,</span> <span class="nl">id:</span> <span class="s1">&#39;_&#39;</span><span class="o">,</span> <span class="nl">ignoreOnPushNotifications:</span> <span class="kc">false</span><span class="o">,</span> <span class="nl">includes:</span> <span class="s1">&#39;*&#39;</span><span class="o">,</span> 
-    <span class="nl">remote:</span> <span class="s1">&#39;file://$JENKINS_HOME/testBranch&#39;</span><span class="o">],</span> <span class="nl">targets:</span> <span class="o">[</span><span class="s1">&#39;thisBranchExists&#39;</span><span class="o">,</span> <span class="s1">&#39;master&#39;</span><span class="o">]</span>
-<span class="n">checkout</span> <span class="n">b</span>
-<span class="n">sh</span> <span class="s1">&#39;cat myFile.txt&#39;</span>
-   
-<span class="o">}</span></code></pre></div>
-<h2 id="the-happy-path">The Happy path</h2>
-
-<p>When we run this job we get the following output, indicating that our branch was located successfully. The contents of the file after the second commit are printed to the console.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
-<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">{</span>
-<span class="o">[</span>Pipeline<span class="o">]</span> resolveScm
-Checking <span class="k">for</span> first existing branch from <span class="o">[</span>thisBranchExists, master<span class="o">]</span>...
- &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
-</span><span class="c1"></span>Setting origin to file://<span class="nv">$JENKINS_HOME</span>/testBranch
- &gt; git config remote.origin.url file://<span class="nv">$JENKINS_HOME</span>/testBranch <span class="c1"># timeout=10
-</span><span class="c1"></span>Fetching <span class="p">&amp;</span> pruning origin...
-Fetching upstream changes from origin
- &gt; git --version <span class="c1"># timeout=10
-</span><span class="c1"></span> &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
-Getting remote branches...
-Seen branch in repository origin/master
-Seen branch in repository origin/thisBranchExists
-Seen <span class="m">2</span> remote branches
-Checking branch master
-Checking branch thisBranchExists
-Found thisBranchExists at revision 550587fa43778989f50ca314feea38fdee50b21c
-<span class="o">[</span>Pipeline<span class="o">]</span> checkout
- &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
-</span><span class="c1"></span>Fetching changes from the remote Git repository
- &gt; git config remote.origin.url file:///var/jenkins_home/testBranch <span class="c1"># timeout=10
-</span><span class="c1"></span>Fetching upstream changes from file:///var/jenkins_home/testBranch
- &gt; git --version <span class="c1"># timeout=10
-</span><span class="c1"></span> &gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
-Checking out Revision 550587fa43778989f50ca314feea38fdee50b21c <span class="o">(</span>thisBranchExists<span class="o">)</span>
- &gt; git config core.sparsecheckout <span class="c1"># timeout=10
-</span><span class="c1"></span> &gt; git checkout -f 550587fa43778989f50ca314feea38fdee50b21c
- &gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c <span class="c1"># timeout=10
-</span><span class="c1"></span><span class="o">[</span>Pipeline<span class="o">]</span> sh
-<span class="o">[</span>checkout_branch_if_exists<span class="o">]</span> Running shell script
-+ cat myFile.txt
-Half a league, half a league, Half a league onward.
-All in the valley of Death Rode the six hundred
-<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">}</span>
-<span class="o">[</span>Pipeline<span class="o">]</span> // node
-<span class="o">[</span>Pipeline<span class="o">]</span> End of Pipeline
-Finished: SUCCESS</code></pre></div>
-<h2 id="the-less-happy-path">The &ldquo;less-happy&rdquo; path</h2>
-
-<p>Lets see what happens if we change our list of <code>targets</code> to <code>['thisBranchDoesNotExist', 'master']</code>. This time we don&rsquo;t find our &ldquo;preferred&rdquo; branch, so we fall back to <code>master</code> and print the contents of the file as it was after the first commit.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>Pipeline<span class="o">]</span> node
-Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
-<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">{</span>
-<span class="o">[</span>Pipeline<span class="o">]</span> resolveScm
-Checking <span class="k">for</span> first existing branch from <span class="o">[</span>thisBranchDoesNotExist, master<span class="o">]</span>...
- &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
-</span><span class="c1"></span>Setting origin to file://<span class="nv">$JENKINS_HOME</span>/testBranch
- &gt; git config remote.origin.url file://<span class="nv">$JENKINS_HOME</span>/testBranch <span class="c1"># timeout=10
-</span><span class="c1"></span>Fetching <span class="p">&amp;</span> pruning origin...
-Fetching upstream changes from origin
- &gt; git --version <span class="c1"># timeout=10
-</span><span class="c1"></span> &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
-Getting remote branches...
-Seen branch in repository origin/master
-Seen branch in repository origin/thisBranchExists
-Seen <span class="m">2</span> remote branches
-Checking branch thisBranchExists
-Checking branch master
-Done.
-Found master at revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
-<span class="o">[</span>Pipeline<span class="o">]</span> checkout
- &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
-</span><span class="c1"></span>Fetching changes from the remote Git repository
- &gt; git config remote.origin.url file:///var/jenkins_home/testBranch <span class="c1"># timeout=10
-</span><span class="c1"></span>Fetching upstream changes from file:///var/jenkins_home/testBranch
- &gt; git --version <span class="c1"># timeout=10
-</span><span class="c1"></span> &gt; git fetch --tags --progress file:///var/jenkins_home/testBranch +refs/heads/*:refs/remotes/origin/*
-Checking out Revision 7ef4b3b3eaf296528e47cdf8946545b38f49fb95 <span class="o">(</span>master<span class="o">)</span>
- &gt; git config core.sparsecheckout <span class="c1"># timeout=10
-</span><span class="c1"></span> &gt; git checkout -f 7ef4b3b3eaf296528e47cdf8946545b38f49fb95
- &gt; git rev-list 550587fa43778989f50ca314feea38fdee50b21c <span class="c1"># timeout=10
-</span><span class="c1"></span><span class="o">[</span>Pipeline<span class="o">]</span> sh
-<span class="o">[</span>checkout_branch_if_exists<span class="o">]</span> Running shell script
-+ cat myFile.txt
-Half a league, half a league, Half a league onward.
-<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">}</span>
-<span class="o">[</span>Pipeline<span class="o">]</span> // node
-<span class="o">[</span>Pipeline<span class="o">]</span> End of Pipeline
-Finished: SUCCESS</code></pre></div>
-<h2 id="the-unhappy-path">The Unhappy path</h2>
-
-<p>Finally, let&rsquo;s see what happens if none of the branches we specify in <code>targets</code> exist in the repo. Regrettably, the output is rather shorter, as the step fails if no matching branches are found.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Running on master in /var/jenkins_home/workspace/checkout_branch_if_exists
-<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">{</span>
-<span class="o">[</span>Pipeline<span class="o">]</span> resolveScm
-Checking <span class="k">for</span> first existing branch from <span class="o">[</span>thisBranchDoesNotExist, thisBranchDoesNotExistEither<span class="o">]</span>...
- &gt; git rev-parse --is-inside-work-tree <span class="c1"># timeout=10
-</span><span class="c1"></span>Setting origin to file://<span class="nv">$JENKINS_HOME</span>/testBranch
- &gt; git config remote.origin.url file://<span class="nv">$JENKINS_HOME</span>/testBranch <span class="c1"># timeout=10
-</span><span class="c1"></span>Fetching <span class="p">&amp;</span> pruning origin...
-Fetching upstream changes from origin
- &gt; git --version <span class="c1"># timeout=10
-</span><span class="c1"></span> &gt; git fetch --tags --progress origin +refs/heads/*:refs/remotes/origin/* --prune
-Getting remote branches...
-Seen branch in repository origin/master
-Seen branch in repository origin/thisBranchExists
-Seen <span class="m">2</span> remote branches
-Checking branch master
-Checking branch thisBranchExists
-Done.
-Could not find any matching branch%n
-<span class="o">[</span>Pipeline<span class="o">]</span> <span class="o">}</span>
-<span class="o">[</span>Pipeline<span class="o">]</span> // node
-<span class="o">[</span>Pipeline<span class="o">]</span> End of Pipeline
-ERROR: Could not find any matching branch
-Finished: FAILURE</code></pre></div>
     </div>
   
 </div>

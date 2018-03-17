@@ -6,11 +6,121 @@
     <language>en-us</language>
     <author>Gavin Campbell</author>
     <rights>(C) 2018</rights>
-    <updated>2018-02-27 00:00:00 &#43;0000 UTC</updated>
+    <updated>2018-03-17 00:00:00 &#43;0000 UTC</updated>
 
     
       
     
+      
+    
+      
+        <item>
+          <title>Building an SSDT project with YAML build in VSTS</title>
+          <link>http://arapaima.uk/post/2018-03-17-building-ssdt-project-vsts-yaml/</link>
+          <pubDate>Sat, 17 Mar 2018 00:00:00 UTC</pubDate>
+          <author>Gavin Campbell</author>
+          <guid>http://arapaima.uk/post/2018-03-17-building-ssdt-project-vsts-yaml/</guid>
+          <description>
+
+&lt;p&gt;It may have been a while coming, at least compared to &lt;a href=&#34;https://jenkins.io/solutions/pipeline/&#34;&gt;Jenkins Pipeline&lt;/a&gt;, &lt;a href=&#34;https://travis-ci.org/&#34;&gt;Travis-CI&lt;/a&gt;, and friends, but VSTS now offers the facility to specify your build pipeline as YAML, meaning it can be version controlled with your application code. YAML Release Management Pipelines are &amp;ldquo;on the way&amp;rdquo;, but not yet publically available.&lt;/p&gt;
+
+&lt;blockquote class=&#34;twitter-tweet&#34;&gt;&lt;p lang=&#34;en&#34; dir=&#34;ltr&#34;&gt;The YAML Build is. The release is not yet.  &lt;a href=&#34;https://t.co/FCHfdfMHd7&#34;&gt;https://t.co/FCHfdfMHd7&lt;/a&gt;&lt;/p&gt;&amp;mdash; Donovan Brown (@DonovanBrown) &lt;a href=&#34;https://twitter.com/DonovanBrown/status/971796151862222848?ref_src=twsrc%5Etfw&#34;&gt;March 8, 2018&lt;/a&gt;&lt;/blockquote&gt;
+&lt;script async src=&#34;https://platform.twitter.com/widgets.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;YAML Build Definitions are currently in public preview, so you&amp;rsquo;ll need to ensure you have the &lt;a href=&#34;https://docs.microsoft.com/en-us/vsts/collaborate/preview-features&#34;&gt;feature enabled for your account&lt;/a&gt;.&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;the-sample-project&#34;&gt;The Sample Project&lt;/h2&gt;
+
+&lt;p&gt;We don&amp;rsquo;t even need to download anything to get going with this, we can just use the WideWorldImporters Sample Database, which is buried in the &lt;a href=&#34;https://github.com/Microsoft/sql-server-samples&#34;&gt;SQL Server Samples repo on GitHub&lt;/a&gt;, as VSTS supports building GitHub hosted projects. If you&amp;rsquo;re following along, you&amp;rsquo;ll need to &lt;a href=&#34;https://help.github.com/articles/fork-a-repo/&#34;&gt;create your own fork&lt;/a&gt; of the official &lt;a href=&#34;https://github.com/Microsoft/sql-server-samples&#34;&gt;Microsoft/sql-server-samples&lt;/a&gt; repo, as we&amp;rsquo;ll be adding the YAML build definition to the root of our repo (yes, you need to have a &lt;a href=&#34;https://github.com/join&#34;&gt;Github Account&lt;/a&gt; for this to work). According to the &lt;a href=&#34;https://docs.microsoft.com/en-us/vsts/build-release/actions/build-yaml&#34;&gt;docs&lt;/a&gt;, the only sources currently supported for YAML Build Definitions are Git (hosted in VSTS) and GitHub, so if your code is hosted elsewhere you&amp;rsquo;ll have to wait a while longer.&lt;/p&gt;
+
+&lt;h3 id=&#34;creating-a-dummy-build-definition&#34;&gt;Creating a dummy build definition&lt;/h3&gt;
+
+&lt;p&gt;Just to make sure everything is working, it&amp;rsquo;s not a bad idea to go ahead and create a trivial build definition now. By convention, this file is called &lt;code&gt;.vsts-ci.yml&lt;/code&gt; and is placed at the root of the repo. You can create this directly from the GitHub UI with the &amp;ldquo;Create New File&amp;rdquo; button. &lt;a href=&#34;https://github.com/arapaima-uk/sql-server-samples/blob/fa28d3f8803991a20884722e23fe01be6f170ca4/.vsts-ci.yml&#34;&gt;Mine&lt;/a&gt; just has a single step, which is rather unimaginative:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;steps&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;-&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;script&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;echo&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;hello&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;world&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;making-sure-vsts-can-talk-to-github&#34;&gt;Making sure VSTS can talk to GitHub&lt;/h2&gt;
+
+&lt;p&gt;The easiest way to do this, in my view at least, is to create a &lt;a href=&#34;https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/&#34;&gt;Personal Access Token&lt;/a&gt; we can use so that VSTS can authenticate to GitHub. The &lt;code&gt;public_repo&lt;/code&gt; scope will be adequate for everything we need to do here.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/create-access-token-public-repo.png&#34; alt=&#34;Creating a personal access token&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You will need to copy the value of the token from GitHub as soon as you create it, it won&amp;rsquo;t be accessible again.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/copy-personal-access-token.png&#34; alt=&#34;Copying the access token&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;creating-the-project-in-vsts&#34;&gt;Creating the Project in VSTS&lt;/h2&gt;
+
+&lt;p&gt;Having selected the &amp;ldquo;New Project&amp;rdquo; button, we have a couple of forms to fill in. The first is just to give our VSTS project a name, the rest of the fields can be left at their defaults.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/vst-new-project.png&#34; alt=&#34;Creating a new project in VSTS&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next, we specify that we are building code from an external repo, and select &amp;ldquo;Setup Build&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/setup-build.png&#34; alt=&#34;Building code from an external repo&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In the next screen, we specify that we are building a project from GitHub, and paste in the access token we created earlier.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/entering-the-access-token.png&#34; alt=&#34;entering the personal access token&#34; /&gt;.&lt;/p&gt;
+
+&lt;p&gt;Finally, we are presented with a list of all the repos our account has access to. We need to find our clone of &lt;code&gt;sql-server-samples&lt;/code&gt; in this list and select it.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/select-repo.png&#34; alt=&#34;selecting the repo&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;re presented with a list of build process templates, the one we want is &amp;ldquo;YAML&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/select-yaml-build.png&#34; alt=&#34;selecting YAML build&#34; /&gt;.&lt;/p&gt;
+
+&lt;p&gt;All that&amp;rsquo;s left to do is specify the path to our YAML build definition, in this case &lt;code&gt;.vsts-ci-yml&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/specify-path-to-yaml-file.png&#34; alt=&#34;specifying the path to the yaml file&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Having got this far, we can go ahead and select &amp;ldquo;Save and Queue&amp;rdquo;, and a new build will be created using the &amp;ldquo;Hello World&amp;rdquo; build definition we created earlier.&lt;/p&gt;
+
+&lt;p&gt;If we look at the output of our build, we can see our text being written to the log.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/successful-build.png&#34; alt=&#34;building the trivial project&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Almost all of the elapsed time here was cloning the repo from GitHub, there is quite a lot of stuff in it!&lt;/p&gt;
+
+&lt;h2 id=&#34;building-the-real-project&#34;&gt;Building the real project&lt;/h2&gt;
+
+&lt;p&gt;This is all very well, but we haven&amp;rsquo;t managed to build our actual database project yet. To do so, we&amp;rsquo;ll need to go back to GitHub and edit the build definition file.&lt;/p&gt;
+
+&lt;p&gt;The documentation for how to specify build steps in YAML is still a &amp;ldquo;work in progress&amp;rdquo;. In summary, the current procedure is to visit the &lt;a href=&#34;https://github.com/Microsoft/vsts-tasks/tree/master/Tasks&#34;&gt;VSTS Tasks repo on GitHub&lt;/a&gt;, open the folder for the task your are interested in, and take a look at the &lt;code&gt;task.json&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;In our case, the first task we need is &lt;a href=&#34;https://github.com/Microsoft/vsts-tasks/tree/master/Tasks/MSBuild&#34;&gt;MSBuild&lt;/a&gt;, to build the database project. Looking inside &lt;a href=&#34;https://github.com/Microsoft/vsts-tasks/blob/master/Tasks/MSBuild/task.json&#34;&gt;task.json&lt;/a&gt;, we can see that the name of the task we need is &lt;code&gt;MSBuild&lt;/code&gt;, and that there are a huge number of available &lt;code&gt;inputs&lt;/code&gt; we can use to configure the task; &lt;code&gt;solution&lt;/code&gt; to specify the project or solution to build, &lt;code&gt;platform&lt;/code&gt;, &lt;code&gt;configuration&lt;/code&gt;, and many more. In our case, we&amp;rsquo;ll just specify the path to our &lt;code&gt;.sqlproj&lt;/code&gt; file and let &lt;code&gt;msbuild&lt;/code&gt; take care of the rest.&lt;/p&gt;
+
+&lt;p&gt;Having built the project, we need to copy our output somewhere so we can use it later. In this case, we&amp;rsquo;ll use the &amp;ldquo;Publish Build Artifacts&amp;rdquo; task to copy the built dacpac file to VSTS.&lt;/p&gt;
+
+&lt;p&gt;The complete build definition is shown below. We build the database project with MSBuild, then specify the path to the built artifact to copy. The artifact itself needs a name, so we can reference it later, for instance in a Release Definition, as well as a type. &lt;code&gt;ArtifactType: Container&lt;/code&gt; just means that we are storing the artifact in VSTS, rather than in an external file share, for example.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;steps&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;-&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;task&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;MSBuild@&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;displayName&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;Build&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;the&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;database&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;project&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;inputs&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;solution&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/WideWorldImporters.sqlproj&amp;#39;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;-&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;task&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;PublishBuildArtifacts@&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;inputs&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;PathtoPublish&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/bin/Debug/WideWorldImporters.dacpac&amp;#39;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;ArtifactName&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;theDacpac&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;ArtifactType&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;Container&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If you take a glance at the history of this file, you&amp;rsquo;ll observe it took me a couple of attempts to get this working; the single quotes turned out to be more important than I originally anticipated. Having overcome that hurdle, we can see that the build succeeds, and produces a single artifact containing our &lt;code&gt;dacpac&lt;/code&gt; file.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/build-succeeded.png&#34; alt=&#34;build succeeded and produced an artifact&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;For now, this is where the story ends for YAML builds in VSTS, I&amp;rsquo;ll try to return to this topic later once YAML release management is publically available.&lt;/p&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+
+&lt;hr /&gt;
+
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;Note that contrary to the current version of the docs, &amp;ldquo;Build YAML Definitions&amp;rdquo; is an account-scoped feature rather than a user-scoped feature, so if you&amp;rsquo;re following along at work this will enable it for every user in your VSTS Account.
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
+        </item>
       
     
       

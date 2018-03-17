@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Building an SSDT project with YAML build in VSTS &middot; arapaima.uk
+    
+  </title>
+
+  
+  <link rel="stylesheet" href="/css/poole.css">
+  <link rel="stylesheet" href="/css/syntax.css">
+  <link rel="stylesheet" href="/css/lanyon.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+  <link rel="stylesheet" href="/css/comments.css">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/assets/favicon.ico">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+ 
+
+
+
+</head>
+
+
+  <body class="theme-base-0d">
+
+    
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p>I'm Gavin Campbell, a database developer interested in Continuous Delivery, functional programming, and cricket.</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item " href="/">Home</a>
+    <a class="sidebar-nav-item " href="/post">Posts</a>
+
+    
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
+      
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a class="sidebar-nav-item " href="/index.xml">RSS</a>
+    
+
+  </nav>
+  
+  <div class = "sidebar-item">
+  <p> <a href = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io">
+      <img src = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt = "Travis CI Build Status" title = "Travis CI Build Status">
+      </a>
+    </p>
+  </div>
+  <div class="sidebar-item">
+    <p><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Content on arapaima.uk</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://arapaima.uk" property="cc:attributionName" rel="cc:attributionURL">Gavin Campbell, Arapaima Ltd</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+  </div>
+  <div class="sidebar-item">
+    <p>UK Domains by <a href="https://my.tsohost.com/aff.php?aff=1905">TSOHost</a></p>
+  </div>
+
+</div>
+
+
+    
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <h3 class="masthead-title">
+            <a href="/" title="Home">arapaima.uk</a>
+            <small>Data, Databases, Delivery</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+
+
+<div class="post">
+  <h1 class="post-title">Building an SSDT project with YAML build in VSTS</h1>
+  <span class="post-date">2018-03-17</span>
+  
+
+<p>It may have been a while coming, at least compared to <a href="https://jenkins.io/solutions/pipeline/">Jenkins Pipeline</a>, <a href="https://travis-ci.org/">Travis-CI</a>, and friends, but VSTS now offers the facility to specify your build pipeline as YAML, meaning it can be version controlled with your application code. YAML Release Management Pipelines are &ldquo;on the way&rdquo;, but not yet publically available.</p>
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">The YAML Build is. The release is not yet.  <a href="https://t.co/FCHfdfMHd7">https://t.co/FCHfdfMHd7</a></p>&mdash; Donovan Brown (@DonovanBrown) <a href="https://twitter.com/DonovanBrown/status/971796151862222848?ref_src=twsrc%5Etfw">March 8, 2018</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+<p>YAML Build Definitions are currently in public preview, so you&rsquo;ll need to ensure you have the <a href="https://docs.microsoft.com/en-us/vsts/collaborate/preview-features">feature enabled for your account</a>.<sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup></p>
+
+<h2 id="the-sample-project">The Sample Project</h2>
+
+<p>We don&rsquo;t even need to download anything to get going with this, we can just use the WideWorldImporters Sample Database, which is buried in the <a href="https://github.com/Microsoft/sql-server-samples">SQL Server Samples repo on GitHub</a>, as VSTS supports building GitHub hosted projects. If you&rsquo;re following along, you&rsquo;ll need to <a href="https://help.github.com/articles/fork-a-repo/">create your own fork</a> of the official <a href="https://github.com/Microsoft/sql-server-samples">Microsoft/sql-server-samples</a> repo, as we&rsquo;ll be adding the YAML build definition to the root of our repo (yes, you need to have a <a href="https://github.com/join">Github Account</a> for this to work). According to the <a href="https://docs.microsoft.com/en-us/vsts/build-release/actions/build-yaml">docs</a>, the only sources currently supported for YAML Build Definitions are Git (hosted in VSTS) and GitHub, so if your code is hosted elsewhere you&rsquo;ll have to wait a while longer.</p>
+
+<h3 id="creating-a-dummy-build-definition">Creating a dummy build definition</h3>
+
+<p>Just to make sure everything is working, it&rsquo;s not a bad idea to go ahead and create a trivial build definition now. By convention, this file is called <code>.vsts-ci.yml</code> and is placed at the root of the repo. You can create this directly from the GitHub UI with the &ldquo;Create New File&rdquo; button. <a href="https://github.com/arapaima-uk/sql-server-samples/blob/fa28d3f8803991a20884722e23fe01be6f170ca4/.vsts-ci.yml">Mine</a> just has a single step, which is rather unimaginative:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">steps<span class="p">:</span><span class="w">
+</span><span class="w"></span>-<span class="w"> </span>script<span class="p">:</span><span class="w"> </span>echo<span class="w"> </span>hello<span class="w"> </span>world</code></pre></div>
+<h2 id="making-sure-vsts-can-talk-to-github">Making sure VSTS can talk to GitHub</h2>
+
+<p>The easiest way to do this, in my view at least, is to create a <a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">Personal Access Token</a> we can use so that VSTS can authenticate to GitHub. The <code>public_repo</code> scope will be adequate for everything we need to do here.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/create-access-token-public-repo.png" alt="Creating a personal access token" /></p>
+
+<p>You will need to copy the value of the token from GitHub as soon as you create it, it won&rsquo;t be accessible again.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/copy-personal-access-token.png" alt="Copying the access token" /></p>
+
+<h2 id="creating-the-project-in-vsts">Creating the Project in VSTS</h2>
+
+<p>Having selected the &ldquo;New Project&rdquo; button, we have a couple of forms to fill in. The first is just to give our VSTS project a name, the rest of the fields can be left at their defaults.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/vst-new-project.png" alt="Creating a new project in VSTS" /></p>
+
+<p>Next, we specify that we are building code from an external repo, and select &ldquo;Setup Build&rdquo;.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/setup-build.png" alt="Building code from an external repo" /></p>
+
+<p>In the next screen, we specify that we are building a project from GitHub, and paste in the access token we created earlier.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/entering-the-access-token.png" alt="entering the personal access token" />.</p>
+
+<p>Finally, we are presented with a list of all the repos our account has access to. We need to find our clone of <code>sql-server-samples</code> in this list and select it.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/select-repo.png" alt="selecting the repo" /></p>
+
+<p>We&rsquo;re presented with a list of build process templates, the one we want is &ldquo;YAML&rdquo;</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/select-yaml-build.png" alt="selecting YAML build" />.</p>
+
+<p>All that&rsquo;s left to do is specify the path to our YAML build definition, in this case <code>.vsts-ci-yml</code>.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/specify-path-to-yaml-file.png" alt="specifying the path to the yaml file" /></p>
+
+<p>Having got this far, we can go ahead and select &ldquo;Save and Queue&rdquo;, and a new build will be created using the &ldquo;Hello World&rdquo; build definition we created earlier.</p>
+
+<p>If we look at the output of our build, we can see our text being written to the log.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/successful-build.png" alt="building the trivial project" /></p>
+
+<p>Almost all of the elapsed time here was cloning the repo from GitHub, there is quite a lot of stuff in it!</p>
+
+<h2 id="building-the-real-project">Building the real project</h2>
+
+<p>This is all very well, but we haven&rsquo;t managed to build our actual database project yet. To do so, we&rsquo;ll need to go back to GitHub and edit the build definition file.</p>
+
+<p>The documentation for how to specify build steps in YAML is still a &ldquo;work in progress&rdquo;. In summary, the current procedure is to visit the <a href="https://github.com/Microsoft/vsts-tasks/tree/master/Tasks">VSTS Tasks repo on GitHub</a>, open the folder for the task your are interested in, and take a look at the <code>task.json</code>.</p>
+
+<p>In our case, the first task we need is <a href="https://github.com/Microsoft/vsts-tasks/tree/master/Tasks/MSBuild">MSBuild</a>, to build the database project. Looking inside <a href="https://github.com/Microsoft/vsts-tasks/blob/master/Tasks/MSBuild/task.json">task.json</a>, we can see that the name of the task we need is <code>MSBuild</code>, and that there are a huge number of available <code>inputs</code> we can use to configure the task; <code>solution</code> to specify the project or solution to build, <code>platform</code>, <code>configuration</code>, and many more. In our case, we&rsquo;ll just specify the path to our <code>.sqlproj</code> file and let <code>msbuild</code> take care of the rest.</p>
+
+<p>Having built the project, we need to copy our output somewhere so we can use it later. In this case, we&rsquo;ll use the &ldquo;Publish Build Artifacts&rdquo; task to copy the built dacpac file to VSTS.</p>
+
+<p>The complete build definition is shown below. We build the database project with MSBuild, then specify the path to the built artifact to copy. The artifact itself needs a name, so we can reference it later, for instance in a Release Definition, as well as a type. <code>ArtifactType: Container</code> just means that we are storing the artifact in VSTS, rather than in an external file share, for example.</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">steps<span class="p">:</span><span class="w">
+</span><span class="w"></span>-<span class="w"> </span>task<span class="p">:</span><span class="w"> </span>MSBuild@<span class="m">1</span><span class="w">
+</span><span class="w">  </span>displayName<span class="p">:</span><span class="w"> </span>Build<span class="w"> </span>the<span class="w"> </span>database<span class="w"> </span>project<span class="w">
+</span><span class="w">  </span>inputs<span class="p">:</span><span class="w">
+</span><span class="w">    </span>solution<span class="p">:</span><span class="w"> </span><span class="s1">&#39;samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/WideWorldImporters.sqlproj&#39;</span><span class="w">
+</span><span class="w">    
+</span><span class="w"></span>-<span class="w"> </span>task<span class="p">:</span><span class="w"> </span>PublishBuildArtifacts@<span class="m">1</span><span class="w">
+</span><span class="w">  </span>inputs<span class="p">:</span><span class="w">
+</span><span class="w">    </span>PathtoPublish<span class="p">:</span><span class="w"> </span><span class="s1">&#39;samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/bin/Debug/WideWorldImporters.dacpac&#39;</span><span class="w">
+</span><span class="w">    </span>ArtifactName<span class="p">:</span><span class="w"> </span>theDacpac<span class="w">
+</span><span class="w">    </span>ArtifactType<span class="p">:</span><span class="w"> </span>Container</code></pre></div>
+<p>If you take a glance at the history of this file, you&rsquo;ll observe it took me a couple of attempts to get this working; the single quotes turned out to be more important than I originally anticipated. Having overcome that hurdle, we can see that the build succeeds, and produces a single artifact containing our <code>dacpac</code> file.</p>
+
+<p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/build-succeeded.png" alt="build succeeded and produced an artifact" /></p>
+
+<p>For now, this is where the story ends for YAML builds in VSTS, I&rsquo;ll try to return to this topic later once YAML release management is publically available.</p>
+<div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1">Note that contrary to the current version of the docs, &ldquo;Build YAML Definitions&rdquo; is an account-scoped feature rather than a user-scoped feature, so if you&rsquo;re following along at work this will enable it for every user in your VSTS Account.
+ <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+</ol>
+</div>
+
+   
+</div>
+
+<section class="post-comments">
+  <h3>Comments</h3>
+
+  
+  
+  
+
+  
+    
+  
+    
+  
+
+  
+    <p>Nothing yet.</p>
+  
+
+  <h3>Say something</h3>
+
+  <form class="post-new-comment" method="POST" action="https://api.staticman.net/v2/entry/arapaima-uk/source.arapaima-uk.github.io/master/comments">
+    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2018-03-17-building-ssdt-project-vsts-yaml/#comment-submitted">
+     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2018-03-17-building-ssdt-project-vsts-yaml/">
+    <input type="hidden" name="options[entryId]" value="5eae6a8b030220886c30dd3e6f39cdba">
+    <input name="fields[name]" type="text" class="post-comment-field" placeholder="Your name">
+    <input name="fields[email]" type="email" class="post-comment-field" placeholder="Your email address">
+    <textarea name="fields[body]" class="post-comment-field" placeholder="Your message. Feel free to use Markdown." rows="10"></textarea>
+    <input type="submit" class="post-comment-field btn" value="Submit">
+  </form>
+</section>
+
+<div id="comment-submitted" class="dialog">
+<h3>Thank you</h3>
+  <p>Your comment has been submitted and will be published once it has been approved.</p>
+  <p><a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/pulls">Click here</a> to see the pull request you generated.</p>
+  
+  <p><a href="#" class="btn">OK</a></p>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+  </body>
+</html>
+
