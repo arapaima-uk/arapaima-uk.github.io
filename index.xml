@@ -87,7 +87,7 @@
 
 &lt;p&gt;This is all very well, but we haven&amp;rsquo;t managed to build our actual database project yet. To do so, we&amp;rsquo;ll need to go back to GitHub and edit the build definition file.&lt;/p&gt;
 
-&lt;p&gt;The documentation for how to specify build steps in YAML is still a &amp;ldquo;work in progress&amp;rdquo;. In summary, the current procedure is to visit the &lt;a href=&#34;https://github.com/Microsoft/vsts-tasks/tree/master/Tasks&#34;&gt;VSTS Tasks repo on GitHub&lt;/a&gt;, open the folder for the task your are interested in, and take a look at the &lt;code&gt;task.json&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The documentation for how to specify build steps in YAML is still a &lt;a href=&#34;https://github.com/Microsoft/vsts-agent/tree/master/docs/preview&#34;&gt;work in progress&lt;/a&gt;. In summary, the current procedure is to visit the &lt;a href=&#34;https://github.com/Microsoft/vsts-tasks/tree/master/Tasks&#34;&gt;VSTS Tasks repo on GitHub&lt;/a&gt;, open the folder for the task your are interested in, and take a look at the &lt;code&gt;task.json&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;In our case, the first task we need is &lt;a href=&#34;https://github.com/Microsoft/vsts-tasks/tree/master/Tasks/MSBuild&#34;&gt;MSBuild&lt;/a&gt;, to build the database project. Looking inside &lt;a href=&#34;https://github.com/Microsoft/vsts-tasks/blob/master/Tasks/MSBuild/task.json&#34;&gt;task.json&lt;/a&gt;, we can see that the name of the task we need is &lt;code&gt;MSBuild&lt;/code&gt;, and that there are a huge number of available &lt;code&gt;inputs&lt;/code&gt; we can use to configure the task; &lt;code&gt;solution&lt;/code&gt; to specify the project or solution to build, &lt;code&gt;platform&lt;/code&gt;, &lt;code&gt;configuration&lt;/code&gt;, and many more. In our case, we&amp;rsquo;ll just specify the path to our &lt;code&gt;.sqlproj&lt;/code&gt; file and let &lt;code&gt;msbuild&lt;/code&gt; take care of the rest.&lt;/p&gt;
 
@@ -109,7 +109,7 @@
 
 &lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/build-succeeded.png&#34; alt=&#34;build succeeded and produced an artifact&#34; /&gt;&lt;/p&gt;
 
-&lt;p&gt;For now, this is where the story ends for YAML builds in VSTS, I&amp;rsquo;ll try to return to this topic later once YAML release management is publically available.&lt;/p&gt;
+&lt;p&gt;For now, this is where the story ends for YAML builds in VSTS, I&amp;rsquo;ll try to return to this topic later once YAML release management is publicly available.&lt;/p&gt;
 &lt;div class=&#34;footnotes&#34;&gt;
 
 &lt;hr /&gt;

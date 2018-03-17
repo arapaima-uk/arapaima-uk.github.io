@@ -248,7 +248,7 @@
 
 <p>This is all very well, but we haven&rsquo;t managed to build our actual database project yet. To do so, we&rsquo;ll need to go back to GitHub and edit the build definition file.</p>
 
-<p>The documentation for how to specify build steps in YAML is still a &ldquo;work in progress&rdquo;. In summary, the current procedure is to visit the <a href="https://github.com/Microsoft/vsts-tasks/tree/master/Tasks">VSTS Tasks repo on GitHub</a>, open the folder for the task your are interested in, and take a look at the <code>task.json</code>.</p>
+<p>The documentation for how to specify build steps in YAML is still a <a href="https://github.com/Microsoft/vsts-agent/tree/master/docs/preview">work in progress</a>. In summary, the current procedure is to visit the <a href="https://github.com/Microsoft/vsts-tasks/tree/master/Tasks">VSTS Tasks repo on GitHub</a>, open the folder for the task your are interested in, and take a look at the <code>task.json</code>.</p>
 
 <p>In our case, the first task we need is <a href="https://github.com/Microsoft/vsts-tasks/tree/master/Tasks/MSBuild">MSBuild</a>, to build the database project. Looking inside <a href="https://github.com/Microsoft/vsts-tasks/blob/master/Tasks/MSBuild/task.json">task.json</a>, we can see that the name of the task we need is <code>MSBuild</code>, and that there are a huge number of available <code>inputs</code> we can use to configure the task; <code>solution</code> to specify the project or solution to build, <code>platform</code>, <code>configuration</code>, and many more. In our case, we&rsquo;ll just specify the path to our <code>.sqlproj</code> file and let <code>msbuild</code> take care of the rest.</p>
 
@@ -270,7 +270,7 @@
 
 <p><img src="https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/github-vsts-yaml/build-succeeded.png" alt="build succeeded and produced an artifact" /></p>
 
-<p>For now, this is where the story ends for YAML builds in VSTS, I&rsquo;ll try to return to this topic later once YAML release management is publically available.</p>
+<p>For now, this is where the story ends for YAML builds in VSTS, I&rsquo;ll try to return to this topic later once YAML release management is publicly available.</p>
 <div class="footnotes">
 
 <hr />
