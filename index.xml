@@ -136,7 +136,7 @@
 
 &lt;p&gt;There are a couple of things which I think are prerequisites, namely that this site &lt;a href=&#34;http://arapaima.uk&#34;&gt;arapaima.uk&lt;/a&gt; is &lt;a href=&#34;http://arapaima.uk/fixed/blogsetup/#github-setup&#34;&gt;hosted on GitHub Pages&lt;/a&gt;, and has a &lt;a href=&#34;https://help.github.com/articles/using-a-custom-domain-with-github-pages/&#34;&gt;custom domain&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Most of the &lt;a href=&#34;https://revealjs.com&#34;&gt;reveal.js&lt;/a&gt; slides for the public talks I&amp;rsquo;ve done, at least recently, are themselves hosted on Github, in individual repos such as &lt;a href=&#34;https://github.com/arapaima-uk/slides-tsqlt-groupby&#34;&gt;this one&lt;/a&gt; or &lt;a href=&#34;https://github.com/arapaima-uk/database-cd-ssdt-vsts&#34;&gt;this one&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Most of the &lt;a href=&#34;https://revealjs.com&#34;&gt;reveal.js&lt;/a&gt; slides&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:-&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:-&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; for the public talks I&amp;rsquo;ve done, at least recently, are themselves hosted on Github, in individual repos such as &lt;a href=&#34;https://github.com/arapaima-uk/slides-tsqlt-groupby&#34;&gt;this one&lt;/a&gt; or &lt;a href=&#34;https://github.com/arapaima-uk/database-cd-ssdt-vsts&#34;&gt;this one&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;tags&#34;&gt;Tags&lt;/h2&gt;
 
@@ -273,6 +273,15 @@ git push -u origin master&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;li&gt;&lt;a href=&#34;https://twoguysarguing.wordpress.com/2010/11/14/tie-git-submodules-to-a-particular-commit-or-branch/&#34;&gt;Tie Git Submodules to a Particular Commit or Branch &lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://annaken.github.io/hosting-revealjs-presentation-github-pages&#34;&gt;Hosting a reveal.js presentation on github pages&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+
+&lt;hr /&gt;
+
+&lt;ol&gt;
+&lt;li id=&#34;fn:-&#34;&gt;Strictly speaking, I&amp;rsquo;m using &lt;a href=&#34;https://github.com/arapaima-uk/reveal.js&#34;&gt;my own fork of reveal.js&lt;/a&gt;. The only different between this and the upstream is that mine incorporates &lt;a href=&#34;https://www.red-gate.com/&#34;&gt;Redgate&lt;/a&gt;&amp;rsquo;s &lt;a href=&#34;https://github.com/red-gate/highlight.js&#34;&gt;fork of highlight.js&lt;/a&gt;, which has better T-SQL highlighting.
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:-&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
 </description>
         </item>
       
