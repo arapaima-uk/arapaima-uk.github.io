@@ -375,6 +375,19 @@
         <div class="post-comment">
           <div class="post-comment-header">
             <img class="post-comment-avatar" src="https://www.gravatar.com/avatar/8ce877bbdb488ef4e5d5d65bdc7a50a4?s=100">
+            <p class="post-comment-info"><strong>Gavin</strong><br>11/05/2018</p>
+          </div>
+          <p>Hmm, seems comments aren&rsquo;t threading correctly&hellip;</p>
+
+<p>The reason the reference to the tSQLt objects is in a separate project is that we probably don&rsquo;t want them deployed in <em>every</em> environment.</p>
+
+<p>Having the projects separated like this gives us the flexiblity to deploy our database <em>with</em> the test framework in those environments where we need to run tests and <em>without</em> the test framework in those environments where it&rsquo;s too late for testing such as &ldquo;production&rdquo;!</p>
+
+        </div>
+      
+        <div class="post-comment">
+          <div class="post-comment-header">
+            <img class="post-comment-avatar" src="https://www.gravatar.com/avatar/8ce877bbdb488ef4e5d5d65bdc7a50a4?s=100">
             <p class="post-comment-info"><strong>Gavin</strong><br>17/12/2017</p>
           </div>
           <p>The short answer is &ldquo;don&rsquo;t know&rdquo;; the slightly longer one is &ldquo;does this matter?&rdquo;</p>
