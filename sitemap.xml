@@ -11,6 +11,11 @@
   </url>
   
   <url>
+    <loc>http://arapaima.uk/post/2018-12-17-filtering-dacpac-deployments-dacfx/</loc>
+    <lastmod>2018-12-17T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://arapaima.uk/post/2018-03-17-building-ssdt-project-vsts-yaml/</loc>
     <lastmod>2018-03-17T00:00:00+00:00</lastmod>
   </url>
@@ -98,6 +103,12 @@
   </url>
   
   <url>
+    <loc>http://arapaima.uk/tags/dacfx/</loc>
+    <lastmod>2018-12-17T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>http://arapaima.uk/fixed/</loc>
     <priority>0</priority>
   </url>
@@ -134,7 +145,7 @@
   
   <url>
     <loc>http://arapaima.uk/post/</loc>
-    <lastmod>2018-03-17T00:00:00+00:00</lastmod>
+    <lastmod>2018-12-17T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -180,7 +191,7 @@
   
   <url>
     <loc>http://arapaima.uk/tags/ssdt/</loc>
-    <lastmod>2018-03-17T00:00:00+00:00</lastmod>
+    <lastmod>2018-12-17T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -222,7 +233,7 @@
   
   <url>
     <loc>http://arapaima.uk/</loc>
-    <lastmod>2018-03-17T00:00:00+00:00</lastmod>
+    <lastmod>2018-12-17T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

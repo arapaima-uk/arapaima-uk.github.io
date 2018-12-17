@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Filtering Dacpac deployments with DacFX and Powershell &middot; arapaima.uk
+    
+  </title>
+
+  
+  <link rel="stylesheet" href="/css/poole.css">
+  <link rel="stylesheet" href="/css/syntax.css">
+  <link rel="stylesheet" href="/css/lanyon.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+  <link rel="stylesheet" href="/css/comments.css">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/assets/favicon.ico">
+
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+ 
+
+
+
+</head>
+
+
+  <body class="theme-base-0d">
+
+    
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p>I'm Gavin Campbell, a database developer interested in Continuous Delivery, functional programming, and cricket.</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item " href="/">Home</a>
+    <a class="sidebar-nav-item " href="/post">Posts</a>
+
+    
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/about/">Get in touch</a>
+      
+    
+      
+        <a class="sidebar-nav-item " href="http://arapaima.uk/fixed/blogsetup/">Building this Site</a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a class="sidebar-nav-item " href="/index.xml">RSS</a>
+    
+
+  </nav>
+  
+  <div class = "sidebar-item">
+  <p> <a href = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io">
+      <img src = "https://travis-ci.org/arapaima-uk/source.arapaima-uk.github.io.svg?branch=master" alt = "Travis CI Build Status" title = "Travis CI Build Status">
+      </a>
+    </p>
+  </div>
+  <div class="sidebar-item">
+    <p><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Content on arapaima.uk</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://arapaima.uk" property="cc:attributionName" rel="cc:attributionURL">Gavin Campbell, Arapaima Ltd</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+  </div>
+  <div class="sidebar-item">
+    <p>UK Domains by <a href="https://my.tsohost.com/aff.php?aff=1905">TSOHost</a></p>
+  </div>
+
+</div>
+
+
+    
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <h3 class="masthead-title">
+            <a href="/" title="Home">arapaima.uk</a>
+            <small>Data, Databases, Delivery</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+
+
+<div class="post">
+  <h1 class="post-title">Filtering Dacpac deployments with DacFX and Powershell</h1>
+  <span class="post-date">2018-12-17</span>
+  <p>Prompted by some discussion on the <a href="https://sqlps.io/slack/">SQL Community Slack</a>, I thought I&rsquo;d revisit <a href="https://blogs.msdn.microsoft.com/ssdt/2016/09/20/schema-compare-in-sqlpackage-and-the-data-tier-application-framework-dacfx/">this old post</a> on the SSDT Team Blog which outlines how to filter specific objects from a dacpac deployment using the <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.sqlserver.dac.compare?view=sql-dacfx-140.3881.1">Schema Compare API</a>.</p>
+
+<p>In the past, I&rsquo;ve used <a href="https://the.agilesql.club/">Ed Elliott&rsquo;s</a> <a href="https://github.com/GoEddie/DeploymentContributorFilterer">filtering deployment contributor</a> for this kind of thing, but in the interest of experimentation I thought I&rsquo;d have a look at what comes &ldquo;in the box&rdquo;, not least because deployment contributors can, ironically, be a bit of a pain to <em>deploy</em>.</p>
+
+<p>I&rsquo;ve created a <a href="https://github.com/arapaima-uk/FilteringDemo/tree/master/FilteringDemo">simple project</a> you can use to play along at home, with two schemas, named <code>Production</code> and <code>UnProduction</code>, each containing a single table. I&rsquo;ve also included a publish profile that can be used to publish the project to a local database called &ldquo;Unfiltered&rdquo;.</p>
+
+<p>In this example, we&rsquo;ll use the schema compare API to allow only the <code>Production</code> schema and the table it contains to deployed.</p>
+
+<p>The action takes place in the powershell script <a href="https://github.com/arapaima-uk/FilteringDemo/blob/master/FilteringDemo/FilteredDeploy.ps1">Filtered Deploy.ps1</a>, which I&rsquo;ve reproduced in its entirety here:</p>
+<div class="highlight"><pre class="chroma"><code class="language-powershell" data-lang="powershell"><span class="nv">$serverName</span> <span class="p">=</span> <span class="s1">&#39;localhost&#39;</span>
+<span class="nv">$databaseName</span> <span class="p">=</span> <span class="s1">&#39;Filtered&#39;</span>
+<span class="nv">$schemaToInclude</span> <span class="p">=</span> <span class="s1">&#39;Production&#39;</span>
+<span class="nv">$dacFxDll</span><span class="p">=</span><span class="s1">&#39;C:\Program Files (x86)\Microsoft SQL Server\140\DAC\bin\Microsoft.SqlServer.Dac.Extensions.dll&#39;</span>
+
+<span class="nv">$dacpacPath</span> <span class="p">=</span> <span class="s2">&#34;$PSScriptRoot\bin\Debug\FilteringDemo.dacpac&#34;</span>
+
+<span class="nb">Add-Type</span> <span class="n">-Path</span> <span class="nv">$dacFxDll</span>
+
+<span class="nv">$sourceDacpac</span> <span class="p">=</span> <span class="nb">New-Object</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">SqlServer</span><span class="p">.</span><span class="n">Dac</span><span class="p">.</span><span class="n">Compare</span><span class="p">.</span><span class="n">SchemaCompareDacpacEndpoint</span><span class="p">(</span><span class="nv">$dacpacPath</span><span class="p">);</span>
+
+<span class="nv">$targetDatabase</span> <span class="p">=</span> <span class="nb">New-Object</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">SqlServer</span><span class="p">.</span><span class="n">Dac</span><span class="p">.</span><span class="n">Compare</span><span class="p">.</span><span class="n">SchemaCompareDatabaseEndpoint</span><span class="p">(</span><span class="s2">&#34;Data Source=$serverName;Initial Catalog=$databaseName;Integrated Security=True;&#34;</span><span class="p">)</span>
+
+<span class="nv">$comparison</span> <span class="p">=</span> <span class="nb">New-Object</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">SqlServer</span><span class="p">.</span><span class="n">Dac</span><span class="p">.</span><span class="n">Compare</span><span class="p">.</span><span class="n">SchemaComparison</span><span class="p">(</span><span class="nv">$sourceDacpac</span><span class="p">,</span> <span class="nv">$targetDatabase</span><span class="p">)</span>
+
+<span class="nv">$comparisonResult</span> <span class="p">=</span> <span class="nv">$comparison</span><span class="p">.</span><span class="n">Compare</span><span class="p">()</span>
+
+<span class="nv">$comparisonResult</span><span class="p">.</span><span class="n">Differences</span> <span class="p">|</span> <span class="p">%{</span>
+	<span class="k">if</span><span class="p">(</span> <span class="nv">$_</span><span class="p">.</span><span class="n">SourceObject</span><span class="p">.</span><span class="n">name</span><span class="p">.</span><span class="n">parts</span><span class="p">[</span><span class="n">0</span><span class="p">]</span> <span class="o">-ne</span> <span class="nv">$schemaToInclude</span><span class="p">){</span>
+		<span class="nb">Write-Output</span> <span class="s2">&#34;Excluding Object </span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">SourceObject</span><span class="p">.</span><span class="n">name</span><span class="p">)</span><span class="s2">&#34;</span>
+		<span class="nv">$comparisonResult</span><span class="p">.</span><span class="n">Exclude</span><span class="p">(</span><span class="nv">$_</span><span class="p">)</span> <span class="p">|</span> <span class="nb">Out-Null</span>
+
+	<span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="nv">$publishResult</span> <span class="p">=</span>  <span class="nv">$comparisonResult</span><span class="p">.</span><span class="n">PublishChangesToTarget</span><span class="p">();</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$publishResult</span><span class="p">.</span><span class="n">Success</span><span class="p">){</span>
+	<span class="nb">Write-Output</span> <span class="s2">&#34;Worky&#34;</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="p">{</span>
+	<span class="nb">Write-Output</span> <span class="s2">&#34;NoWorky&#34;</span>
+<span class="p">}</span></code></pre></div>
+<p>Briefly, we load the dll that contains the classes we need to use, and set up a schema comparison between a source dacpac and a target database. There are two key pre-requisites for this, which are</p>
+
+<ul>
+<li>the dacpac must exist, meaning that the project must have been built</li>
+<li>the target database must exist, meaning that this script can&rsquo;t be used for &ldquo;first-time&rdquo; deployment. <em>This is a departure from the &ldquo;usual way&rdquo; of working with SSDT, and IMV the biggest limitation of this approach.</em>
+<br /></li>
+</ul>
+
+<p>Moving on, we execute the comparison using <code>SchemaComparison.Compare()</code>, then iterate the list of differences looking for source objects that match - or in this case don&rsquo;t match - our filter.  This kind of thing is useful for excluding objects that only need to exist in dev and test environments.</p>
+
+<p>It&rsquo;s perfectly valid to do this comparison the other way around, examining objects in the target database - indeed this is what the C# snippet in the original blog post does. This would be useful if there were objects in your target database created by a third party outside of your deployment process that needed to be specifically excluded from consideration.</p>
+
+<p>Having excluded the relevant objects from the comparison results, we go ahead and deploy the changes with <code>PublishChangesToTarget()</code>.</p>
+<div class="highlight"><pre class="chroma"><code class="language-powershell" data-lang="powershell"><span class="p">~\</span><span class="n">source</span><span class="p">\</span><span class="n">repos</span><span class="p">\</span><span class="n">FilteringDemo</span><span class="p">\</span><span class="n">FilteringDemo</span> <span class="p">[</span><span class="n">master</span> <span class="err">≡</span><span class="p">]&gt;</span> <span class="p">.\</span><span class="n">FilteredDeploy</span><span class="p">.</span><span class="n">ps1</span>
+<span class="n">Excluding</span> <span class="n">Object</span> <span class="no">[UnProduction].[UnimportantStuff]</span>
+<span class="n">Excluding</span> <span class="n">Object</span> <span class="no">[UnProduction]</span>
+<span class="n">Worky</span>
+<span class="p">~\</span><span class="n">source</span><span class="p">\</span><span class="n">repos</span><span class="p">\</span><span class="n">FilteringDemo</span><span class="p">\</span><span class="n">FilteringDemo</span> <span class="p">[</span><span class="n">master</span> <span class="err">≡</span><span class="p">]&gt;</span></code></pre></div>
+<p>This is a pretty simplistic example, it relies on the fact that both tables and schemas have the schema name in the first element of the <code>SourceObject.name.Parts[]</code> collection, but more complex filtering criteria can be implemented with a bit of API speleology.</p>
+
+   
+</div>
+
+<section class="post-comments">
+  <h3>Comments</h3>
+
+  
+  
+  
+
+  
+    
+  
+    
+  
+
+  
+    <p>Nothing yet.</p>
+  
+
+  <h3>Say something</h3>
+
+  <form class="post-new-comment" method="POST" action="https://api.staticman.net/v2/entry/arapaima-uk/source.arapaima-uk.github.io/master/comments">
+    <input type="hidden" name="options[redirect]" value="http://arapaima.uk/post/2018-12-17-filtering-dacpac-deployments-dacfx/#comment-submitted">
+     <input type="hidden" name="options[origin]" value="http://arapaima.uk/post/2018-12-17-filtering-dacpac-deployments-dacfx/">
+    <input type="hidden" name="options[entryId]" value="9aa98aa1cf7ee5a1cfd6f04a14f7da38">
+    <input name="fields[name]" type="text" class="post-comment-field" placeholder="Your name">
+    <input name="fields[email]" type="email" class="post-comment-field" placeholder="Your email address">
+    <textarea name="fields[body]" class="post-comment-field" placeholder="Your message. Feel free to use Markdown." rows="10"></textarea>
+    <input type="submit" class="post-comment-field btn" value="Submit">
+  </form>
+</section>
+
+<div id="comment-submitted" class="dialog">
+<h3>Thank you</h3>
+  <p>Your comment has been submitted and will be published once it has been approved.</p>
+  <p><a href="https://github.com/arapaima-uk/source.arapaima-uk.github.io/pulls">Click here</a> to see the pull request you generated.</p>
+  
+  <p><a href="#" class="btn">OK</a></p>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+  </body>
+</html>
+
