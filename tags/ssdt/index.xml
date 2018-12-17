@@ -77,6 +77,8 @@
 &lt;span class=&#34;n&#34;&gt;Excluding&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Object&lt;/span&gt; &lt;span class=&#34;no&#34;&gt;[UnProduction]&lt;/span&gt;
 &lt;span class=&#34;n&#34;&gt;Worky&lt;/span&gt;
 &lt;span class=&#34;p&#34;&gt;~\&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;source&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;\&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;repos&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;\&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;FilteringDemo&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;\&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;FilteringDemo&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;master&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;≡&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img src=&#34;https://s3-eu-west-1.amazonaws.com/aksidjenakfjg/dacpac-filtering/dbs.png&#34; alt=&#34;picture of the two databases&#34; /&gt;&lt;/p&gt;
+
 &lt;p&gt;This is a pretty simplistic example, it relies on the fact that both tables and schemas have the schema name in the first element of the &lt;code&gt;SourceObject.name.Parts[]&lt;/code&gt; collection, but more complex filtering criteria can be implemented with a bit of API speleology.&lt;/p&gt;
 </description>
         </item>
